@@ -24,7 +24,7 @@ method_kwargs:
   freeze_prototypes_epochs: 2
   temperature: 0.1
 data:
-  dataset: hoteid-val
+  dataset: hotelid-val
   train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/train"
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"

@@ -21,7 +21,7 @@ method_kwargs:
   var_loss_weight: 25.0
   cov_loss_weight: 1.0
 data:
-  dataset: hoteid-val
+  dataset: hotelid-val
   train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/train"
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"
