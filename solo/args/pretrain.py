@@ -20,7 +20,10 @@ _N_CLASSES_PER_DATASET = {
     "stl10": 10,
     "imagenet": 1000,
     "imagenet100": 100,
+    "hotelid-val": 3150,
+    "hotelid-test": 4406
 }
+
 
 _SUPPORTED_DATASETS = [
     "cifar10",
@@ -28,6 +31,8 @@ _SUPPORTED_DATASETS = [
     "stl10",
     "imagenet",
     "imagenet100",
+    "hotelid-val",
+    "hotelid-test", 
     "custom",
 ]
 
