@@ -25,7 +25,7 @@ from typing import Callable, List, Optional, Sequence, Type, Union
 import torch
 import torchvision
 from PIL import Image, ImageFilter, ImageOps
-from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, HOTELID_MEAN, HOTELID_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
@@ -209,6 +209,7 @@ def build_transform_pipeline(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
     }
 
     mean, std = MEANS_N_STD.get(
@@ -341,6 +342,10 @@ def prepare_datasets(
             train_dataset = dataset_with_index(H5Dataset)(dataset, train_data_path, transform)
         else:
             train_dataset = dataset_with_index(ImageFolder)(train_data_path, transform)
+    
+    elif dataset in ['hotelid-val', 'hotelid-test']:
+        dataset_class = ImageFolder
+        train_dataset = dataset_with_index(dataset_class)(train_data_path, transform)
 
     elif dataset == "custom":
         if no_labels:

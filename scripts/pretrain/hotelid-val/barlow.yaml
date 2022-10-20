@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "barlow_twins-hotelid-val" 
+name: "barlow_twins-hotelid-val" # change here for cifar10
 method: "barlow_twins"
 backbone:
   name: "resnet18"
@@ -20,9 +20,9 @@ method_kwargs:
   proj_output_dim: 2048
   scale_loss: 0.1
 data:
-  dataset: hotelid-val 
-  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
-  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
+  dataset: hoteid-val
+  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/train"
+  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"
   num_workers: 4
 optimizer:

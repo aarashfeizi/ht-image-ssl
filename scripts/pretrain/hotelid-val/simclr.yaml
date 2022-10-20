@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - augmentations: asymmetric.yaml
+  - augmentations: symmetric.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -11,24 +11,24 @@ hydra:
   run:
     dir: .
 
-name: "barlow_twins-hotelid-val" 
-method: "barlow_twins"
+name: "simclr-hotelid-val" # change here for cifar10
+method: "simclr"
 backbone:
   name: "resnet18"
 method_kwargs:
   proj_hidden_dim: 2048
-  proj_output_dim: 2048
-  scale_loss: 0.1
+  proj_output_dim: 256
+  temperature: 0.2
 data:
-  dataset: hotelid-val 
-  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
-  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
+  dataset: hoteid-val
+  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/train"
+  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"
   num_workers: 4
 optimizer:
   name: "lars"
   batch_size: 256
-  lr: 0.3
+  lr: 0.4
   classifier_lr: 0.1
   weight_decay: 1e-4
   kwargs:
