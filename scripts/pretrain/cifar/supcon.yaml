@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "supcon-cifar10" # change here for cifar100
+name: "supcon-cifar100" # change here for cifar10
 method: "supcon"
 backbone:
   name: "resnet18"
@@ -20,9 +20,9 @@ method_kwargs:
   proj_output_dim: 256
   temperature: 0.2
 data:
-  dataset: cifar10 # change here for cifar100
-  train_path: "./datasets"
-  val_path: "datasets/imagenet100/val"
+  dataset: cifar100 # change here for cifar10
+  train_path: "/home/mila/f/feiziaar/scratch/cifar100/"
+  val_path: "/home/mila/f/feiziaar/scratch/cifar100/"
   format: "image_folder"
   num_workers: 4
 optimizer:
