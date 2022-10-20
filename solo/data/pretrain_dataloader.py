@@ -25,7 +25,7 @@ from typing import Callable, List, Optional, Sequence, Type, Union
 import torch
 import torchvision
 from PIL import Image, ImageFilter, ImageOps
-from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, HOTELID_MEAN, HOTELID_STD
+from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
@@ -38,6 +38,8 @@ except ImportError:
 else:
     _h5_available = True
 
+HOTELID_MEAN = (0.4620, 0.3980, 0.3292)
+HOTELID_STD = (0.2619, 0.2529, 0.2460)
 
 def dataset_with_index(DatasetClass: Type[Dataset]) -> Type[Dataset]:
     """Factory for datasets that also returns the data index.

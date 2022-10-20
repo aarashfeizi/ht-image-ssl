@@ -23,7 +23,7 @@ from typing import Callable, Optional, Tuple, Union
 
 import torchvision
 from timm.data import create_transform
-from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD, HOTELID_MEAN, HOTELID_STD
+from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
@@ -35,6 +35,9 @@ except ImportError:
     _h5_available = False
 else:
     _h5_available = True
+
+HOTELID_MEAN = (0.4620, 0.3980, 0.3292)
+HOTELID_STD = (0.2619, 0.2529, 0.2460)
 
 
 def build_custom_pipeline():
