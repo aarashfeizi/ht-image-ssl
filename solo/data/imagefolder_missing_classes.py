@@ -141,7 +141,7 @@ class ImageFolderMissingClasses(ImageFolder):
         is_valid_file: Optional[Callable[[str], bool]] = None,
         class_to_idx = None,
     ):
-        super().__init__(root, transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file)
+        super(ImageFolderMissingClasses, self).__init__(root, transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file)
         
         extensions = IMG_EXTENSIONS if is_valid_file is None else None
         
