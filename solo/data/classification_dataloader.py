@@ -28,6 +28,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder
+from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -249,6 +250,9 @@ def prepare_datasets(
         else:
             train_dataset = ImageFolder(train_data_path, T_train)
             val_dataset = ImageFolder(val_data_path, T_val)
+
+        if dataset in ['hotelid-val', 'hotelid-test']:
+            val_dataset = ImageFolderMissingClasses(val_data_path, T_val, train_dataset.class_to_idx)
 
     if data_fraction > 0:
         assert data_fraction < 1, "Only use data_fraction for values smaller than 1."
