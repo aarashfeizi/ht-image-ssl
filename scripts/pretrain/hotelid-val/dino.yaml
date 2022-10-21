@@ -14,7 +14,7 @@ hydra:
 name: "dino-hotelid-val" # change here for cifar100
 method: "dino"
 backbone:
-  name: "resnet18"
+  name: "resnet50"
 method_kwargs:
   proj_hidden_dim: 2048
   proj_output_dim: 256
@@ -48,7 +48,7 @@ auto_resume:
   enabled: True
 
 # overwrite PL stuff
-max_epochs: 1000
+max_epochs: 100
 devices: [0]
 sync_batchnorm: True
 accelerator: "gpu"
