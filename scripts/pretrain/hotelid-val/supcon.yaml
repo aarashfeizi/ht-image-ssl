@@ -24,7 +24,7 @@ data:
   train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/train"
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
 optimizer:
   name: "sgd"
   batch_size: 256
