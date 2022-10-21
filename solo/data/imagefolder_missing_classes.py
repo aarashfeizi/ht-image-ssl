@@ -133,15 +133,14 @@ def default_loader(path: str) -> Any:
 
 class ImageFolderMissingClasses(ImageFolder):
 
-    def __init__(self,
-        root: str,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
-        loader: Callable[[str], Any] = default_loader,
-        is_valid_file: Optional[Callable[[str], bool]] = None,
-        class_to_idx = None,
-    ):
-        super(ImageFolderMissingClasses, self).__init__(root, transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file)
+    def __init__(self, root, transform=None, target_transform=None,
+                     loader=default_loader, is_valid_file=None, class_to_idx=None):
+
+        super(ImageFolderMissingClasses, self).__init__(root, 
+                                                        transform,
+                                                        target_transform,
+                                                        loader,
+                                                        is_valid_file)
         
         extensions = IMG_EXTENSIONS if is_valid_file is None else None
         
@@ -155,6 +154,7 @@ class ImageFolderMissingClasses(ImageFolder):
         self.class_to_idx = class_to_idx
         self.samples = samples
         self.targets = [s[1] for s in samples]
+        self.imgs = self.samples
 
     @staticmethod
     def make_dataset(
