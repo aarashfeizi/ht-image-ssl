@@ -134,17 +134,17 @@ def default_loader(path: str) -> Any:
 class ImageFolderMissingClasses(ImageFolder):
 
     def __init__(self, root, transform=None, target_transform=None,
-                     loader=default_loader, is_valid_file=None, class_to_idx=None):
+                     loader=default_loader, is_valid_file=None, classes=None, class_to_idx=None):
 
         super(ImageFolderMissingClasses, self).__init__(root, 
                                                         transform,
                                                         target_transform,
                                                         loader,
                                                         is_valid_file)
+
         
         extensions = IMG_EXTENSIONS if is_valid_file is None else None
         
-        classes, _ = self.find_classes(self.root)
         samples = self.make_dataset(self.root, class_to_idx, extensions, is_valid_file)
 
         self.loader = loader

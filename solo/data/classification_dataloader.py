@@ -252,7 +252,9 @@ def prepare_datasets(
             val_dataset = ImageFolder(val_data_path, T_val)
 
         if dataset in ['hotelid-val', 'hotelid-test']:
-            val_dataset = ImageFolderMissingClasses(val_data_path, T_val, train_dataset.class_to_idx)
+            val_dataset = ImageFolderMissingClasses(val_data_path, T_val,
+                                                    classes=train_dataset.classes,
+                                                    class_to_idx=train_dataset.class_to_idx)
 
     if data_fraction > 0:
         assert data_fraction < 1, "Only use data_fraction for values smaller than 1."
