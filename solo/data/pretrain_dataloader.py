@@ -272,6 +272,36 @@ def build_transform_pipeline(dataset, cfg):
     return augmentations
 
 
+def build_no_transform(dataset, cfg):
+
+    MEANS_N_STD = {
+        "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+        "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
+        "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
+        "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
+    }
+
+    mean, std = MEANS_N_STD.get(
+        dataset, (cfg.get("mean", IMAGENET_DEFAULT_MEAN), cfg.get("std", IMAGENET_DEFAULT_STD))
+    )
+
+    augmentations = []
+    
+    augmentations.append(
+        transforms.Resize(
+            cfg.crop_size,
+            interpolation=transforms.InterpolationMode.BICUBIC,
+        ))
+    augmentations.append(transforms.ToTensor())
+    augmentations.append(transforms.Normalize(mean=mean, std=std))
+
+    augmentations = transforms.Compose(augmentations)
+    return augmentations
+
+
+
 def prepare_n_crop_transform(
     transforms: List[Callable], num_crops_per_aug: List[int]
 ) -> NCropAugmentation:
@@ -374,7 +404,7 @@ def prepare_datasets(
 
 
 def prepare_dataloader(
-    train_dataset: Dataset, batch_size: int = 64, num_workers: int = 4
+    train_dataset: Dataset, batch_size: int = 64, num_workers: int = 4, shuffle: bool = True
 ) -> DataLoader:
     """Prepares the training dataloader for pretraining.
     Args:
@@ -388,7 +418,7 @@ def prepare_dataloader(
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=shuffle,
         num_workers=num_workers,
         pin_memory=True,
         drop_last=True,

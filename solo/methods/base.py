@@ -765,7 +765,7 @@ class BaseMomentumMethod(BaseMethod):
         _, X, targets = batch
         X = [X] if isinstance(X, torch.Tensor) else X
 
-        # remove small crops
+        #          
         X = X[: self.num_large_crops]
 
         momentum_outs = [self._shared_step_momentum(x, targets) for x in X]

@@ -30,7 +30,8 @@ from omegaconf import OmegaConf
 from solo.data.h5_dataset import H5Dataset
 from timm.models.helpers import group_parameters
 from timm.optim.optim_factory import _layer_map
-
+from tqdm import tqdm
+import faiss
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.isfinite()
@@ -442,3 +443,37 @@ def omegaconf_select(cfg, key, default=None):
     if value == "None":
         return None
     return value
+
+
+def get_embeddings(model, dataloader):
+    embs = []
+
+    with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
+        for idx, batch in enumerate(dataloader):
+            import pdb
+            pdb.set_trace()
+            _, X, targets = batch
+            batch_emb = model(X)
+            embs.append(batch_emb.detach().cpu().numpy())
+            t.update()
+
+    embs = np.concatenate(embs)
+    return embs
+
+def get_sim_matrix(embeddings, k=1000):
+    d = embeddings.shape[-1]
+    cpu_index = faiss.IndexFlatL2(d)
+
+    try:
+        final_index = faiss.index_cpu_to_all_gpus(cpu_index)
+
+        final_index.add(embeddings)
+        print('Using GPU for NN!! Thanks FAISS! :)')
+        print(final_index.ntotal)
+    except:
+        print('No gpus for faiss! :( ')
+        final_index = cpu_index
+
+    D, I = final_index.search(embeddings, k) # actual search
+    
+    return D, I
