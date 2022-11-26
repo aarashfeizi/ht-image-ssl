@@ -450,9 +450,8 @@ def get_embeddings(model, dataloader):
 
     with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
         for idx, batch in enumerate(dataloader):
-            import pdb
-            pdb.set_trace()
             _, X, targets = batch
+            X = X.cuda()
             batch_emb = model(X)
             embs.append(batch_emb.detach().cpu().numpy())
             t.update()
