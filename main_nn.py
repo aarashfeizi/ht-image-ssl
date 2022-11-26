@@ -137,7 +137,7 @@ def main(cfg: DictConfig):
     if cfg.nnclr2:
         emb_model = EMB_METHODS[cfg.emb_model](cfg)
 
-        no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations)
+        no_transform = build_no_transform(cfg.data.dataset, cfg)
 
         emb_train_dataset = prepare_datasets(
             cfg.data.dataset,
