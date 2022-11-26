@@ -4,6 +4,7 @@ import torch.nn as nn
 
 class ResNet50(nn.Module):
     def __init__(self, cfg):
+        super(ResNet50, self).__init__()
         self.backbone = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
         self.backbone.eval()
 
