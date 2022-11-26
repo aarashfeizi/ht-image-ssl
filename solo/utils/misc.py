@@ -476,3 +476,14 @@ def get_sim_matrix(embeddings, k=1000):
     D, I = final_index.search(embeddings, k) # actual search
     
     return D, I
+
+def load_npy(path):
+    return np.load(path)
+
+def save_npy(data, path):
+    np.save(path, data)
+    return True
+
+def make_dirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

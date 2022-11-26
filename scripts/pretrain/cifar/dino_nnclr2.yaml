@@ -15,6 +15,7 @@ name: "dino-cifar10" # change here for cifar100
 method: "dino"
 nnclr2: True
 emb_model: "resnet50"
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:

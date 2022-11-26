@@ -134,28 +134,36 @@ def main(cfg: DictConfig):
     if cfg.data.num_large_crops != 2:
         assert cfg.method in ["wmse", "mae"]
 
+    cache_path = os.path.join(cfg.log_path, 'cache')
+    misc.make_dirs(cache_path)
     if cfg.nnclr2:
-        emb_model = EMB_METHODS[cfg.emb_model](cfg)
-        
-        emb_model.cuda()
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model}_emb.npy")
+        if not os.path.exists(embeddings_path):
+            emb_model = EMB_METHODS[cfg.emb_model](cfg)
+            
+            emb_model.cuda()
 
-        no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
+            no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
 
-        emb_train_dataset = prepare_datasets(
-            cfg.data.dataset,
-            no_transform,
-            train_data_path=cfg.data.train_path,
-            data_format=cfg.data.format,
-            no_labels=cfg.data.no_labels,
-            data_fraction=cfg.data.fraction,
-        )
-        
-        emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                                        batch_size=cfg.optimizer.batch_size,
-                                                        num_workers=cfg.data.num_workers,
-                                                        shuffle=False)
-
-        embeddings = misc.get_embeddings(emb_model, emb_train_loader)
+            emb_train_dataset = prepare_datasets(
+                cfg.data.dataset,
+                no_transform,
+                train_data_path=cfg.data.train_path,
+                data_format=cfg.data.format,
+                no_labels=cfg.data.no_labels,
+                data_fraction=cfg.data.fraction,
+            )
+            
+            emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                                            batch_size=cfg.optimizer.batch_size,
+                                                            num_workers=cfg.data.num_workers,
+                                                            shuffle=False)
+            
+            
+            embeddings = misc.get_embeddings(emb_model, emb_train_loader)
+            misc.save_npy(embeddings, embeddings_path)
+        else:
+            embeddings = misc.load_npy(embeddings_path)
 
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings)
 
