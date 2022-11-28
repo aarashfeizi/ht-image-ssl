@@ -30,6 +30,7 @@ from pytorch_lightning.strategies.ddp import DDPStrategy
 
 from solo.args.pretrain import parse_cfg
 from solo.data.classification_dataloader import prepare_data as prepare_data_classification
+from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.pretrain_dataloader import (
     FullTransformPipeline,
     NCropAugmentation,
@@ -127,9 +128,7 @@ def main(cfg: DictConfig):
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
         )
-        train_loader = prepare_dataloader(
-            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
-        )
+
 
     if cfg.data.num_large_crops != 2:
         assert cfg.method in ["wmse", "mae"]
@@ -167,6 +166,12 @@ def main(cfg: DictConfig):
 
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings)
 
+        if cfg.nnclr2:
+            train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix)
+
+        train_loader = prepare_dataloader(
+            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
+        )
 
 
     model = METHODS[cfg.method](cfg)

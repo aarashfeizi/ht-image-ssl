@@ -247,6 +247,7 @@ class BaseMethod(pl.LightningModule):
         self.num_crops: int = self.num_large_crops + self.num_small_crops
         # turn on multicrop if there are small crops
         self.multicrop: bool = self.num_small_crops != 0
+        self.nnclr2: bool = cfg.nnclr2
 
         # knn online evaluation
         self.knn_eval: bool = cfg.knn_eval.enabled
@@ -511,6 +512,11 @@ class BaseMethod(pl.LightningModule):
             multicrop_outs = [self.multicrop_forward(x) for x in X[self.num_large_crops :]]
             for k in multicrop_outs[0].keys():
                 outs[k] = outs.get(k, []) + [out[k] for out in multicrop_outs]
+
+        # if self.nnclr2:
+        #     outs['nnclr2'] = self.nnclr2_forward(X) for x in X[self.num_large_crops :]]
+        #     for k in nnclr2_outs[0].keys():
+        #         outs[k] = outs.get(k, []) + [out[k] for out in nnclr2_outs]
 
         # loss and stats
         outs["loss"] = sum(outs["loss"]) / self.num_large_crops
