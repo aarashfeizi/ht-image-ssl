@@ -14,6 +14,12 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         idx1, x1, y1 = self.dataset.__getitem__(index)
         idx2, x2, y2 = self.dataset.__getitem__(sim_index)
 
+        assert len(x1) == 1
+        assert len(x2) == 1
+
+        x1 = x1[0]
+        x2 = x2[0]
+
         return [idx1, idx2], [x1, x2], [y1, y2]
 
     def _filter_sim_matrix(self):
