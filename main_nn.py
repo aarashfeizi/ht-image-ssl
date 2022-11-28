@@ -130,9 +130,6 @@ def main(cfg: DictConfig):
         )
 
 
-    if cfg.data.num_large_crops != 2:
-        assert cfg.method in ["wmse", "mae"]
-
     cache_path = os.path.join(cfg.log_path, 'cache')
     misc.make_dirs(cache_path)
     if cfg.nnclr2:
