@@ -25,7 +25,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                 new_row = row[:-1]
             new_sim_idices.append(new_row)
         
-        new_sim_matrix = np.concatenate(new_sim_idices)
+        new_sim_matrix = np.stack(new_sim_idices, axis=0)
         assert new_sim_matrix.shape[0] == self.sim_matrix.shape[0]
         assert new_sim_matrix.shape[1] == (self.sim_matrix.shape[1] - 1)
         self.sim_matrix = new_sim_matrix
