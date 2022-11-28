@@ -11,10 +11,10 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
     def __getitem__(self, index):
         sim_index = self.sim_matrix[index, 0]
-        idx1, data1 = self.dataset.__getitem__(index)
-        idx2, data2 = self.dataset.__getitem__(sim_index)
+        idx1, x1, y1 = self.dataset.__getitem__(index)
+        idx2, x2, y2 = self.dataset.__getitem__(sim_index)
 
-        return [idx1, idx2], [data1, data2]
+        return [idx1, idx2], [x1, x2], [y1, y2]
 
     def _filter_sim_matrix(self):
         new_sim_idices = []
