@@ -169,9 +169,9 @@ def main(cfg: DictConfig):
         if cfg.nnclr2:
             train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix)
 
-        train_loader = prepare_dataloader(
-            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
-        )
+            train_loader = prepare_dataloader(
+                train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
+            )
 
 
     model = METHODS[cfg.method](cfg)
