@@ -503,9 +503,12 @@ class BaseMethod(pl.LightningModule):
         X = [X] if isinstance(X, torch.Tensor) else X
 
         # check that we received the desired number of crops
-        assert len(X) == self.num_crops
+        if not self.nnclr2:
+            assert len(X) == self.num_crops
+            outs = [self.base_training_step(x, targets) for x in X[: self.num_large_crops]]
+        else:
+            outs = [self.base_training_step(x, t) for x, t in zip(X[: self.num_large_crops], targets)]
 
-        outs = [self.base_training_step(x, targets) for x in X[: self.num_large_crops]]
         outs = {k: [out[k] for out in outs] for k in outs[0].keys()}
 
         if self.multicrop:
@@ -531,7 +534,7 @@ class BaseMethod(pl.LightningModule):
 
         self.log_dict(metrics, on_epoch=True, sync_dist=True)
 
-        if self.knn_eval:
+        if self.knn_eval: # does not support nnclr2
             targets = targets.repeat(self.num_large_crops)
             mask = targets != -1
             self.knn(
