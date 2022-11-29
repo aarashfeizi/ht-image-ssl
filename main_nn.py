@@ -163,7 +163,7 @@ def main(cfg: DictConfig):
 
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings)
         assert len(train_dataset) == len(embeddings)
-        
+
         if cfg.nnclr2:
             train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix)
 
@@ -266,7 +266,7 @@ def main(cfg: DictConfig):
             "logger": wandb_logger if cfg.wandb.enabled else None,
             "callbacks": callbacks,
             "enable_checkpointing": False,
-            "strategy": DDPStrategy(find_unused_parameters=False)
+            "strategy": DDPStrategy(find_unused_parameters=True)
             if cfg.strategy == "ddp"
             else cfg.strategy,
         }

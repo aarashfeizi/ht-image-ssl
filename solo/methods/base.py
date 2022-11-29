@@ -755,7 +755,7 @@ class BaseMomentumMethod(BaseMethod):
 
         return out
 
-    def training_step(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
+    def k(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
         """Training step for pytorch lightning. It performs all the shared operations for the
         momentum backbone and classifier, such as forwarding the crops in the momentum backbone
         and classifier, and computing statistics.
