@@ -421,6 +421,6 @@ def prepare_dataloader(
         shuffle=shuffle,
         num_workers=num_workers,
         pin_memory=True,
-        drop_last=True,
+        drop_last=False,
     )
     return train_loader

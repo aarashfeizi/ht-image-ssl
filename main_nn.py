@@ -162,7 +162,8 @@ def main(cfg: DictConfig):
             embeddings = misc.load_npy(embeddings_path)
 
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings)
-
+        assert len(train_dataset) == len(embeddings)
+        
         if cfg.nnclr2:
             train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix)
 
