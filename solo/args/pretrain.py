@@ -197,6 +197,9 @@ def get_args():
     parser.add_argument('--classifier_lr', default=None, type=float) 
     parser.add_argument('--lr', default=None, type=float) 
     parser.add_argument('--method', default=None, choices=['byol', 'simsiam', 'simclr'])
+    parser.add_argument('--config-name', default=None) 
+    parser.add_argument('--config-path', default=None) 
+
 
     args = parser.parse_args()
 
