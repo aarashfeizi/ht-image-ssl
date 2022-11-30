@@ -123,6 +123,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
         cfg = PretrainDALIDataModule.add_and_assert_specific_cfg(cfg)
 
     # assert dataset parameters
+    cfg = add_and_assert_dataset_cfg(cfg)
+    
     cfg = add_and_assert_nnclr2_cfg(cfg)
 
     # default values for wandb
@@ -130,6 +132,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
+
+    
 
     # extra processing
     if cfg.data.dataset in _N_CLASSES_PER_DATASET:
