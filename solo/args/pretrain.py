@@ -105,6 +105,8 @@ def add_and_assert_nnclr2_cfg(cfg):
     print('Log path is: ', cfg.log_path)
     if not os.path.exists(cfg.log_path):
         os.makedirs(cfg.log_path)
+    
+    return cfg
 
 def parse_cfg(cfg: omegaconf.DictConfig, args=None):
     # default values for checkpointer
