@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "simclr-cifar100" # change here for cifar10
+name: "simclr-cifar100-nnclr2" # change here for cifar10
 method: "simclr"
 nnclr2: True
 emb_model: "resnet50"

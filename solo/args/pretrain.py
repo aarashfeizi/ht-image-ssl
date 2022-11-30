@@ -108,7 +108,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     
     return cfg
 
-def parse_cfg(cfg: omegaconf.DictConfig, args=None):
+def parse_cfg(cfg: omegaconf.DictConfig):
     # default values for checkpointer
     cfg = Checkpointer.add_and_assert_specific_cfg(cfg)
 
@@ -158,20 +158,20 @@ def parse_cfg(cfg: omegaconf.DictConfig, args=None):
 
     # adjust lr according to batch size
     cfg.num_nodes = omegaconf_select(cfg, "num_nodes", 1)
-    if args.batch_size is not None:
-        scale_factor = args.batch_size * len(cfg.devices) * cfg.num_nodes / 256
-    else:
-        scale_factor = cfg.optimizer.batch_size * len(cfg.devices) * cfg.num_nodes / 256
-    if args.lr is not None:
-        cfg.optimizer.lr = args.lr * scale_factor
-    else:
-        cfg.optimizer.lr = cfg.optimizer.lr * scale_factor
+    # if args.batch_size is not None:
+    #     scale_factor = args.batch_size * len(cfg.devices) * cfg.num_nodes / 256
+    # else:
+    scale_factor = cfg.optimizer.batch_size * len(cfg.devices) * cfg.num_nodes / 256
+    # if args.lr is not None:
+    #     cfg.optimizer.lr = args.lr * scale_factor
+    # else:
+    cfg.optimizer.lr = cfg.optimizer.lr * scale_factor
     if cfg.data.val_path is not None:
         assert not OmegaConf.is_missing(cfg, "optimizer.classifier_lr")
-        if args.classifier_lr is not None:
-            cfg.optimizer.classifier_lr = args.classifier_lr * scale_factor
-        else:
-            cfg.optimizer.classifier_lr = cfg.optimizer.classifier_lr * scale_factor
+        # if args.classifier_lr is not None:
+        #     cfg.optimizer.classifier_lr = args.classifier_lr * scale_factor
+        # else:
+        cfg.optimizer.classifier_lr = cfg.optimizer.classifier_lr * scale_factor
 
     # extra optimizer kwargs
     cfg.optimizer.kwargs = omegaconf_select(cfg, "optimizer.kwargs", {})
@@ -192,17 +192,17 @@ def parse_cfg(cfg: omegaconf.DictConfig, args=None):
     return cfg
 
 
-def get_args():
-    parser = argparse.ArgumentParser()
+# def get_args():
+#     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--batch_size', default=None, type=int) 
-    parser.add_argument('--classifier_lr', default=None, type=float) 
-    parser.add_argument('--lr', default=None, type=float) 
-    parser.add_argument('--method', default=None, choices=['byol', 'simsiam', 'simclr'])
-    parser.add_argument('--config-name', default=None) 
-    parser.add_argument('--config-path', default=None) 
+#     parser.add_argument('--batch_size', default=None, type=int) 
+#     parser.add_argument('--classifier_lr', default=None, type=float) 
+#     parser.add_argument('--lr', default=None, type=float) 
+#     parser.add_argument('--method', default=None, choices=['byol', 'simsiam', 'simclr'])
+#     parser.add_argument('--config-name', default=None) 
+#     parser.add_argument('--config-path', default=None) 
 
 
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    return args
+#     return args

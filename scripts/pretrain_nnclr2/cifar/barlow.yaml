@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "barlow_twins-hotelid-val" 
+name: "barlow_twins" 
 method: "barlow_twins"
 nnclr2: True
 emb_model: "resnet50"
