@@ -507,7 +507,8 @@ class BaseMethod(pl.LightningModule):
             assert len(X) == self.num_crops
             outs = [self.base_training_step(x, targets) for x in X[: self.num_large_crops]]
         else:
-            outs = [self.base_training_step(x, t) for x, t in zip(X[: self.num_large_crops], targets)]
+            outs = [self.base_training_step(x, t) for x, t in zip(X[: self.num_large_crops + 1], targets)]
+
 
         outs = {k: [out[k] for out in outs] for k in outs[0].keys()}
 
@@ -755,7 +756,7 @@ class BaseMomentumMethod(BaseMethod):
 
         return out
 
-    def k(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
+    def training_step(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
         """Training step for pytorch lightning. It performs all the shared operations for the
         momentum backbone and classifier, such as forwarding the crops in the momentum backbone
         and classifier, and computing statistics.
