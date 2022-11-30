@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "barlow_twins" 
+name: "barlow_twins-cifar100-nnclr2" 
 method: "barlow_twins"
 nnclr2: True
 emb_model: "resnet50"

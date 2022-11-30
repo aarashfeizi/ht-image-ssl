@@ -11,7 +11,7 @@ hydra:
   run:
     dir: .
 
-name: "barlow_twins-hotelid-val" 
+name: "barlow_twins-cifar100" 
 method: "barlow_twins"
 nnclr2: False
 emb_model: "resnet50"
@@ -23,9 +23,9 @@ method_kwargs:
   proj_output_dim: 2048
   scale_loss: 0.1
 data:
-  dataset: hotelid-val 
-  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
-  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021/"
+  dataset: cifar100 # change here for cifar10
+  train_path: "/home/mila/f/feiziaar/scratch/cifar100/"
+  val_path: "/home/mila/f/feiziaar/scratch/cifar100/"
   format: "image_folder"
   num_workers: 4
 optimizer:
