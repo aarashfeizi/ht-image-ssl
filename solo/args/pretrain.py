@@ -6,6 +6,7 @@ from solo.utils.auto_resumer import AutoResumer
 from solo.utils.auto_umap import AutoUMAP
 from solo.utils.checkpointer import Checkpointer
 from solo.utils.misc import omegaconf_select
+import argparse
 
 try:
     from solo.data.dali_dataloader import PretrainDALIDataModule
@@ -97,8 +98,15 @@ def add_and_assert_lightning_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictCon
 
     return cfg
 
+def add_and_assert_nnclr2_cfg(cfg):
+    cfg.nnclr2 = omegaconf_select(cfg, "nnclr2", False)
+    cfg.emb_model = omegaconf_select(cfg, "emb_model", "resnet50")
+    cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
+    print('Log path is: ', cfg.log_path)
+    if not os.path.exists(cfg.log_path):
+        os.makedirs(cfg.log_path)
 
-def parse_cfg(cfg: omegaconf.DictConfig):
+def parse_cfg(cfg: omegaconf.DictConfig, args=None):
     # default values for checkpointer
     cfg = Checkpointer.add_and_assert_specific_cfg(cfg)
 
@@ -113,7 +121,7 @@ def parse_cfg(cfg: omegaconf.DictConfig):
         cfg = PretrainDALIDataModule.add_and_assert_specific_cfg(cfg)
 
     # assert dataset parameters
-    cfg = add_and_assert_dataset_cfg(cfg)
+    cfg = add_and_assert_nnclr2_cfg(cfg)
 
     # default values for wandb
     cfg = add_and_assert_wandb_cfg(cfg)
@@ -148,11 +156,20 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     # adjust lr according to batch size
     cfg.num_nodes = omegaconf_select(cfg, "num_nodes", 1)
-    scale_factor = cfg.optimizer.batch_size * len(cfg.devices) * cfg.num_nodes / 256
-    cfg.optimizer.lr = cfg.optimizer.lr * scale_factor
+    if args.batch is not None:
+        scale_factor = args.batch_size * len(cfg.devices) * cfg.num_nodes / 256
+    else:
+        scale_factor = cfg.optimizer.batch_size * len(cfg.devices) * cfg.num_nodes / 256
+    if args.lr is not None:
+        cfg.optimizer.lr = args.lr * scale_factor
+    else:
+        cfg.optimizer.lr = cfg.optimizer.lr * scale_factor
     if cfg.data.val_path is not None:
         assert not OmegaConf.is_missing(cfg, "optimizer.classifier_lr")
-        cfg.optimizer.classifier_lr = cfg.optimizer.classifier_lr * scale_factor
+        if args.classifier_lr is not None:
+            cfg.optimizer.classifier_lr = args.classifier_lr * scale_factor
+        else:
+            cfg.optimizer.classifier_lr = cfg.optimizer.classifier_lr * scale_factor
 
     # extra optimizer kwargs
     cfg.optimizer.kwargs = omegaconf_select(cfg, "optimizer.kwargs", {})
@@ -171,3 +188,16 @@ def parse_cfg(cfg: omegaconf.DictConfig):
         cfg.optimizer.kwargs.betas = omegaconf_select(cfg, "optimizer.kwargs.betas", [0.9, 0.999])
 
     return cfg
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--batch_size', default=None, type=int) 
+    parser.add_argument('--classifier_lr', default=None, type=float) 
+    parser.add_argument('--lr', default=None, type=float) 
+    parser.add_argument('--method', default=None, choices=['byol', 'simsiam', 'simclr'])
+
+    args = parser.parse_args()
+
+    return args

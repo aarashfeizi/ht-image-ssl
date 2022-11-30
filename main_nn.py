@@ -28,7 +28,7 @@ from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
-from solo.args.pretrain import parse_cfg
+from solo.args.pretrain import parse_cfg, get_args
 from solo.data.classification_dataloader import prepare_data as prepare_data_classification
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.pretrain_dataloader import (
@@ -68,7 +68,8 @@ def main(cfg: DictConfig):
     # set_struct(..., False) disables this behavior and allows us to add more parameters
     # without making the user specify every single thing about the model
     OmegaConf.set_struct(cfg, False)
-    cfg = parse_cfg(cfg)
+    args = get_args()
+    cfg = parse_cfg(cfg, args)
 
     seed_everything(cfg.seed)
 
