@@ -158,7 +158,7 @@ def parse_cfg(cfg: omegaconf.DictConfig, args=None):
 
     # adjust lr according to batch size
     cfg.num_nodes = omegaconf_select(cfg, "num_nodes", 1)
-    if args.batch is not None:
+    if args.batch_size is not None:
         scale_factor = args.batch_size * len(cfg.devices) * cfg.num_nodes / 256
     else:
         scale_factor = cfg.optimizer.batch_size * len(cfg.devices) * cfg.num_nodes / 256
