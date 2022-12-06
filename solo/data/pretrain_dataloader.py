@@ -404,7 +404,7 @@ def prepare_datasets(
 
 
 def prepare_dataloader(
-    train_dataset: Dataset, batch_size: int = 64, num_workers: int = 4, shuffle: bool = True
+    train_dataset: Dataset, batch_size: int = 64, num_workers: int = 4, shuffle: bool = True, drop_last=True,
 ) -> DataLoader:
     """Prepares the training dataloader for pretraining.
     Args:
@@ -421,6 +421,6 @@ def prepare_dataloader(
         shuffle=shuffle,
         num_workers=num_workers,
         pin_memory=True,
-        drop_last=False,
+        drop_last=drop_last,
     )
     return train_loader

@@ -158,7 +158,8 @@ def main(cfg: DictConfig):
             emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                                             batch_size=cfg.optimizer.batch_size,
                                                             num_workers=cfg.data.num_workers,
-                                                            shuffle=False)
+                                                            shuffle=False,
+                                                            drop_last=False)
             
             
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
