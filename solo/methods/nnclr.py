@@ -200,11 +200,16 @@ class NNCLR(BaseMethod):
         )
 
         # compute nn accuracy
-        b = targets.size(0)
-        nn_acc = (targets == self.queue_y[idx1]).sum() / b
-
-        # dequeue and enqueue
-        self.dequeue_and_enqueue(z1, targets)
+        if self.nnclr2:
+            b = targets[0].size(0)
+            nn_acc = (targets[0] == self.queue_y[idx1]).sum() / b
+            # dequeue and enqueue    
+            self.dequeue_and_enqueue(z1, targets[0])
+        else:
+            b = targets.size(0)
+            nn_acc = (targets == self.queue_y[idx1]).sum() / b
+            # dequeue and enqueue    
+            self.dequeue_and_enqueue(z1, targets)
 
         metrics = {
             "train_nnclr_loss": nnclr_loss,

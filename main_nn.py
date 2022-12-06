@@ -170,7 +170,7 @@ def main(cfg: DictConfig):
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
-            train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix)
+            train_dataset = NNCLR2_Dataset_Wrapper(train_dataset, emb_sim_matrix, cfg.data.num_nns)
 
             train_loader = prepare_dataloader(
                 train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers

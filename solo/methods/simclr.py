@@ -134,7 +134,11 @@ class SimCLR(BaseMethod):
 
         # ------- contrastive loss -------
         n_augs = self.num_large_crops + self.num_small_crops
-        indexes = indexes.repeat(n_augs)
+        
+        if self.nnclr2:
+            indexes = indexes[0].repeat(n_augs)
+        else:
+            indexes = indexes.repeat(n_augs)
 
         nce_loss = simclr_loss_func(
             z,

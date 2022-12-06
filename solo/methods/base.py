@@ -507,7 +507,8 @@ class BaseMethod(pl.LightningModule):
             assert len(X) == self.num_crops
             outs = [self.base_training_step(x, targets) for x in X[: self.num_large_crops]]
         else:
-            outs = [self.base_training_step(x, t) for x, t in zip(X[: self.num_large_crops + 1], targets)]
+            assert len(X) == self.num_crops
+            outs = [self.base_training_step(x, t) for x, t in zip(X[: self.num_large_crops], targets)]
 
 
         outs = {k: [out[k] for out in outs] for k in outs[0].keys()}

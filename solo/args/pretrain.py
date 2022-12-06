@@ -102,6 +102,8 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.nnclr2 = omegaconf_select(cfg, "nnclr2", False)
     cfg.emb_model = omegaconf_select(cfg, "emb_model", "resnet50")
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
+    cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
+    
     print('Log path is: ', cfg.log_path)
     if not os.path.exists(cfg.log_path):
         os.makedirs(cfg.log_path)
@@ -124,7 +126,7 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     # assert dataset parameters
     cfg = add_and_assert_dataset_cfg(cfg)
-    
+
     cfg = add_and_assert_nnclr2_cfg(cfg)
 
     # default values for wandb
@@ -154,7 +156,7 @@ def parse_cfg(cfg: omegaconf.DictConfig):
             num_large_crops += pipeline.num_crops
         else:
             num_small_crops += pipeline.num_crops
-    cfg.data.num_large_crops = num_large_crops
+    cfg.data.num_large_crops = num_large_crops + cfg.data.num_nns
     cfg.data.num_small_crops = num_small_crops
 
     if cfg.data.format == "dali":

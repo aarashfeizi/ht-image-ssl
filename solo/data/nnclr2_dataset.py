@@ -2,25 +2,35 @@ from torch.utils.data import Dataset
 import numpy as np
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix) -> None:
+    def __init__(self, dataset, sim_matrix, num_nns=1) -> None:
         super().__init__()
         self.sim_matrix = sim_matrix
         self._filter_sim_matrix()
+        self.num_nns = num_nns
 
         self.dataset = dataset
 
     def __getitem__(self, index):
-        sim_index = self.sim_matrix[index, 0]
+        sim_index = self.sim_matrix[index, :self.num_nns]
+        all_idxs = []
+        all_xs = []
+        all_ys = []
         idx1, x1, y1 = self.dataset.__getitem__(index)
-        idx2, x2, y2 = self.dataset.__getitem__(sim_index)
-
         assert len(x1) == 1
-        assert len(x2) == 1
-
         x1 = x1[0]
-        x2 = x2[0]
+        all_idxs.append(idx1)
+        all_xs.append(x1)
+        all_ys.append(y1)
 
-        return [idx1, idx2], [x1, x2], [y1, y2]
+        for i in sim_index:
+            idx2, x2, y2 = self.dataset.__getitem__(i)
+            assert len(x2) == 1
+            x2 = x2[0]
+            all_idxs.append(idx2)
+            all_xs.append(x2)
+            all_ys.append(y2)
+
+        return all_idxs, all_xs, all_ys
 
     def _filter_sim_matrix(self):
         new_sim_idices = []
