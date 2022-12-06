@@ -44,6 +44,8 @@ from solo.emb_methods import EMB_METHODS
 from solo.utils.auto_resumer import AutoResumer
 from solo.utils.checkpointer import Checkpointer
 from solo.utils import misc
+from datetime import datetime
+
 
 try:
     from solo.data.dali_dataloader import PretrainDALIDataModule, build_transform_pipeline_dali
@@ -248,8 +250,10 @@ def main(cfg: DictConfig):
 
     # wandb logging
     if cfg.wandb.enabled:
+        now = datetime.now()
+        unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
         wandb_logger = WandbLogger(
-            name=cfg.name,
+            name=f'{cfg.name}_{unique_id}',
             project=cfg.wandb.project,
             entity=cfg.wandb.entity,
             offline=cfg.wandb.offline,
