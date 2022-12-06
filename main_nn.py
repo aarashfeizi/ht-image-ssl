@@ -252,6 +252,7 @@ def main(cfg: DictConfig):
     if cfg.wandb.enabled:
         now = datetime.now()
         unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
+        print(f'Running wandb exp {cfg.name}_{unique_id}')
         wandb_logger = WandbLogger(
             name=f'{cfg.name}_{unique_id}',
             project=cfg.wandb.project,
