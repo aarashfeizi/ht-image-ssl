@@ -156,7 +156,9 @@ def parse_cfg(cfg: omegaconf.DictConfig):
             num_large_crops += pipeline.num_crops
         else:
             num_small_crops += pipeline.num_crops
-    cfg.data.num_large_crops = num_large_crops + cfg.data.num_nns
+    cfg.data.num_large_crops = num_large_crops
+    if cfg.nnclr2:
+        cfg.data.num_large_crops += cfg.data.num_nns
     cfg.data.num_small_crops = num_small_crops
 
     if cfg.data.format == "dali":
