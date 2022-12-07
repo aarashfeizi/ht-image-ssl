@@ -28,6 +28,7 @@ data:
   val_path: "/home/mila/f/feiziaar/scratch/cifar100/"
   format: "image_folder"
   num_workers: 4
+  num_nns_choice: 1
 optimizer:
   name: "lars"
   batch_size: 256
