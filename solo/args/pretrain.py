@@ -104,6 +104,8 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.emb_model = omegaconf_select(cfg, "emb_model", "resnet50")
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
     cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
+    cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)
+    assert cfg.data.num_nns_choice >= cfg.data.num_nns
     
     print('Log path is: ', cfg.log_path)
     if not os.path.exists(cfg.log_path):
