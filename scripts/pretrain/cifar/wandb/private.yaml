@@ -1,3 +1,4 @@
 enabled: True
 entity: aarashfeizi
 project: "ht-image-ssl"
+save_dir: "../../scratch/ht-image-ssl/wandb/"

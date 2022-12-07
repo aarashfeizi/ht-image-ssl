@@ -258,6 +258,7 @@ def main(cfg: DictConfig):
             project=cfg.wandb.project,
             entity=cfg.wandb.entity,
             offline=cfg.wandb.offline,
+            save_dir=cfg.wandb.save_dir,
             resume="allow" if wandb_run_id else None,
             id=wandb_run_id,
         )

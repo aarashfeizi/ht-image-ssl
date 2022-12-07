@@ -78,6 +78,7 @@ def add_and_assert_wandb_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
     cfg.wandb.entity = omegaconf_select(cfg, "wandb.entity", None)
     cfg.wandb.project = omegaconf_select(cfg, "wandb.project", "solo-learn")
     cfg.wandb.offline = omegaconf_select(cfg, "wandb.offline", False)
+    cfg.wandb.save_dir = omegaconf_select(cfg, "wandb.save_dir", 'wandb/')
 
     return cfg
 
@@ -163,6 +164,13 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     if cfg.data.format == "dali":
         assert cfg.data.dataset in ["imagenet100", "imagenet", "custom"]
+
+    # make sure checkpoint dir and wandb dir exists:
+    if not os.path.exists(cfg.checkpoint.dir):
+        os.makedirs(cfg.checkpoint.dir)
+
+    if not os.path.exists(cfg.wandb.save_dir):
+        os.makedirs(cfg.wandb.save_dir)
 
     # adjust lr according to batch size
     cfg.num_nodes = omegaconf_select(cfg, "num_nodes", 1)
