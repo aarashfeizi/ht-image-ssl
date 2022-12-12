@@ -42,11 +42,11 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint:
-  enabled: True
+  enabled: False
   dir: "../../scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 1000

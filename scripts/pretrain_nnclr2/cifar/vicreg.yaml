@@ -31,30 +31,30 @@ data:
   num_workers: 4
 augmentations:
   - rrc:
-      enabled: True
+      enabled: False
       crop_min_scale: 0.2
       crop_max_scale: 1.0
     color_jitter:
-      enabled: True
+      enabled: False
       brightness: 0.4
       contrast: 0.4
       saturation: 0.2
       hue: 0.1
       prob: 0.8
     grayscale:
-      enabled: True
+      enabled: False
       prob: 0.2
     gaussian_blur:
       enabled: False
       prob: 0.0
     solarization:
-      enabled: True
+      enabled: False
       prob: 0.1
     equalization:
       enabled: False
       prob: 0.0
     horizontal_flip:
-      enabled: True
+      enabled: False
       prob: 0.5
     crop_size: 32
     num_crops: 2
@@ -71,11 +71,11 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint:
-  enabled: True
+  enabled: False
   dir: "trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 1000

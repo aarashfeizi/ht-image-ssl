@@ -41,11 +41,11 @@ scheduler:
   warmup_start_lr: 0.0
   warmup_epochs: 11
 checkpoint:
-  enabled: True
+  enabled: False
   dir: "trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 1000

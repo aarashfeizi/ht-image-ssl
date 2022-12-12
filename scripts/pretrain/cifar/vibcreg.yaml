@@ -29,7 +29,7 @@ data:
   num_workers: 4
 augmentations:
   - rrc:
-      enabled: True
+      enabled: False
       crop_min_scale: 0.2
       crop_max_scale: 1.0
     color_jitter:
@@ -62,11 +62,11 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint:
-  enabled: True
+  enabled: False
   dir: "trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 1000
