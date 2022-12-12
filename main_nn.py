@@ -61,8 +61,6 @@ except ImportError:
 else:
     _umap_available = True
 
-from torchvision.models import resnet50, ResNet50_Weights
-
 
 @hydra.main(version_base="1.2")
 def main(cfg: DictConfig):
