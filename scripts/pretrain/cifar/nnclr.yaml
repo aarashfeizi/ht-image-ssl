@@ -13,6 +13,8 @@ hydra:
 
 name: "nnclr-cifar100" # change here for cifar100
 method: "nnclr"
+nnclr2: False
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
