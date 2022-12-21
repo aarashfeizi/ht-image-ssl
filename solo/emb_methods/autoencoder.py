@@ -12,6 +12,7 @@ class AE(nn.Module):
         dencoder_layers = []
         layers_sizes = [cfg.emb_model.input_size]
         layers_sizes.extend(cfg.emb_model.sizes)
+        self.train = False
         for idx in range(1, len(layers_sizes)):
             layer = nn.Linear(layers_sizes[idx - 1], layers_sizes[idx])
             relu = nn.ReLU()
@@ -29,10 +30,12 @@ class AE(nn.Module):
         self.encoder = nn.Sequential(*encoder_layers)
         self.decoder = nn.Sequential(*dencoder_layers)
 
-    
     def forward(self, x):
         x_shape = x.shape
         latent = self.encoder(x.reshape(x_shape[0], -1)) #batch and rest
-        x_pred = self.decoder(latent)
-        x_pred = x_pred.reshape(*x_shape)
-        return x_pred
+        if self.train:
+            x_pred = self.decoder(latent)
+            x_pred = x_pred.reshape(*x.shape)
+            return x_pred
+        else:
+            return latent
