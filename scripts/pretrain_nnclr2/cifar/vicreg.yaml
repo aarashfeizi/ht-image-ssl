@@ -1,7 +1,7 @@
 defaults:
   - _self_
-  - wandb: private.yaml
-  - override hydra/hydra_logging: disabled
+  - emb_model: resnet50.yaml
+  - wandb: private.yaml  - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
 # disable hydra outputs
@@ -13,7 +13,6 @@ hydra:
 name: "vicreg-cifar100" # change here for cifar10
 method: "vicreg"
 nnclr2: True
-emb_model: resnet50.yaml
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"

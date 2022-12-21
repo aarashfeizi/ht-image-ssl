@@ -14,7 +14,6 @@ hydra:
 name: "barlow_twins-cifar100" 
 method: "barlow_twins"
 nnclr2: False
-emb_model: resnet50.yaml
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"

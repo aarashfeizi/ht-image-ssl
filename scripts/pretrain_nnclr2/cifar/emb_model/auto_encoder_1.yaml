@@ -1,4 +1,4 @@
-name: ae
+name: autoencoder
 train: true
 epochs: 100
 loss: 'mse'

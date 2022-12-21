@@ -134,6 +134,47 @@ def main(cfg: DictConfig):
             train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
         )
 
+    # 1.7 will deprecate resume_from_checkpoint, but for the moment
+    # the argument is the same, but we need to pass it as ckpt_path to trainer.fit
+    ckpt_path, wandb_run_id = None, None
+    if cfg.auto_resume.enabled and cfg.resume_from_checkpoint is None:
+        auto_resumer = AutoResumer(
+            checkpoint_dir=os.path.join(cfg.checkpoint.dir, cfg.method),
+            max_hours=cfg.auto_resume.max_hours,
+        )
+        resume_from_checkpoint, wandb_run_id = auto_resumer.find_checkpoint(cfg)
+        if resume_from_checkpoint is not None:
+            print(
+                "Resuming from previous checkpoint that matches specifications:",
+                f"'{resume_from_checkpoint}'",
+            )
+            ckpt_path = resume_from_checkpoint
+    elif cfg.resume_from_checkpoint is not None:
+        ckpt_path = cfg.resume_from_checkpoint
+        del cfg.resume_from_checkpoint
+
+    callbacks = []
+
+    if cfg.checkpoint.enabled:
+        # save checkpoint on last epoch only
+        ckpt = Checkpointer(
+            cfg,
+            logdir=os.path.join(cfg.checkpoint.dir, cfg.method),
+            frequency=cfg.checkpoint.frequency,
+            keep_prev=cfg.checkpoint.keep_prev,
+        )
+        callbacks.append(ckpt)
+
+    if cfg.auto_umap.enabled:
+        assert (
+            _umap_available
+        ), "UMAP is not currently avaiable, please install it first with [umap]."
+        auto_umap = AutoUMAP(
+            cfg.name,
+            logdir=os.path.join(cfg.auto_umap.dir, cfg.method),
+            frequency=cfg.auto_umap.frequency,
+        )
+        callbacks.append(auto_umap)
 
     # wandb logging
     if cfg.wandb.enabled:
@@ -149,8 +190,6 @@ def main(cfg: DictConfig):
             resume="allow" if wandb_run_id else None,
             id=wandb_run_id,
         )
-        wandb_logger.watch(model, log="gradients", log_freq=100)
-        wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
 
         # lr logging
         lr_monitor = LearningRateMonitor(logging_interval="step")
@@ -239,47 +278,9 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
         )
 
-    # 1.7 will deprecate resume_from_checkpoint, but for the moment
-    # the argument is the same, but we need to pass it as ckpt_path to trainer.fit
-    ckpt_path, wandb_run_id = None, None
-    if cfg.auto_resume.enabled and cfg.resume_from_checkpoint is None:
-        auto_resumer = AutoResumer(
-            checkpoint_dir=os.path.join(cfg.checkpoint.dir, cfg.method),
-            max_hours=cfg.auto_resume.max_hours,
-        )
-        resume_from_checkpoint, wandb_run_id = auto_resumer.find_checkpoint(cfg)
-        if resume_from_checkpoint is not None:
-            print(
-                "Resuming from previous checkpoint that matches specifications:",
-                f"'{resume_from_checkpoint}'",
-            )
-            ckpt_path = resume_from_checkpoint
-    elif cfg.resume_from_checkpoint is not None:
-        ckpt_path = cfg.resume_from_checkpoint
-        del cfg.resume_from_checkpoint
-
-    callbacks = []
-
-    if cfg.checkpoint.enabled:
-        # save checkpoint on last epoch only
-        ckpt = Checkpointer(
-            cfg,
-            logdir=os.path.join(cfg.checkpoint.dir, cfg.method),
-            frequency=cfg.checkpoint.frequency,
-            keep_prev=cfg.checkpoint.keep_prev,
-        )
-        callbacks.append(ckpt)
-
-    if cfg.auto_umap.enabled:
-        assert (
-            _umap_available
-        ), "UMAP is not currently avaiable, please install it first with [umap]."
-        auto_umap = AutoUMAP(
-            cfg.name,
-            logdir=os.path.join(cfg.auto_umap.dir, cfg.method),
-            frequency=cfg.auto_umap.frequency,
-        )
-        callbacks.append(auto_umap)
+    if cfg.wandb.enabled:
+        wandb_logger.watch(model, log="gradients", log_freq=100)
+        wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
 
     trainer_kwargs = OmegaConf.to_container(cfg)
     # we only want to pass in valid Trainer args, the rest may be user specific

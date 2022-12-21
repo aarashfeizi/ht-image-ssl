@@ -13,7 +13,6 @@ hydra:
 name: "vicreg-cifar100" # change here for cifar10
 method: "vicreg"
 nnclr2: False
-emb_model: resnet50.yaml
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"

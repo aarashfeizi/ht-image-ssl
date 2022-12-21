@@ -101,7 +101,6 @@ def add_and_assert_lightning_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictCon
 
 def add_and_assert_nnclr2_cfg(cfg):
     cfg.nnclr2 = omegaconf_select(cfg, "nnclr2", False)
-    cfg.emb_model = omegaconf_select(cfg, "emb_model", "resnet50")
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
     cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
     cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)
@@ -112,7 +111,17 @@ def add_and_assert_nnclr2_cfg(cfg):
         os.makedirs(cfg.log_path)
 
     if cfg.nnclr2:
-        cfg.emb_model = omegaconf_select(cfg, "emb_model", "auto_encoder_1")
+        cfg.emb_model = omegaconf_select(cfg, "emb_model", {})
+        cfg.emb_model.name = omegaconf_select(cfg, "emb_model.name", "resnet50")
+        cfg.emb_model.train = omegaconf_select(cfg, "emb_model.train", False)
+        cfg.emb_model.epochs = omegaconf_select(cfg, "emb_model.epochs", 0)
+        cfg.emb_model.loss = omegaconf_select(cfg, "emb_model.loss", 'mse')
+        cfg.emb_model.opt = omegaconf_select(cfg, "emb_model.opt", "adam")
+        cfg.emb_model.sizes = omegaconf_select(cfg, "emb_model.sizes", [])
+        cfg.emb_model.input_size = omegaconf_select(cfg, "emb_model.input_size", 32)
+        cfg.emb_model.lr = omegaconf_select(cfg, "emb_model.lr", 1e-3)
+        cfg.emb_model.weight_decay = omegaconf_select(cfg, "emb_model.weight_decay", 1e-5)
+        
     
     return cfg
 
