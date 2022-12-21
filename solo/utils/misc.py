@@ -473,6 +473,9 @@ def train_emb_model(cfg, model, train_loader, val_loader=None):
                 loss.backward()
                 optimizer.step()
 
+                postfixes = {f'train_{cfg.emb_model.loss}_loss': total_loss / idx}
+
+                t.set_postfix(**postfixes)
                 t.update()
 
         return total_loss / len(train_loader)

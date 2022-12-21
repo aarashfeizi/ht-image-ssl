@@ -229,7 +229,7 @@ def main(cfg: DictConfig):
             
             if cfg.emb_model.train:
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
-                if cfg.emb_model.name == 'autoencoder':
+                if cfg.emb_model.name.startswith('autoencoder'):
                     emb_model = emb_model.encoder
                             
             
