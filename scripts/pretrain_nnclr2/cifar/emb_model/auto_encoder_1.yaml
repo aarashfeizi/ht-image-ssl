@@ -1,0 +1,5 @@
+epochs: 100
+loss: 'mse'
+opt: 'adam'
+sizes: [256, 128, 64]
+input_size: 32
