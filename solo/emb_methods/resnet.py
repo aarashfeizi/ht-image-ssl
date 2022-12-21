@@ -11,7 +11,7 @@ RESNETS = {
 class ResNet(nn.Module):
     def __init__(self, cfg):
         super(ResNet, self).__init__()
-        self.backbone = RESNETS[cfg.emb_model]
+        self.backbone = RESNETS[cfg.emb_model.name]
         self.fc = nn.Identity()
         self.backbone.eval()
 

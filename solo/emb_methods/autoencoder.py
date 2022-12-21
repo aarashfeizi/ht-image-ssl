@@ -10,8 +10,8 @@ class AE(nn.Module):
         super().__init__()
         encoder_layers = []
         dencoder_layers = []
-        layers_sizes = [cfg.ae_input_size]
-        layers_sizes.extend(cfg.ae_sizes)
+        layers_sizes = [cfg.emb_model.input_size]
+        layers_sizes.extend(cfg.emb_model.sizes)
         for idx in range(1, len(layers_sizes)):
             layer = nn.Linear(layers_sizes[idx - 1], layers_sizes[idx])
             relu = nn.ReLU()
