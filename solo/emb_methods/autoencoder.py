@@ -20,14 +20,14 @@ class AE(nn.Module):
         encoder_layers = encoder_layers[:-1] # remove last relu from encoder
 
         for idx in range(len(layers_sizes) - 1, 0, -1):
-            layer = nn.Linear(layers_sizes[idx - 1], layers_sizes[idx])
+            layer = nn.Linear(layers_sizes[idx], layers_sizes[idx - 1])
             relu = nn.ReLU()
             dencoder_layers.extend([layer, relu])
         
         dencoder_layers = dencoder_layers[:-1] # remove last relu from dencoder
 
-        self.encoder = nn.Sequential(encoder_layers)
-        self.decoder = nn.Sequential(dencoder_layers)
+        self.encoder = nn.Sequential(*encoder_layers)
+        self.decoder = nn.Sequential(*dencoder_layers)
 
     
     def forward(self, x):
