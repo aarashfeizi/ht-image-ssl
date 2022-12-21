@@ -205,7 +205,11 @@ def main(cfg: DictConfig):
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_emb.npy")
         if not os.path.exists(embeddings_path):
             print(f'Creating {embeddings_path}')
-            emb_model = EMB_METHODS[cfg.emb_model.name](cfg)
+            if cfg.emb_model.name.startswith('autoencoder'):
+                model_type = 'autoencoder'
+            elif cfg.emb_model.name.startswith('resnet'):
+                model_type = 'resnet'
+            emb_model = EMB_METHODS[model_type](cfg)
 
             emb_model.cuda()
 
