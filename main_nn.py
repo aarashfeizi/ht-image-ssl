@@ -164,7 +164,7 @@ def main(cfg: DictConfig):
     if cfg.nnclr2:
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model}_emb.npy")
         if not os.path.exists(embeddings_path):
-            emb_model = EMB_METHODS[cfg.emb_model](cfg)
+            emb_model = EMB_METHODS[cfg.emb_model.name](cfg)
 
             emb_model.cuda()
 
@@ -186,9 +186,9 @@ def main(cfg: DictConfig):
                                                             drop_last=False)
 
             
-            if cfg.train_emb_model:
+            if cfg.emb_model.train:
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
-                if cfg.emb_model == 'ae':
+                if cfg.emb_model.name == 'ae':
                     emb_model = emb_model.encoder
                             
             

@@ -1,9 +1,9 @@
-name: ae
-train: true
-epochs: 100
+name: resnet50
+train: false
+epochs: 0
 loss: 'mse'
 opt: 'adam'
-sizes: [256, 128, 64]
+sizes: []
 input_size: 32
 lr: 1e-3
 weight_decay: 1e-5

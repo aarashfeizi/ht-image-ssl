@@ -14,7 +14,7 @@ hydra:
 name: "dino-cifar10" # change here for cifar100
 method: "dino"
 nnclr2: True
-emb_model: "resnet50"
+emb_model: resnet50.yaml
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
