@@ -232,11 +232,10 @@ def main(cfg: DictConfig):
 
             
             if cfg.emb_model.train:
+                emb_model.train()
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
-                if cfg.emb_model.name.startswith('autoencoder'):
-                    emb_model.train = False
                             
-            
+            emb_model.eval()
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
             misc.save_npy(embeddings, embeddings_path)
         else:
