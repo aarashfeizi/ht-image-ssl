@@ -135,13 +135,36 @@ def main(cfg: DictConfig):
         )
 
 
+    # wandb logging
+    if cfg.wandb.enabled:
+        now = datetime.now()
+        unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
+        print(f'Running wandb exp {cfg.name}_{unique_id}')
+        wandb_logger = WandbLogger(
+            name=f'{cfg.name}_{unique_id}',
+            project=cfg.wandb.project,
+            entity=cfg.wandb.entity,
+            offline=cfg.wandb.offline,
+            save_dir=cfg.wandb.save_dir,
+            resume="allow" if wandb_run_id else None,
+            id=wandb_run_id,
+        )
+        wandb_logger.watch(model, log="gradients", log_freq=100)
+        wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
+
+        # lr logging
+        lr_monitor = LearningRateMonitor(logging_interval="step")
+        callbacks.append(lr_monitor)
+
+
+
     cache_path = os.path.join(cfg.log_path, 'cache')
     misc.make_dirs(cache_path)
     if cfg.nnclr2:
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model}_emb.npy")
         if not os.path.exists(embeddings_path):
             emb_model = EMB_METHODS[cfg.emb_model](cfg)
-            
+
             emb_model.cuda()
 
             no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
@@ -160,7 +183,13 @@ def main(cfg: DictConfig):
                                                             num_workers=cfg.data.num_workers,
                                                             shuffle=False,
                                                             drop_last=False)
+
             
+            if cfg.train_emb_model:
+                emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
+                if cfg.emb_model == 'ae':
+                    emb_model = emb_model.encoder
+                            
             
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
             misc.save_npy(embeddings, embeddings_path)
@@ -250,27 +279,6 @@ def main(cfg: DictConfig):
             frequency=cfg.auto_umap.frequency,
         )
         callbacks.append(auto_umap)
-
-    # wandb logging
-    if cfg.wandb.enabled:
-        now = datetime.now()
-        unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
-        print(f'Running wandb exp {cfg.name}_{unique_id}')
-        wandb_logger = WandbLogger(
-            name=f'{cfg.name}_{unique_id}',
-            project=cfg.wandb.project,
-            entity=cfg.wandb.entity,
-            offline=cfg.wandb.offline,
-            save_dir=cfg.wandb.save_dir,
-            resume="allow" if wandb_run_id else None,
-            id=wandb_run_id,
-        )
-        wandb_logger.watch(model, log="gradients", log_freq=100)
-        wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
-
-        # lr logging
-        lr_monitor = LearningRateMonitor(logging_interval="step")
-        callbacks.append(lr_monitor)
 
     trainer_kwargs = OmegaConf.to_container(cfg)
     # we only want to pass in valid Trainer args, the rest may be user specific

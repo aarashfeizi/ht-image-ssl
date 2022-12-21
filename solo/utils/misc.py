@@ -444,6 +444,68 @@ def omegaconf_select(cfg, key, default=None):
         return None
     return value
 
+def train_emb_model(cfg, model, train_loader, val_loader=None):
+    import wandb
+    OPTS = {'adam': torch.optim.Adam,
+            'adamw': torch.optim.AdamW}
+    
+    LOSSES = {'mse': torch.nn.MSELoss}
+
+    epochs = cfg.emb_model.epochs
+    loss_fn = LOSSES[cfg.emb_model.loss]()
+    optimizer = OPTS[cfg.emb_model.opt](model.parameters(),
+                                lr=cfg.emb_model.lr,
+                                weight_decay=cfg.emb_model.weight_decay)
+
+    def train_one_step(current_epoch):
+        total_loss = 0
+        with tqdm(total=len(train_loader), desc=f'{current_epoch}/{epochs}') as t:
+            for idx, batch in enumerate(train_loader, start=1):
+                _, X, _ = batch
+                X = X.cuda()
+                X_pred = model(X)
+
+                loss = loss_fn(X_pred, X)
+
+                total_loss += loss.item()
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                t.update()
+
+        return total_loss / len(train_loader)
+    
+    def val(current_epoch):
+        total_loss = 0
+        with tqdm(total=len(val_loader), desc=f'{current_epoch}/{epochs}') as t:
+            for idx, batch in enumerate(val_loader, start=1):
+                _, X, targets = batch
+                X = X.cuda()
+                X_pred = model(X)
+
+                loss = loss_fn(X_pred, X)
+
+                total_loss += loss.item()
+
+                t.update()
+                
+        return total_loss / len(val_loader)
+    
+    for epoch in range(1, epochs + 1):
+        wandb_dict = {}
+        train_loss = train_one_step(epoch)
+        wandb_dict[f'emb_model/train_{cfg.emb_model.loss}_loss'] = train_loss
+
+        if val_loader is not None:
+            val_loss = val(epoch)
+            wandb_dict[f'emb_model/val_{cfg.emb_model.loss}_loss'] = val_loss
+        
+        wandb.log(wandb_dict)
+    
+    return model
+        
 
 def get_embeddings(model, dataloader):
     embs = []
@@ -472,6 +534,7 @@ def get_sim_matrix(embeddings, k=1000):
     except:
         print('No gpus for faiss! :( ')
         final_index = cpu_index
+        final_index.add(embeddings)
 
     D, I = final_index.search(embeddings, k) # actual search
     

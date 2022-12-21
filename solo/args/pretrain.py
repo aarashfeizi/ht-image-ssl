@@ -110,6 +110,9 @@ def add_and_assert_nnclr2_cfg(cfg):
     print('Log path is: ', cfg.log_path)
     if not os.path.exists(cfg.log_path):
         os.makedirs(cfg.log_path)
+
+    if cfg.nnclr2:
+        cfg.emb_model = omegaconf_select(cfg, "emb_model", "auto_encoder_1")
     
     return cfg
 
