@@ -201,8 +201,10 @@ def main(cfg: DictConfig):
     misc.make_dirs(cache_path)
     print('augs: ', cfg.augmentations)
     if cfg.nnclr2:
-        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model}_emb.npy")
+        print('emb_model: ', cfg.emb_model)
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_emb.npy")
         if not os.path.exists(embeddings_path):
+            print(f'Creating {embeddings_path}')
             emb_model = EMB_METHODS[cfg.emb_model.name](cfg)
 
             emb_model.cuda()
@@ -227,13 +229,14 @@ def main(cfg: DictConfig):
             
             if cfg.emb_model.train:
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
-                if cfg.emb_model.name == 'ae':
+                if cfg.emb_model.name == 'autoencoder':
                     emb_model = emb_model.encoder
                             
             
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
             misc.save_npy(embeddings, embeddings_path)
         else:
+            print(f'Fetching {embeddings_path}')
             embeddings = misc.load_npy(embeddings_path)
 
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings)
