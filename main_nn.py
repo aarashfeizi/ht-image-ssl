@@ -160,6 +160,7 @@ def main(cfg: DictConfig):
 
     cache_path = os.path.join(cfg.log_path, 'cache')
     misc.make_dirs(cache_path)
+    print('augs: ', cfg.augmentations)
     if cfg.nnclr2:
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model}_emb.npy")
         if not os.path.exists(embeddings_path):
