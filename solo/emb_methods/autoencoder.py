@@ -31,6 +31,8 @@ class AE(nn.Module):
 
     
     def forward(self, x):
-        latent = self.encoder(x)
+        x_shape = x.shape
+        latent = self.encoder(x.reshape(x_shape[0], -1)) #batch and rest
         x_pred = self.decoder(latent)
+        x_pred = x_pred.reshape(*x_shape)
         return x_pred
