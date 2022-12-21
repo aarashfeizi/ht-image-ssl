@@ -202,8 +202,11 @@ def main(cfg: DictConfig):
     print('augs: ', cfg.augmentations)
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
+        additional_str = ''
+        if cfg.emb_model.train:
+            additional_str = f'ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_'
 
-        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_emb.npy")
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_{additional_str}emb.npy")
         if not os.path.exists(embeddings_path):
             print(f'Creating {embeddings_path}')
             if cfg.emb_model.name.startswith('autoencoder'):
