@@ -121,6 +121,7 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.input_size = omegaconf_select(cfg, "emb_model.input_size", 32)
         cfg.emb_model.lr = omegaconf_select(cfg, "emb_model.lr", 1e-3)
         cfg.emb_model.weight_decay = omegaconf_select(cfg, "emb_model.weight_decay", 1e-5)
+        cfg.emb_model.random_ids = omegaconf_select(cfg, "emb_model.random_ids", None)
         
     
     return cfg

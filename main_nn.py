@@ -202,6 +202,7 @@ def main(cfg: DictConfig):
     print('augs: ', cfg.augmentations)
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
+
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_emb.npy")
         if not os.path.exists(embeddings_path):
             print(f'Creating {embeddings_path}')
@@ -238,6 +239,7 @@ def main(cfg: DictConfig):
             emb_model.eval()
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
             misc.save_npy(embeddings, embeddings_path)
+            random_ids = misc.check_nns(embeddings, emb_train_loader.datset, save_path=os.path.join(cache_path, f'nns_{cfg.data.dataset}_{cfg.emb_model.name}_{cfg.emb_model.epochs}'), random_ids=cfg.emb_model.random_ids)
         else:
             print(f'Fetching {embeddings_path}')
             embeddings = misc.load_npy(embeddings_path)

@@ -31,6 +31,7 @@ from solo.data.h5_dataset import H5Dataset
 from timm.models.helpers import group_parameters
 from timm.optim.optim_factory import _layer_map
 from tqdm import tqdm
+from PIL import Image
 import faiss
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
@@ -553,3 +554,27 @@ def save_npy(data, path):
 def make_dirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+def pil_image(np_array):
+    return Image.fromarray(np.uint8(np_array)).convert('RGB')
+
+def create_nns(best_nns, best_nn_ids, save_path, dataset_data):
+    """
+        dataset_data: numpy array of imgs in numpy format
+    """
+    for i in range(len(best_nns)):
+        make_dirs(os.path.join(save_path, f'{best_nn_ids[i]}'))
+        for idx, j in enumerate(best_nns[i]):
+            img = pil_image(dataset_data[j])
+            img.save(os.path.join(save_path, f'{best_nn_ids[i]}', f'{idx}_{j}.png'))
+
+def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
+    emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings)
+    best_k = emb_sim_matrix[:, :k + 1]
+    if random_ids is None:
+        ids = [i for i in range(len(best_k))]
+        random_ids = np.random.choice(ids, 50)
+
+    best_k_random = best_k[random_ids]
+    create_nns(best_nns=best_k_random ,best_nn_ids=random_ids, save_path=save_path, dataset_data=dataset)
+    return random_ids
