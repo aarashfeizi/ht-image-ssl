@@ -1,9 +1,0 @@
-name: autoencoder_256_128_64
-train: true
-epochs: 100
-loss: 'mse'
-opt: 'adam'
-sizes: [256, 128, 64]
-input_size: 3072
-lr: 1e-3
-weight_decay: 1e-5
