@@ -204,9 +204,9 @@ def main(cfg: DictConfig):
         print('emb_model: ', cfg.emb_model)
         additional_str = ''
         if cfg.emb_model.train:
-            additional_str = f'ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_'
+            additional_str = f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}'
 
-        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}_{additional_str}emb.npy")
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
         if not os.path.exists(embeddings_path):
             print(f'Creating {embeddings_path}')
             if cfg.emb_model.name.startswith('autoencoder'):
@@ -242,7 +242,7 @@ def main(cfg: DictConfig):
             emb_model.eval()
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
             misc.save_npy(embeddings, embeddings_path)
-            random_ids = misc.check_nns(embeddings, emb_train_loader.dataset.data, save_path=os.path.join(cache_path, f'nns_{cfg.data.dataset}_{cfg.emb_model.name}_{cfg.emb_model.epochs}'), random_ids=cfg.emb_model.random_ids)
+            random_ids = misc.check_nns(embeddings, emb_train_loader.dataset.data, save_path=os.path.join(cache_path, f'nns_{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}'), random_ids=cfg.emb_model.random_ids)
         else:
             print(f'Fetching {embeddings_path}')
             embeddings = misc.load_npy(embeddings_path)
