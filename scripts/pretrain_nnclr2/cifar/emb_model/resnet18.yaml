@@ -1,0 +1,9 @@
+name: resnet
+train: false
+epochs: 0
+loss: 'mse'
+opt: 'adam'
+sizes: []
+input_size: 32
+lr: 1e-3
+weight_decay: 1e-5
