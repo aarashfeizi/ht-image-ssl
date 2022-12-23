@@ -2,7 +2,8 @@ defaults:
   - _self_
   - augmentations: reconstruction.yaml
   - emb_model: resnet50.yaml
-  - wandb: private.yaml  - override hydra/hydra_logging: disabled
+  - wandb: private.yaml
+  - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
 # disable hydra outputs

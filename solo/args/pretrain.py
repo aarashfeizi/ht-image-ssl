@@ -118,7 +118,7 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.loss = omegaconf_select(cfg, "emb_model.loss", 'mse')
         cfg.emb_model.opt = omegaconf_select(cfg, "emb_model.opt", "adam")
         cfg.emb_model.sizes = omegaconf_select(cfg, "emb_model.sizes", [])
-        cfg.emb_model.kernel_sizes = omegaconf_select(cfg, "emb_model.sizes", [3 for _ in range(cfg.emb_model.sizes)])
+        cfg.emb_model.kernel_sizes = omegaconf_select(cfg, "emb_model.sizes", [3 for _ in cfg.emb_model.sizes])
         cfg.emb_model.input_size = omegaconf_select(cfg, "emb_model.input_size", 32)
         cfg.emb_model.lr = omegaconf_select(cfg, "emb_model.lr", 1e-3)
         cfg.emb_model.weight_decay = omegaconf_select(cfg, "emb_model.weight_decay", 1e-5)
