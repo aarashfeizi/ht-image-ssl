@@ -18,7 +18,7 @@ class CAE(nn.Module):
         for idx in range(1, len(channel_sizes)):
             layer = nn.Conv2d(in_channels=channel_sizes[idx - 1], out_channels=channel_sizes[idx], kernel_size=kernel_sizes[idx - 1])
             relu = nn.ReLU()
-            maxpool = nn.MaxPool2d()
+            maxpool = nn.MaxPool2d(kernel_size=2)
             encoder_layers.extend([layer, relu, maxpool])
         
         self.avgpool = nn.AvgPool2d()
@@ -26,7 +26,7 @@ class CAE(nn.Module):
         for idx in range(len(channel_sizes) - 1, 0, -1):
             layer = nn.ConvTranspose2d(in_channels=channel_sizes[idx], out_channels=channel_sizes[idx - 1], kernel_size=kernel_sizes[idx - 1])
             relu = nn.ReLU()
-            maxunpool = nn.MaxUnpool2d()
+            maxunpool = nn.MaxUnpool2d(kernel_size=2)
             dencoder_layers.extend([layer, relu, maxunpool])
         
 
