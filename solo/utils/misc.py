@@ -541,7 +541,6 @@ def get_sim_matrix(embeddings, k=1000, gpu=True):
             final_index = cpu_index
             final_index.add(embeddings)
     else:
-        print('No gpus for faiss! :( ')
         cpu_index = faiss.IndexFlatL2(d)
         print('No gpus for faiss! :( ')
         final_index = cpu_index
