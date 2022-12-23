@@ -20,8 +20,6 @@ class CAE(nn.Module):
             relu = nn.ReLU()
             maxpool = nn.MaxPool2d(kernel_size=2)
             encoder_layers.extend([layer, relu, maxpool])
-        
-        self.avgpool = nn.AvgPool2d()
 
         for idx in range(len(channel_sizes) - 1, 0, -1):
             layer = nn.ConvTranspose2d(in_channels=channel_sizes[idx], out_channels=channel_sizes[idx - 1], kernel_size=kernel_sizes[idx - 1])
@@ -47,6 +45,7 @@ class CAE(nn.Module):
             x_pred = self.decoder(latent)
             return x_pred
         else:
-            latent = self.avgpool(latent)
+            latent_shape = latent.shape
+            latent = torch.nn.functional.avg_pool2d(latent, kernel_size=(latent_shape[2], latent_shape[3]))
             assert len(latent.shape) == 2
             return latent
