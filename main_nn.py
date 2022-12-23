@@ -239,6 +239,7 @@ def main(cfg: DictConfig):
             
             if cfg.emb_model.train:
                 emb_model.train()
+                print('Start training emb_model')
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
                             
             emb_model.eval()
