@@ -525,17 +525,24 @@ def get_embeddings(model, dataloader):
     embs = np.concatenate(embs)
     return embs
 
-def get_sim_matrix(embeddings, k=1000):
+def get_sim_matrix(embeddings, k=1000, gpu=True):
     d = embeddings.shape[-1]
-    cpu_index = faiss.IndexFlatL2(d)
+    if gpu:
+        try:
+            cpu_index = faiss.IndexFlatL2(d)
+            final_index = faiss.index_cpu_to_all_gpus(cpu_index)
 
-    try:
-        final_index = faiss.index_cpu_to_all_gpus(cpu_index)
-
-        final_index.add(embeddings)
-        print('Using GPU for NN!! Thanks FAISS! :)')
-        print(final_index.ntotal)
-    except:
+            final_index.add(embeddings)
+            print('Using GPU for NN!! Thanks FAISS! :)')
+            print(final_index.ntotal)
+        except:
+            cpu_index = faiss.IndexFlatL2(d)
+            print('No gpus for faiss! :( ')
+            final_index = cpu_index
+            final_index.add(embeddings)
+    else:
+        print('No gpus for faiss! :( ')
+        cpu_index = faiss.IndexFlatL2(d)
         print('No gpus for faiss! :( ')
         final_index = cpu_index
         final_index.add(embeddings)
