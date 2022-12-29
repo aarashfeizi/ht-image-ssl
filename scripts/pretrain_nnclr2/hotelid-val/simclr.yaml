@@ -43,7 +43,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint:
   enabled: False
-  dir: "trained_models"
+  dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
