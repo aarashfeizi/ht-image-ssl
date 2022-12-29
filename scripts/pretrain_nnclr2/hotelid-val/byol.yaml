@@ -31,6 +31,7 @@ data:
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_restructured/val1"
   format: "image_folder"
   num_workers: 10
+  num_nns_choice: 1
 optimizer:
   name: "lars"
   batch_size: 256
