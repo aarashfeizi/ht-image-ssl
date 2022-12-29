@@ -1,7 +1,8 @@
 defaults:
   - _self_
-  - augmentations: asymmetric.yaml
+  - augmentations: reconstruction.yaml
   - wandb: private.yaml
+  - emb_model: resnet50.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
@@ -13,8 +14,10 @@ hydra:
 
 name: "byol-hotelid-val" # change here for cifar10
 method: "byol"
+nnclr2: True
+log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
-  name: "resnet50"
+  name: "resnet18"
 method_kwargs:
   proj_hidden_dim: 4096
   proj_output_dim: 256
@@ -41,11 +44,11 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint:
-  enabled: True
+  enabled: False
   dir: "trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 100

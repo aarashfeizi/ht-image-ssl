@@ -2,6 +2,7 @@ defaults:
   - _self_
   - augmentations: symmetric_weak.yaml
   - wandb: private.yaml
+  - emb_model: resnet50.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
@@ -13,6 +14,8 @@ hydra:
 
 name: "simsiam-hotelid-val" # change here for cifar10
 method: "simsiam"
+nnclr2: True
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet50"
 method_kwargs:
