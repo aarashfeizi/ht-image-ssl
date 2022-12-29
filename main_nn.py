@@ -305,9 +305,8 @@ def main(cfg: DictConfig):
             "logger": wandb_logger if cfg.wandb.enabled else None,
             "callbacks": callbacks,
             "enable_checkpointing": False,
-            "strategy": DDPStrategy(find_unused_parameters=True)
-            if cfg.strategy == "ddp"
-            else cfg.strategy,
+            "progress_bar_refresh_rate": 0, # turn off progress bar
+            "strategy": DDPStrategy(find_unused_parameters=True) if cfg.strategy == "ddp" else cfg.strategy,
         }
     )
     trainer = Trainer(**trainer_kwargs)
