@@ -50,7 +50,7 @@ def build_custom_pipeline():
     pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -59,7 +59,7 @@ def build_custom_pipeline():
         "T_val": transforms.Compose(
             [
                 transforms.Resize(256),  # resize shorter
-                transforms.CenterCrop(224),  # take center crop
+                transforms.CenterCrop((224, 224)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
@@ -116,7 +116,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
     imagenet_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -125,7 +125,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         "T_val": transforms.Compose(
             [
                 transforms.Resize(256),  # resize shorter
-                transforms.CenterCrop(224),  # take center crop
+                transforms.CenterCrop((224, 224)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
@@ -135,7 +135,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
     hoteid_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=HOTELID_MEAN, std=HOTELID_STD),
@@ -144,7 +144,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         "T_val": transforms.Compose(
             [
                 transforms.Resize(256),  # resize shorter
-                transforms.CenterCrop(224),  # take center crop
+                transforms.CenterCrop((224, 224)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=HOTELID_MEAN, std=HOTELID_STD),
             ]

@@ -222,7 +222,7 @@ def build_transform_pipeline(dataset, cfg):
     if cfg.rrc.enabled:
         augmentations.append(
             transforms.RandomResizedCrop(
-                cfg.crop_size,
+                (cfg.crop_size, cfg.crop_size),
                 scale=(cfg.rrc.crop_min_scale, cfg.rrc.crop_max_scale),
                 interpolation=transforms.InterpolationMode.BICUBIC,
             ),
@@ -230,7 +230,7 @@ def build_transform_pipeline(dataset, cfg):
     else:
         augmentations.append(
             transforms.Resize(
-                cfg.crop_size,
+                (cfg.crop_size, cfg.crop_size),
                 interpolation=transforms.InterpolationMode.BICUBIC,
             ),
         )
@@ -291,7 +291,7 @@ def build_no_transform(dataset, cfg):
     
     augmentations.append(
         transforms.Resize(
-            cfg.crop_size,
+            (cfg.crop_size, cfg.crop_size),
             interpolation=transforms.InterpolationMode.BICUBIC,
         ))
     augmentations.append(transforms.ToTensor())
