@@ -562,7 +562,10 @@ def make_dirs(path):
         os.makedirs(path)
 
 def pil_image(np_array):
-    return Image.fromarray(np.uint8(np_array), 'RGB').convert('RGB')
+    from einops import rearrange
+    if len(np_array.shape) == 3 and np_array.shape[-1] != 3:
+        np_array = rearrange(np_array, 'c h w -> h w c')
+    return Image.fromarray(np.uint8(np_array)).convert('RGB')
 
 def create_nns(best_nns, best_nn_ids, save_path, dataset_data):
     """
