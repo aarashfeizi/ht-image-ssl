@@ -562,7 +562,7 @@ def make_dirs(path):
         os.makedirs(path)
 
 def pil_image(np_array):
-    return Image.fromarray(np.uint8(np_array)).convert('RGB')
+    return Image.fromarray(np.uint8(np_array), 'RGB').convert('RGB')
 
 def create_nns(best_nns, best_nn_ids, save_path, dataset_data):
     """
