@@ -27,7 +27,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder
+from torchvision.datasets import STL10, ImageFolder, SVHN
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 
 try:
@@ -113,6 +113,24 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         ),
     }
 
+    svhn_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                # transforms.Resize((96, 96)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
+
     imagenet_pipeline = {
         "T_train": transforms.Compose(
             [
@@ -157,6 +175,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         "cifar10": cifar_pipeline,
         "cifar100": cifar_pipeline,
         "stl10": stl_pipeline,
+        "svhn": svhn_pipeline,
         "imagenet100": imagenet_pipeline,
         "imagenet": imagenet_pipeline,
         "hotelid-val": hoteid_pipeline,
@@ -210,7 +229,7 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "eurosat", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -241,6 +260,21 @@ def prepare_datasets(
             download=download,
             transform=T_val,
         )
+    
+    elif dataset == 'svhn':
+        train_dataset = SVHN(
+            train_data_path,
+            split="train",
+            download=True,
+            transform=T_train,
+        )
+        val_dataset = SVHN(
+            val_data_path,
+            split="test",
+            download=download,
+            transform=T_val,
+        )
+    
 
     elif dataset in ["imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]:
         if data_format == "h5":

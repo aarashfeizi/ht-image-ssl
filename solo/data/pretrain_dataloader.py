@@ -29,7 +29,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder
+from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -209,6 +209,8 @@ def build_transform_pipeline(dataset, cfg):
         "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
+        "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "svhn": (HOTELID_MEAN, HOTELID_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
@@ -278,6 +280,8 @@ def build_no_transform(dataset, cfg):
         "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
+        "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
@@ -359,6 +363,23 @@ def prepare_datasets(
             download=download,
             transform=transform,
         )
+        
+    elif dataset == "eurosat":
+        train_dataset = dataset_with_index(EuroSAT)(
+            train_data_path,
+            split="train+unlabeled",
+            download=download,
+            transform=transform,
+        )
+    
+    elif dataset == "svhn":
+        train_dataset = dataset_with_index(SVHN)(
+            train_data_path,
+            split="train",
+            download=download,
+            transform=transform,
+        )
+
 
     elif dataset == "stl10":
         train_dataset = dataset_with_index(STL10)(
