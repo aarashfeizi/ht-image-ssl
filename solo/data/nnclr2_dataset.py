@@ -9,11 +9,12 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.num_nns = num_nns
         self.num_nns_choice = num_nns_choice
         assert num_nns_choice >= num_nns
-
+        self.sim_matrix = self.sim_matrix[:, :self.num_nns_choice]
         self.dataset = dataset
 
     def __getitem__(self, index):
-        sim_index = np.random.choice(self.sim_matrix[index, :self.num_nns_choice], self.num_nns, replace=False)
+        sim_index_idxes = np.random.randint(0, len(self.sim_matrix[index]), self.num_nns)
+        sim_index = self.sim_matrix[index][sim_index_idxes]
         all_idxs = []
         all_xs = []
         all_ys = []
