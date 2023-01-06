@@ -31,6 +31,7 @@ from pytorch_lightning.strategies.ddp import DDPStrategy
 from solo.args.pretrain import parse_cfg
 from solo.data.classification_dataloader import prepare_data as prepare_data_classification
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
+from solo.data.base_datamodule import BaseDataModule
 from solo.data.pretrain_dataloader import (
     FullTransformPipeline,
     NCropAugmentation,
@@ -294,7 +295,10 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
         )
 
-    model.set_emb_dataloder(emb_train_loader)
+    datamodule = BaseDataModule(model)
+    datamodule.set_emb_dataloder(emb_train_loader)
+    datamodule.set_train_loader(train_loader)
+    datamodule.set_val_loader(val_loader)
 
     if cfg.wandb.enabled:
         wandb_logger.watch(model, log="gradients", log_freq=100)
@@ -336,7 +340,7 @@ def main(cfg: DictConfig):
     if cfg.data.format == "dali":
         trainer.fit(model, ckpt_path=ckpt_path, datamodule=dali_datamodule)
     else:
-        trainer.fit(model, train_loader, val_loader, ckpt_path=ckpt_path)
+        trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
 
 
 if __name__ == "__main__":
