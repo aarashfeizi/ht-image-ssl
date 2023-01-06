@@ -519,6 +519,8 @@ def get_embeddings(model, dataloader):
             _, X, targets = batch
             X = X.cuda()
             batch_emb = model(X)
+            if type(batch_emb) == dict:
+                batch_emb = batch_emb['feats']
             embs.append(batch_emb.detach().cpu().numpy())
             t.update()
 

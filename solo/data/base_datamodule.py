@@ -11,7 +11,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.emb_train_loader = None
         self.train_loader = None
         self.val_loader = None
-        self.first_epoch = True
+        self.first_epoch = 0
         self.model = model
 
     def set_emb_dataloder(self, loader):
@@ -29,10 +29,13 @@ class BaseDataModule(pl.LightningDataModule):
 
     # overwriting
     def train_dataloader(self):
-        if self.first_epoch:
-            self.first_epoch = False
+        self.first_epoch += 1
+        print('first_epoch = ', self.first_epoch)
+        if self.first_epoch == 1:
             return self.train_loader
         else:
+            print('updating first_epoch = ', self.first_epoch)
+            
             print('Updating train_loader sim_matrix...')
 
             assert self.emb_train_loader is not None
