@@ -487,6 +487,28 @@ class BaseMethod(pl.LightningModule):
 
         return self._base_shared_step(X, targets)
 
+    def set_emb_dataloder(self, loader):
+        self.emb_dataloader = loader
+
+    def train_dataloader(self):
+        print('Updating train_loader sim_matrix...')
+        prev_dataloader =  super().train_dataloader()
+
+        assert self.emb_dataloader is not None
+
+        embeddings = get_embeddings(self, self.emb_train_loader)
+        _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+        train_dataset = NNCLR2_Dataset_Wrapper(dataset=prev_dataloader.dataset.dataset,
+                                                sim_matrix=emb_sim_matrix,
+                                                num_nns=prev_dataloader.dataset.num_nns,
+                                                num_nns_choice=prev_dataloader.dataset.num_nns_choice)
+
+        train_loader = prepare_dataloader(
+            train_dataset, batch_size=prev_dataloader.batch_size, num_workers=prev_dataloader.num_workers)
+        
+        return train_loader
+
+
     def training_step(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
         """Training step for pytorch lightning. It does all the shared operations, such as
         forwarding the crops, computing logits and computing statistics.
@@ -758,26 +780,6 @@ class BaseMomentumMethod(BaseMethod):
             out.update({"logits": logits, "loss": loss, "acc1": acc1, "acc5": acc5})
 
         return out
-    def set_emb_dataloder(self, loader):
-        self.emb_dataloader = loader
-
-    def train_dataloader(self):
-        print('Updating train_loader sim_matrix...')
-        prev_dataloader =  super().train_dataloader()
-
-        assert self.emb_dataloader is not None
-
-        embeddings = get_embeddings(self, self.emb_train_loader)
-        _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
-        train_dataset = NNCLR2_Dataset_Wrapper(dataset=prev_dataloader.dataset.dataset,
-                                                sim_matrix=emb_sim_matrix,
-                                                num_nns=prev_dataloader.dataset.num_nns,
-                                                num_nns_choice=prev_dataloader.dataset.num_nns_choice)
-
-        train_loader = prepare_dataloader(
-            train_dataset, batch_size=prev_dataloader.batch_size, num_workers=prev_dataloader.num_workers)
-        
-        return train_loader
 
 
     def training_step(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
