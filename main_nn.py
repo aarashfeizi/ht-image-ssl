@@ -200,6 +200,7 @@ def main(cfg: DictConfig):
     cache_path = os.path.join(cfg.log_path, 'cache')
     misc.make_dirs(cache_path)
     print('augs: ', cfg.augmentations)
+    emb_train_loader = None
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
         additional_str = ''
@@ -207,6 +208,25 @@ def main(cfg: DictConfig):
             additional_str = f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}'
 
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
+
+        no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
+
+        emb_train_dataset = prepare_datasets(
+            cfg.data.dataset,
+            no_transform,
+            train_data_path=cfg.data.train_path,
+            data_format=cfg.data.format,
+            no_labels=cfg.data.no_labels,
+            data_fraction=cfg.data.fraction,
+        )
+        
+        emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                                        batch_size=cfg.optimizer.batch_size,
+                                                        num_workers=cfg.data.num_workers,
+                                                        shuffle=False,
+                                                        drop_last=False)
+
+
         if not os.path.exists(embeddings_path):
             print(f'Creating {embeddings_path}')
             if cfg.emb_model.name.startswith('autoencoder'):
@@ -218,24 +238,6 @@ def main(cfg: DictConfig):
             emb_model = EMB_METHODS[model_type](cfg)
 
             emb_model.cuda()
-
-            no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
-
-            emb_train_dataset = prepare_datasets(
-                cfg.data.dataset,
-                no_transform,
-                train_data_path=cfg.data.train_path,
-                data_format=cfg.data.format,
-                no_labels=cfg.data.no_labels,
-                data_fraction=cfg.data.fraction,
-            )
-            
-            emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                                            batch_size=cfg.optimizer.batch_size,
-                                                            num_workers=cfg.data.num_workers,
-                                                            shuffle=False,
-                                                            drop_last=False)
-
             
             if cfg.emb_model.train:
                 emb_model.train()
@@ -292,6 +294,8 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
         )
 
+    model.set_emb_dataloder(emb_train_loader)
+
     if cfg.wandb.enabled:
         wandb_logger.watch(model, log="gradients", log_freq=100)
         wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
@@ -305,6 +309,7 @@ def main(cfg: DictConfig):
             "logger": wandb_logger if cfg.wandb.enabled else None,
             "callbacks": callbacks,
             "enable_checkpointing": False,
+            "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
             "progress_bar_refresh_rate": 0, # turn off progress bar
             "strategy": DDPStrategy(find_unused_parameters=True) if cfg.strategy == "ddp" else cfg.strategy,
         }

@@ -53,7 +53,9 @@ from solo.backbones import (
 from solo.utils.knn import WeightedKNNClassifier
 from solo.utils.lars import LARS
 from solo.utils.metrics import accuracy_at_k, weighted_mean
-from solo.utils.misc import omegaconf_select, remove_bias_and_norm_from_weight_decay
+from solo.utils.misc import omegaconf_select, remove_bias_and_norm_from_weight_decay, get_embeddings, get_sim_matrix
+from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
+from solo.data.pretrain_dataloader import prepare_dataloader
 from solo.utils.momentum import MomentumUpdater, initialize_momentum_params
 from torch.optim.lr_scheduler import MultiStepLR
 
@@ -636,7 +638,7 @@ class BaseMomentumMethod(BaseMethod):
 
         # initialize momentum backbone
         kwargs = self.backbone_args.copy()
-
+        self.emb_dataloader = None
         method: str = cfg.method
         self.momentum_backbone: nn.Module = self.base_model(method, **kwargs)
         if self.backbone_name.startswith("resnet"):
@@ -756,6 +758,27 @@ class BaseMomentumMethod(BaseMethod):
             out.update({"logits": logits, "loss": loss, "acc1": acc1, "acc5": acc5})
 
         return out
+    def set_emb_dataloder(self, loader):
+        self.emb_dataloader = loader
+
+    def train_dataloader(self):
+        print('Updating train_loader sim_matrix...')
+        prev_dataloader =  super().train_dataloader()
+
+        assert self.emb_dataloader is not None
+
+        embeddings = get_embeddings(self, self.emb_train_loader)
+        _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+        train_dataset = NNCLR2_Dataset_Wrapper(dataset=prev_dataloader.dataset.dataset,
+                                                sim_matrix=emb_sim_matrix,
+                                                num_nns=prev_dataloader.dataset.num_nns,
+                                                num_nns_choice=prev_dataloader.dataset.num_nns_choice)
+
+        train_loader = prepare_dataloader(
+            train_dataset, batch_size=prev_dataloader.batch_size, num_workers=prev_dataloader.num_workers)
+        
+        return train_loader
+
 
     def training_step(self, batch: List[Any], batch_idx: int) -> Dict[str, Any]:
         """Training step for pytorch lightning. It performs all the shared operations for the
