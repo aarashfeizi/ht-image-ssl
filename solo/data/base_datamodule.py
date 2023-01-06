@@ -8,14 +8,14 @@ from solo.data.pretrain_dataloader import prepare_dataloader
 class BaseDataModule(pl.LightningDataModule):
     def __init__(self, train_transforms=None, val_transforms=None, test_transforms=None, dims=None, model=None):
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
-        self.emb_dataloader = None
+        self.emb_train_loader = None
         self.train_loader = None
         self.val_loader = None
         self.first_epoch = True
         self.model = model
 
     def set_emb_dataloder(self, loader):
-        self.emb_dataloader = loader
+        self.emb_train_loader = loader
     
     def set_val_loader(self, loader):
         self.val_loader = loader
@@ -35,7 +35,7 @@ class BaseDataModule(pl.LightningDataModule):
         else:
             print('Updating train_loader sim_matrix...')
 
-            assert self.emb_dataloader is not None
+            assert self.emb_train_loader is not None
 
             embeddings = get_embeddings(self.model, self.emb_train_loader)
             _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
