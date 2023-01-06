@@ -221,6 +221,7 @@ class BaseMethod(pl.LightningModule):
         self.classifier_lr: float = cfg.optimizer.classifier_lr
         self.extra_optimizer_args: Dict[str, Any] = cfg.optimizer.kwargs
         self.exclude_bias_n_norm_wd: bool = cfg.optimizer.exclude_bias_n_norm_wd
+        self.emb_dataloader = None
 
         # scheduler related
         self.scheduler: str = cfg.scheduler.name
@@ -660,7 +661,6 @@ class BaseMomentumMethod(BaseMethod):
 
         # initialize momentum backbone
         kwargs = self.backbone_args.copy()
-        self.emb_dataloader = None
         method: str = cfg.method
         self.momentum_backbone: nn.Module = self.base_model(method, **kwargs)
         if self.backbone_name.startswith("resnet"):
