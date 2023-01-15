@@ -29,7 +29,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN
+from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, OxfordIIITPet
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -210,7 +210,8 @@ def build_transform_pipeline(dataset, cfg):
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
-        "svhn": (HOTELID_MEAN, HOTELID_STD),
+        "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
@@ -282,6 +283,7 @@ def build_no_transform(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
@@ -376,6 +378,14 @@ def prepare_datasets(
         train_dataset = dataset_with_index(SVHN)(
             train_data_path,
             split="train",
+            download=download,
+            transform=transform,
+        )
+
+    elif dataset == "pets":
+        train_dataset = dataset_with_index(OxfordIIITPet)(
+            train_data_path,
+            split="trainval",
             download=download,
             transform=transform,
         )
