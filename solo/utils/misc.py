@@ -576,8 +576,12 @@ def create_nns(best_nns, best_nn_ids, save_path, dataset_data):
     for i in range(len(best_nns)):
         make_dirs(os.path.join(save_path, f'{best_nn_ids[i]}'))
         for idx, j in enumerate(best_nns[i]):
-            img = pil_image(dataset_data[j])
+            if type(dataset_data[j] == np.ndarray):
+                img = pil_image(dataset_data[j])
+            else:
+                img = Image.open(dataset_data[j]).convert("RGB")
             img.save(os.path.join(save_path, f'{best_nn_ids[i]}', f'{idx}_{j}.png'))
+
 
 def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
     emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings)
