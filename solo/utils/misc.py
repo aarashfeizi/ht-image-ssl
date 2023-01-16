@@ -576,7 +576,7 @@ def create_nns(best_nns, best_nn_ids, save_path, dataset_data):
     for i in range(len(best_nns)):
         make_dirs(os.path.join(save_path, f'{best_nn_ids[i]}'))
         for idx, j in enumerate(best_nns[i]):
-            if type(dataset_data[j] == np.ndarray):
+            if type(dataset_data[j]) == np.ndarray:
                 img = pil_image(dataset_data[j])
             else:
                 img = Image.open(dataset_data[j]).convert("RGB")
