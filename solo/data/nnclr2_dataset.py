@@ -19,7 +19,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         all_xs = []
         all_ys = []
         idx1, x1, y1 = self.dataset.__getitem__(index)
-        assert len(x1) == 1
+        if len(x1) != 1:
+            print('Warning, More than 1 augmentations found, using first one')
         x1 = x1[0]
         all_idxs.append(idx1)
         all_xs.append(x1)
@@ -27,7 +28,6 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
         for i in sim_index:
             idx2, x2, y2 = self.dataset.__getitem__(i)
-            assert len(x2) == 1
             x2 = x2[0]
             all_idxs.append(idx2)
             all_xs.append(x2)
