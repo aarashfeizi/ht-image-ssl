@@ -30,6 +30,7 @@ data:
   val_path: "/home/mila/f/feiziaar/scratch/svhn/"
   format: "image_folder"
   num_workers: 4
+  filter_sim_matrix: True
 optimizer:
   name: "lars"
   batch_size: 256

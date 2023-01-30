@@ -28,6 +28,7 @@ data:
   train_path: "/home/mila/f/feiziaar/scratch/cifar10/"
   val_path: "/home/mila/f/feiziaar/scratch/cifar10/"
   format: "image_folder"
+  filter_sim_matrix: True
   num_workers: 4
 optimizer:
   name: "sgd"

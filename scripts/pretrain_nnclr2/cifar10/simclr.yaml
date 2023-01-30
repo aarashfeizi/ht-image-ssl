@@ -28,6 +28,7 @@ data:
   val_path: "/home/mila/f/feiziaar/scratch/cifar10/"
   format: "image_folder"
   num_workers: 4
+  filter_sim_matrix: True
   num_nns_choice: 1
   num_nns: 1
   reload_freq: 0
