@@ -34,6 +34,7 @@ data:
   num_nns_choice: 1
   num_nns: 1
   reload_freq: 0
+  filter_sim_matrix: True
 optimizer:
   name: "lars"
   batch_size: 256
