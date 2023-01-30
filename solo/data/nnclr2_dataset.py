@@ -2,10 +2,13 @@ from torch.utils.data import Dataset
 import numpy as np
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, num_nns=1, num_nns_choice=1) -> None:
+    def __init__(self, dataset, sim_matrix, num_nns=1, num_nns_choice=1, filter_sim_matrix=True) -> None:
         super().__init__()
         self.sim_matrix = sim_matrix
-        self._filter_sim_matrix()
+        if filter_sim_matrix:
+            self._filter_sim_matrix()
+        else:
+            self.sim_matrix = sim_matrix[:, :-1]
         self.num_nns = num_nns
         self.num_nns_choice = num_nns_choice
         assert num_nns_choice >= num_nns

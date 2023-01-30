@@ -165,7 +165,7 @@ class FullTransformPipeline:
             x (Image): an image in the PIL.Image format.
 
         Returns:
-            List[torch.Tensor]: an image in the tensor format.
+            List[torch.Tensor]: an i mage in the tensor format.
         """
 
         out = []

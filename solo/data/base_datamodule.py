@@ -6,13 +6,14 @@ from solo.data.pretrain_dataloader import prepare_dataloader
 
 
 class BaseDataModule(pl.LightningDataModule):
-    def __init__(self, train_transforms=None, val_transforms=None, test_transforms=None, dims=None, model=None):
+    def __init__(self, train_transforms=None, val_transforms=None, test_transforms=None, dims=None, model=None, filter_sim_matrix=True):
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
         self.train_loader = None
         self.val_loader = None
         self.epoch = -1 # once for sanity check
         self.model = model
+        self.filter_sim_matrix = filter_sim_matrix
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -42,7 +43,8 @@ class BaseDataModule(pl.LightningDataModule):
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,
                                                     num_nns=self.train_loader.dataset.num_nns,
-                                                    num_nns_choice=self.train_loader.dataset.num_nns_choice)
+                                                    num_nns_choice=self.train_loader.dataset.num_nns_choice,
+                                                    filter_sim_matrix=self.filter_sim_matrix)
 
             self.train_loader = prepare_dataloader(
                 train_dataset, batch_size=self.train_loader.batch_size, num_workers=self.train_loader.num_workers)
