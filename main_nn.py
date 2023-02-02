@@ -250,6 +250,8 @@ def main(cfg: DictConfig):
             misc.save_npy(embeddings, embeddings_path)
             if cfg.data.dataset == 'pets':
                 dataset_data = emb_train_loader.dataset._images
+            elif cfg.data.dataset == 'dtd':
+                dataset_data = emb_train_loader.dataset._image_files
             else:
                 dataset_data = emb_train_loader.dataset.data
 
