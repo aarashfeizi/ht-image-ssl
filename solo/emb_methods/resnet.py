@@ -8,10 +8,20 @@ RESNETS = {
     'resnet101': resnet101(weights=ResNet101_Weights.IMAGENET1K_V2),
 }
 
+RESNETS_RANDOM = {
+    'resnet18': resnet18(weights=None),
+    'resnet50': resnet50(weights=None),
+    'resnet101': resnet101(weights=None),
+}
+
 class ResNet(nn.Module):
     def __init__(self, cfg):
         super(ResNet, self).__init__()
-        self.backbone = RESNETS[cfg.emb_model.name]
+        if cfg.emb_model.pretrained == 'true':
+            self.backbone = RESNETS[cfg.emb_model.name]
+        else:
+            self.backbone = RESNETS_RANDOM[cfg.emb_model.name]
+            
         self.fc = nn.Identity()
         self.backbone.eval()
 

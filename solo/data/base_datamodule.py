@@ -39,7 +39,7 @@ class BaseDataModule(pl.LightningDataModule):
             assert self.emb_train_loader is not None
 
             embeddings = get_embeddings(self.model, self.emb_train_loader)
-            _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+            _, emb_sim_matrix = get_sim_matrix(embeddings, k=self.train_loader.dataset.num_nns_choice, gpu=torch.cuda.is_available())
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,
                                                     num_nns=self.train_loader.dataset.num_nns,
