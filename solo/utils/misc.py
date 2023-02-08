@@ -527,10 +527,8 @@ def get_embeddings(model, dataloader):
     embs = np.concatenate(embs)
     return embs
 
-def get_sim_matrix(embeddings, k=1000, gpu=True):
+def get_sim_matrix(embeddings, k=2048, gpu=True):
     d = embeddings.shape[-1]
-    if k > 1500:
-        k = 1500
     if gpu:
         try:
             cpu_index = faiss.IndexFlatL2(d)

@@ -260,7 +260,7 @@ def main(cfg: DictConfig):
             print(f'Fetching {embeddings_path}')
             embeddings = misc.load_npy(embeddings_path)
 
-        emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, k=cfg.data.num_nns_choice, gpu=torch.cuda.is_available())
+        emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
