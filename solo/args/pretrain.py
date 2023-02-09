@@ -137,6 +137,8 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.pretrained = omegaconf_select(cfg, "emb_model.pretrained", 'true')
         cfg.emb_model.train_method = omegaconf_select(cfg, "emb_model.train_method", 'supervised')
         cfg.emb_model.transform = omegaconf_select(cfg, "emb_model.transform", 'noTransform')
+        cfg.emb_model.supervised = omegaconf_select(cfg, "emb_model.supervised", False)
+        
         
     
     return cfg

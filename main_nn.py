@@ -249,7 +249,7 @@ def main(cfg: DictConfig):
             if cfg.emb_model.train:
                 emb_model.train()
                 print('Start training emb_model')
-                emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader)
+                emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader, cfg.emb_model.supervised)
                             
             emb_model.eval()
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
