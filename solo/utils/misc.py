@@ -472,6 +472,7 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
 
                 acc = None
                 if supervised:
+                    true_lbl = true_lbl.cuda()
                     loss = loss_fn(X_pred, true_lbl)
                     pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
                     true_lbls.extend(true_lbl.detach().cpu().numpy())
@@ -506,6 +507,7 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
 
                 acc = None
                 if supervised:
+                    targets = targets.cuda()
                     loss = loss_fn(X_pred, targets)
                     pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
                     true_lbls.extend(targets.detach().cpu().numpy())
