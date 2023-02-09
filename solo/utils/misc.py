@@ -33,6 +33,7 @@ from timm.optim.optim_factory import _layer_map
 from tqdm import tqdm
 from PIL import Image
 import faiss
+from sklearn import metrics
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.isfinite()
@@ -445,12 +446,13 @@ def omegaconf_select(cfg, key, default=None):
         return None
     return value
 
-def train_emb_model(cfg, model, train_loader, val_loader=None):
+def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False):
     import wandb
     OPTS = {'adam': torch.optim.Adam,
             'adamw': torch.optim.AdamW}
     
-    LOSSES = {'mse': torch.nn.MSELoss}
+    LOSSES = {'mse': torch.nn.MSELoss,
+                'ce': torch.nn.CrossEntropyLoss}
 
     epochs = cfg.emb_model.epochs
     loss_fn = LOSSES[cfg.emb_model.loss]()
@@ -460,13 +462,22 @@ def train_emb_model(cfg, model, train_loader, val_loader=None):
 
     def train_one_step(current_epoch):
         total_loss = 0
+        pred_lbls = []
+        true_lbls = []
         with tqdm(total=len(train_loader), desc=f'{current_epoch}/{epochs}') as t:
             for idx, batch in enumerate(train_loader, start=1):
-                _, X, _ = batch
+                _, X, true_lbl = batch
                 X = X.cuda()
                 X_pred = model(X)
 
-                loss = loss_fn(X_pred, X)
+                acc = None
+                if supervised:
+                    loss = loss_fn(X_pred, true_lbl)
+                    pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
+                    true_lbls.extend(true_lbl.detach().cpu().numpy())
+                    acc = metrics.accuracy_score(y_true=true_lbls, y_pred=pred_lbls)
+                else:
+                    loss = loss_fn(X_pred, X)
 
                 total_loss += loss.item()
 
@@ -475,36 +486,57 @@ def train_emb_model(cfg, model, train_loader, val_loader=None):
                 optimizer.step()
 
                 postfixes = {f'train_{cfg.emb_model.loss}_loss': total_loss / idx}
+                if acc is not None:
+                    postfixes.update({'train_acc': acc})
 
                 t.set_postfix(**postfixes)
                 t.update()
 
-        return total_loss / len(train_loader)
+        return {'acc': acc, 'loss': total_loss / len(train_loader)}
     
     def val(current_epoch):
         total_loss = 0
+        pred_lbls = []
+        true_lbls = []
         with tqdm(total=len(val_loader), desc=f'{current_epoch}/{epochs}') as t:
             for idx, batch in enumerate(val_loader, start=1):
                 _, X, targets = batch
                 X = X.cuda()
                 X_pred = model(X)
 
-                loss = loss_fn(X_pred, X)
+                acc = None
+                if supervised:
+                    loss = loss_fn(X_pred, targets)
+                    pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
+                    true_lbls.extend(targets.detach().cpu().numpy())
+                    acc = metrics.accuracy_score(y_true=true_lbls, y_pred=pred_lbls)
+                else:
+                    loss = loss_fn(X_pred, X)
 
                 total_loss += loss.item()
+                
+                postfixes = {f'val_{cfg.emb_model.loss}_loss': total_loss / idx}
 
+                if acc is not None:
+                    postfixes.update({'val_acc': acc})
+
+                t.set_postfix(**postfixes)
                 t.update()
                 
-        return total_loss / len(val_loader)
+        return {'acc': acc, 'loss': total_loss / len(val_loader)}
     
     for epoch in range(1, epochs + 1):
         wandb_dict = {}
-        train_loss = train_one_step(epoch)
-        wandb_dict[f'emb_model/train_{cfg.emb_model.loss}_loss'] = train_loss
+        train_data = train_one_step(epoch)
+        wandb_dict[f'emb_model/train_{cfg.emb_model.loss}_loss'] = train_data['loss']
+        if supervised:
+            wandb_dict[f'emb_model/train_acc'] = train_data['acc']
 
         if val_loader is not None:
-            val_loss = val(epoch)
-            wandb_dict[f'emb_model/val_{cfg.emb_model.loss}_loss'] = val_loss
+            val_data = val(epoch)
+            wandb_dict[f'emb_model/val_{cfg.emb_model.loss}_loss'] = val_data['loss']
+            if supervised:
+                wandb_dict[f'emb_model/val_acc'] = val_data['acc']
         
         wandb.log(wandb_dict)
     

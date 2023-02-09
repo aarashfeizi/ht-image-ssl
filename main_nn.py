@@ -206,19 +206,21 @@ def main(cfg: DictConfig):
         print('emb_model: ', cfg.emb_model)
         additional_str = ''
         if cfg.emb_model.train:
-            additional_str += f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}'
+            additional_str += f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_loss-{cfg.emb_model.loss}'
 
         if cfg.emb_model.pretrained != 'true':
-            additional_str = f'_randomInit_seed{cfg.seed}'
+            additional_str += f'_randomInit_seed{cfg.seed}'
 
 
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
 
-        no_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
-
+        if cfg.emb_model.transform == 'noTransform':
+            emb_model_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
+        else:
+            emb_model_transform = build_transform_pipeline(cfg.data.dataset, cfg.augmentations[0])
         emb_train_dataset = prepare_datasets(
             cfg.data.dataset,
-            no_transform,
+            emb_model_transform,
             train_data_path=cfg.data.train_path,
             data_format=cfg.data.format,
             no_labels=cfg.data.no_labels,

@@ -21,10 +21,24 @@ class ResNet(nn.Module):
             self.backbone = RESNETS[cfg.emb_model.name]
         else:
             self.backbone = RESNETS_RANDOM[cfg.emb_model.name]
+        
+        if cfg.emb_model.train:
+            if cfg.emb_model.train_method == 'supervised':
+                in_features = self.backbone.fc.in_features
+                self.backbone.fc = nn.Linear(in_features=in_features, out_features=cfg.data.num_classes)
+            else:
+                raise Exception('Unsupported training method')
             
-        self.fc = nn.Identity()
-        self.backbone.eval()
+            self.backbone.train()
+        else:
+            self.backbone.fc = nn.Identity()
+            self.backbone.eval()
 
     def forward(self, x):
         out = self.backbone(x)
         return out
+    
+    def eval(self):
+        super.eval()
+        self.backbone.fc = nn.Identity()
+        self.backbone.eval()

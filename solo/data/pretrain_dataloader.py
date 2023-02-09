@@ -29,7 +29,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, OxfordIIITPet, DTD
+from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -211,6 +211,7 @@ def build_transform_pipeline(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "dtd": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -284,6 +285,7 @@ def build_no_transform(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "dtd": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -380,6 +382,14 @@ def prepare_datasets(
         train_dataset = dataset_with_index(SVHN)(
             train_data_path,
             split="train",
+            download=download,
+            transform=transform,
+        )
+    
+    elif dataset == "inat":
+        train_dataset = dataset_with_index(INaturalist)(
+            train_data_path,
+            version="2021_train_mini",
             download=download,
             transform=transform,
         )

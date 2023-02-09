@@ -1,7 +1,7 @@
 name: resnet101
 train: false
 epochs: 0
-loss: 'mse'
+loss: 'ce'
 opt: 'adam'
 sizes: []
 input_size: 32

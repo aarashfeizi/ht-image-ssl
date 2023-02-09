@@ -20,6 +20,7 @@ _N_CLASSES_PER_DATASET = {
     "cifar100": 100,
     "stl10": 10,
     "svhn": 10,
+    "inat": 10000,
     "pets": 37,
     "dtd": 47,
     "imagenet": 1000,
@@ -34,6 +35,7 @@ _SUPPORTED_DATASETS = [
     "cifar100",
     "stl10",
     "svhn",
+    "inat",
     "pets",
     "dtd",
     "imagenet",
@@ -111,7 +113,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
     cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
     cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)
-    cfg.data.filter_sim_matrix = omegaconf_select(cfg, "data.filter_sim_matrix", True)
+    cfg.data.filter_sim_matrix = omegaconf_select(cfg, "data.filter_sim_matrix", False)
     
     assert cfg.data.num_nns_choice >= cfg.data.num_nns
     
@@ -133,6 +135,8 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.weight_decay = omegaconf_select(cfg, "emb_model.weight_decay", 1e-5)
         cfg.emb_model.random_ids = omegaconf_select(cfg, "emb_model.random_ids", None)
         cfg.emb_model.pretrained = omegaconf_select(cfg, "emb_model.pretrained", 'true')
+        cfg.emb_model.train_method = omegaconf_select(cfg, "emb_model.train_method", 'supervised')
+        cfg.emb_model.transform = omegaconf_select(cfg, "emb_model.transform", 'noTransform')
         
     
     return cfg
