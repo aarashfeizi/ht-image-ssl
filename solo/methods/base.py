@@ -75,8 +75,8 @@ class BaseMethod(pl.LightningModule):
     _BACKBONES = {
         "resnet18": resnet18,
         "resnet50": resnet50,
-        "pt_resnet18": pre_trained_resnet18,
-        "pt_resnet50": pre_trained_resnet50,
+        "resnet18_pt": pre_trained_resnet18,
+        "resnet50_pt": pre_trained_resnet50,
         "vit_tiny": vit_tiny,
         "vit_small": vit_small,
         "vit_base": vit_base,
