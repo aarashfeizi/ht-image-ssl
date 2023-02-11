@@ -30,6 +30,8 @@ from solo.backbones import (
     poolformer_s36,
     resnet18,
     resnet50,
+    pre_trained_resnet18,
+    pre_trained_resnet50,
     swin_base,
     swin_large,
     swin_small,
@@ -147,4 +149,12 @@ def test_backbones():
 
     dummy_data = torch.randn(6, 3, 224, 224)
     model = resnet50(method=None)
+    assert isinstance(model(dummy_data), torch.Tensor)
+
+    dummy_data = torch.randn(6, 3, 32, 32)
+    model = pre_trained_resnet18(method=None)
+    assert isinstance(model(dummy_data), torch.Tensor)
+
+    dummy_data = torch.randn(6, 3, 224, 224)
+    model = pre_trained_resnet50(method=None)
     assert isinstance(model(dummy_data), torch.Tensor)
