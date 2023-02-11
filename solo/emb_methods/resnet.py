@@ -39,6 +39,6 @@ class ResNet(nn.Module):
         return out
     
     def eval(self):
-        super.eval()
+        # super.eval()
         self.backbone.fc = nn.Identity()
         self.backbone.eval()
