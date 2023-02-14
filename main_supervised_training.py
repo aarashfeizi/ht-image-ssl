@@ -19,9 +19,9 @@ import argparse
 RESNETS = {'resnet18': resnet18,
             'resnet50': resnet50}
 
-DATASETS = {'cifar100', datasets.CIFAR100,
-            'cifar10', datasets.CIFAR10,
-            'svhn', datasets.SVHN}
+DATASETS = {'cifar100': datasets.CIFAR100,
+            'cifar10': datasets.CIFAR10,
+            'svhn': datasets.SVHN}
 
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
@@ -86,6 +86,7 @@ def get_args():
     parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=256, type=int)
+    parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18, resnet50'])
