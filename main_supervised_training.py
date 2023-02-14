@@ -28,11 +28,11 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
 
 class ResNet(pl.LightningModule):
-    def __init__(self, config, *args, **kwargs) -> None:
+    def __init__(self, config, no_classes=10, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.backbone = RESNETS[config.backbone]()
         self.feature_size = self.backbone.fc.in_features
-        self.class_num = config.no_classes
+        self.class_num = no_classes
         fc = nn.Linear(self.feature_size, self.class_num)
         self.backbone.fc = fc
         self.lr = config.lr
@@ -165,14 +165,20 @@ def main():
 
     dataset_args = {}
 
+    no_classes = -1
     if args.dataset.startswith('cifar'):
         dataset_args['root'] = args.dataset_path
         dataset_args['train'] = True
         dataset_args['transform'] = cifar_pipeline['T_train']
+        if args.dataset == 'cifar10':
+            no_classes = 10
+        elif args.dataset == 'cifar100':
+            no_classes = 100
     elif args.dataset.startswith('svhn'):
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'train'
         dataset_args['transform'] = svhn_pipeline['T_train']
+        no_classes = 10
     
     train_dataset = DATASETS[args.dataset](**dataset_args)
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, num_workers=args.num_workers, pin_memory=True)
@@ -191,7 +197,7 @@ def main():
     test_dataset = DATASETS[args.dataset](**dataset_args)
     test_loader = DataLoader(dataset=test_dataset, batch_size=args.batch_size, num_workers=args.num_workers, pin_memory=True)
 
-    model = ResNet(args)
+    model = ResNet(args, no_classes=no_classes)
 
     if args.wandb:
         wandb_logger = WandbLogger(
