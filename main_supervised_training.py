@@ -19,7 +19,8 @@ import argparse
 RESNETS = {'resnet18': resnet18,
             'resnet50': resnet50}
 
-DATASETS = {'cifar10', datasets.CIFAR10,
+DATASETS = {'cifar100', datasets.CIFAR100,
+            'cifar10', datasets.CIFAR10,
             'svhn', datasets.SVHN}
 
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
@@ -82,7 +83,7 @@ class ResNet(pl.LightningModule):
 def get_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--wandb', action='store_true', type=bool)
+    parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
@@ -164,11 +165,11 @@ def main():
     dataset_args = {}
 
     if args.dataset.startswith('cifar'):
-        dataset_args['root'] = os.path.join(args.dataset_path)
+        dataset_args['root'] = args.dataset_path
         dataset_args['train'] = True
         dataset_args['transform'] = cifar_pipeline['T_train']
     elif args.dataset.startswith('svhn'):
-        dataset_args['root'] = os.path.join(args.dataset_path)
+        dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'train'
         dataset_args['transform'] = svhn_pipeline['T_train']
     
@@ -178,11 +179,11 @@ def main():
     dataset_args = {}
 
     if args.dataset.startswith('cifar'):
-        dataset_args['root'] = os.path.join(args.dataset_path)
+        dataset_args['root'] = args.dataset_path
         dataset_args['train'] = False
         dataset_args['transform'] = cifar_pipeline['T_val']
     elif args.dataset.startswith('svhn'):
-        dataset_args['root'] = os.path.join(args.dataset_path)
+        dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'test'
         dataset_args['transform'] = svhn_pipeline['T_val']
     
