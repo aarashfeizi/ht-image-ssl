@@ -37,9 +37,9 @@ class ResNet(pl.LightningModule):
         self.backbone.fc = fc
         self.lr = config.lr
         self.weight_decay = config.weight_decay
-        self.train_acc = Accuracy(task='multiclass', num_classes=self.class_num)
-        self.val_acc = Accuracy(task='multiclass', num_classes=self.class_num)   
-        self.test_acc = Accuracy(task='multiclass', num_classes=self.class_num)
+        self.train_acc = Accuracy(num_classes=self.class_num)
+        self.val_acc = Accuracy(num_classes=self.class_num)   
+        self.test_acc = Accuracy(num_classes=self.class_num)
 
     
     def forward(self, x):
