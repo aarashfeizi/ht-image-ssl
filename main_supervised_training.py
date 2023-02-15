@@ -13,6 +13,7 @@ from pytorch_lightning.strategies.ddp import DDPStrategy
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.callbacks import ModelCheckpoint
+from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 import os
 
 
@@ -45,6 +46,8 @@ class ResNet(pl.LightningModule):
         self.train_acc = Accuracy(num_classes=self.class_num)
         self.val_acc = Accuracy(num_classes=self.class_num)   
         self.test_acc = Accuracy(num_classes=self.class_num)
+        self.lr_cosine_decay = config.lr_cosine_decay
+        self.epochs = config.epochs
 
     
     def forward(self, x):
@@ -52,8 +55,14 @@ class ResNet(pl.LightningModule):
         return pred
 
     
-    def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+    def configure_optimizers(self):    
+        optimizer =  torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+        if self.lr_cosine_decay:
+            scheduler = CosineAnnealingLR(optimizer, T_max=self.epochs)    
+            return [optimizer], [scheduler]
+        else:
+            return optimizer
+
 
 
     def training_step(self, batch, batch_idx):
@@ -121,6 +130,7 @@ def get_args():
     parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
+    parser.add_argument('--lr_cosine_decay', action='store_true')
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18', 'resnet50'])
     parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn', 'inat'])
     parser.add_argument('--dataset_path', default='../../scratch/')
