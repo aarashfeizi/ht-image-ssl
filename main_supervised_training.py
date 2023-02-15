@@ -10,6 +10,8 @@ from torchvision import datasets
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from pytorch_lightning.strategies.ddp import DDPStrategy
+from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping, ModelCheckpoint
 import os
 
 
@@ -30,6 +32,7 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 class ResNet(pl.LightningModule):
     def __init__(self, config, no_classes=10, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.save_hyperparameters()
         self.backbone = RESNETS[config.backbone]()
         self.feature_size = self.backbone.fc.in_features
         self.class_num = no_classes
@@ -93,6 +96,17 @@ class ResNet(pl.LightningModule):
         self.log("test_loss", outputs['loss'], prog_bar=True)
         self.log("test_acc", self.test_acc, prog_bar=True)
 
+def get_name(args):
+    name = ''
+    name += f'{args.backbone}_'
+    name += f'{args.dataset}_'
+    name += f'epochs{args.epochs}_'
+    name += f'seed{args.seed}_'
+    name += f'bs{args.batch_size}_'
+    name += f'lr{args.lr}_'
+    name += f'wd{args.weight_decay}'
+
+    return name
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -101,6 +115,7 @@ def get_args():
     parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--epochs', default=500, type=int)
+    parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18, resnet50'])
@@ -120,8 +135,12 @@ def get_args():
 def main():
     args = get_args()
 
+    seed_everything(args.seed)
+
     misc.make_dirs(args.save_path)
-    misc.make_dirs(os.path.join(args.save_path, 'checkpoints'))
+    CHECKPOINT_PATH = os.path.join(args.save_path, 'checkpoints')
+    misc.make_dirs(CHECKPOINT_PATH)
+    MODEL_NAME = get_name(args)
 
     cifar_pipeline = {
         "T_train": transforms.Compose(
@@ -215,21 +234,43 @@ def main():
 
     if args.wandb:
         wandb_logger = WandbLogger(
+                    name=MODEL_NAME,
                     project='ht-image-ssl',
                     entity='aarashfeizi'
                 )
         wandb_logger.watch(model, log="gradients", log_freq=100)
         wandb_logger.log_hyperparams(args)
 
+
+    callbacks = []
+    es_tol = args.epochs // 5
+    early_stop_callback = EarlyStopping(monitor="val_acc", min_delta=0.00, 
+                                        patience=es_tol,
+                                        verbose=True,
+                                        mode="max")
+    callbacks.append(early_stop_callback)
+    checkpoint_callback = ModelCheckpoint(
+                        save_top_k=1,
+                        monitor="val_acc",
+                        mode="max",
+                        dirpath=CHECKPOINT_PATH,
+                        filename=MODEL_NAME + "_{epoch:02d}-{val_acc:.2f}",
+                        )
+    callbacks.append(checkpoint_callback)
+    
+
+
     trainer_kwargs = (
         {
             "logger": wandb_logger if args.wandb else None,
             "enable_checkpointing": False,
             "strategy": DDPStrategy(find_unused_parameters=True),
+            "default_root_dir": CHECKPOINT_PATH,
+            "callbacks": callbacks
         }
     )
 
-    trainer = pl.Trainer(**trainer_kwargs)
+    trainer = Trainer(**trainer_kwargs)
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=test_loader)
 
 if __name__ == '__main__':
