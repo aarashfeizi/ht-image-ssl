@@ -130,7 +130,7 @@ def get_args():
     args = parser.parse_args()
 
     if args.wandb:
-        wandb.init(config=args, dir=args.save_path, mode='online')
+        wandb.init(name=get_name(args), config=args, dir=args.save_path, mode='online')
         args = wandb.config
 
     return args
