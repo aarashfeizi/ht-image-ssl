@@ -115,12 +115,13 @@ def get_args():
 
     parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--wandb', action='store_true')
+    parser.add_argument('--all_gpus', action='store_true')
     parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
-    parser.add_argument('--backbone', default='resnet18', choices=['resnet18, resnet50'])
+    parser.add_argument('--backbone', default='resnet18', choices=['resnet18', 'resnet50'])
     parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn', 'inat'])
     parser.add_argument('--dataset_path', default='../../scratch/')
     parser.add_argument('--save_path', default='../../scratch/ht-image-ssl/supervised_training/')
@@ -278,9 +279,12 @@ def main():
 
     trainer_kwargs = (
         {
+            "accelerator": 'gpu',
+            "devices": -1 if args.all_gpus else None,
             "logger": wandb_logger if args.wandb else None,
             "enable_checkpointing": args.enable_checkpointing,
-            "strategy": DDPStrategy(find_unused_parameters=True),
+            # "strategy": DDPStrategy(find_unused_parameters=True),
+            "strategy": DDPStrategy(find_unused_parameters=False),
             "default_root_dir": CHECKPOINT_PATH,
             "callbacks": callbacks
         }
