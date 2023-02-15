@@ -11,7 +11,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from pytorch_lightning.strategies.ddp import DDPStrategy
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks.early_stopping import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning.callbacks import ModelCheckpoint
 import os
 
 
