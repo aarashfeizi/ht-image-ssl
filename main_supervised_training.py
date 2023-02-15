@@ -46,7 +46,7 @@ class ResNet(pl.LightningModule):
         self.train_acc = Accuracy(num_classes=self.class_num)
         self.val_acc = Accuracy(num_classes=self.class_num)   
         self.test_acc = Accuracy(num_classes=self.class_num)
-        self.lr_cosine_decay = config.lr_cosine_decay
+        self.lr_decay = config.lr_decay
         self.epochs = config.epochs
 
     
@@ -57,7 +57,7 @@ class ResNet(pl.LightningModule):
     
     def configure_optimizers(self):    
         optimizer =  torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
-        if self.lr_cosine_decay == 'cosine':
+        if self.lr_decay == 'cosine':
             scheduler = CosineAnnealingLR(optimizer, T_max=self.epochs)    
             return [optimizer], [scheduler]
         else:
@@ -116,7 +116,7 @@ def get_name(args):
     name += f'bs{args.batch_size}_'
     name += f'lr{args.lr}_'
     name += f'wd{args.weight_decay}_'
-    name += f'lrDec_{args.lr_cosine_decay}'
+    name += f'lrDec_{args.lr_decay}'
 
     return name
 
@@ -131,7 +131,7 @@ def get_args():
     parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
-    parser.add_argument('--lr_cosine_decay', default='none', choices=['none', 'cosine'])
+    parser.add_argument('--lr_decay', default='none', choices=['none', 'cosine'])
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18', 'resnet50'])
     parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn', 'inat'])
     parser.add_argument('--dataset_path', default='../../scratch/')
