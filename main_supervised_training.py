@@ -33,7 +33,7 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 class ResNet(pl.LightningModule):
     def __init__(self, config, no_classes=10, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.save_hyperparameters()
+        #self.save_hyperparameters()
         self.backbone = RESNETS[config.backbone]()
         self.feature_size = self.backbone.fc.in_features
         self.class_num = no_classes
@@ -112,17 +112,19 @@ def get_name(args):
 def get_args():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=256, type=int)
     parser.add_argument('--epochs', default=500, type=int)
-    parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18, resnet50'])
     parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn'])
     parser.add_argument('--dataset_path', default='../../scratch/')
     parser.add_argument('--save_path', default='../../scratch/ht-image-ssl/supervised_training/')
+
+    parser.add_argument('--enable_checkpointing', action='store_true')
 
 
     args = parser.parse_args()
@@ -250,21 +252,23 @@ def main():
                                         verbose=True,
                                         mode="max")
     callbacks.append(early_stop_callback)
-    checkpoint_callback = ModelCheckpoint(
-                        save_top_k=1,
-                        monitor="val_acc",
-                        mode="max",
-                        dirpath=CHECKPOINT_PATH,
-                        filename=MODEL_NAME + "_{epoch:02d}-{val_acc:.2f}",
-                        )
-    callbacks.append(checkpoint_callback)
+
+    if args.enable_checkpointing:
+        checkpoint_callback = ModelCheckpoint(
+                            save_top_k=1,
+                            monitor="val_acc",
+                            mode="max",
+                            dirpath=CHECKPOINT_PATH,
+                            filename=MODEL_NAME + "_{epoch:02d}-{val_acc:.2f}",
+                            )
+        callbacks.append(checkpoint_callback)
     
 
 
     trainer_kwargs = (
         {
             "logger": wandb_logger if args.wandb else None,
-            "enable_checkpointing": False,
+            "enable_checkpointing": args.enable_checkpointing,
             "strategy": DDPStrategy(find_unused_parameters=True),
             "default_root_dir": CHECKPOINT_PATH,
             "callbacks": callbacks
