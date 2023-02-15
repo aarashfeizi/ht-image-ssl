@@ -55,27 +55,27 @@ class ResNet(pl.LightningModule):
         x, y = batch
         y_logits = self(x)
         loss = F.cross_entropy(y_logits, y)
-        y_scores = torch.sigmoid(y_logits)
         y_true = y.view((-1, 1)).type_as(x)
+        y_scores = torch.sigmoid(y_logits)
         return {'loss': loss, 'preds': y_scores, 'target': y_true.int()}
     
     def training_step_end(self, outputs):
         # update and log
-        self.train_acc(outputs['preds'], outputs['target'])
+        self.train_acc(outputs['preds'].argmax(dim=1, keepdim=True), outputs['target'])
         self.log("train_loss", outputs['loss'], prog_bar=True)
         self.log('train_acc', self.train_acc, prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_logits = self(x)
-        y_scores = torch.sigmoid(y_logits)
-        y_true = y.view((-1, 1)).type_as(x)
         loss = F.cross_entropy(y_logits, y)
+        y_true = y.view((-1, 1)).type_as(x)
+        y_scores = torch.sigmoid(y_logits)
         return {'loss': loss, 'preds': y_scores, 'target': y_true.int()}
 
     def validation_step_end(self, outputs):
         # update and log
-        self.val_acc(outputs['preds'], outputs['target'])
+        self.val_acc(outputs['preds'].argmax(dim=1, keepdim=True), outputs['target'])
         self.log("val_loss", outputs['loss'], prog_bar=True)
         self.log("val_acc", self.val_acc, prog_bar=True)
 
@@ -89,7 +89,7 @@ class ResNet(pl.LightningModule):
 
     def test_step_end(self, outputs):
         # update and log
-        self.test_acc(outputs['preds'], outputs['target'])
+        self.test_acc(outputs['preds'].argmax(dim=1, keepdim=True), outputs['target'])
         self.log("test_loss", outputs['loss'], prog_bar=True)
         self.log("test_acc", self.test_acc, prog_bar=True)
 
