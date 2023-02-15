@@ -133,6 +133,7 @@ def get_args():
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
     parser.add_argument('--lr_decay', default='none', choices=['none', 'cosine'])
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18', 'resnet50'])
+    parser.add_argument('--augs', default='strong', choices=['weak', 'strong'])
     parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn', 'inat'])
     parser.add_argument('--dataset_path', default='../../scratch/')
     parser.add_argument('--save_path', default='../../scratch/ht-image-ssl/supervised_training/')
@@ -143,7 +144,7 @@ def get_args():
     args = parser.parse_args()
 
     if args.wandb:
-        wandb.init(name=get_name(args), config=args, dir=args.save_path, mode='online')
+        wandb.init(config=args, dir=args.save_path, mode='online')
         args = wandb.config
 
     return args
@@ -158,7 +159,8 @@ def main():
     misc.make_dirs(CHECKPOINT_PATH)
     MODEL_NAME = get_name(args)
 
-    cifar_pipeline = {
+    strong_augs = {
+    'cifar' : {
         "T_train": transforms.Compose(
             [
                 transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
@@ -173,9 +175,9 @@ def main():
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ]
         ),
-    }
+    },
 
-    svhn_pipeline = {
+    'svhn' : {
         "T_train": transforms.Compose(
             [
                 transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
@@ -191,9 +193,8 @@ def main():
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
-    }
-
-    inat_pipeline = {
+    },
+    'inat' : {
         "T_train": transforms.Compose(
             [
                 transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
@@ -210,15 +211,15 @@ def main():
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
+        }
     }
-
     dataset_args = {}
 
     no_classes = -1
     if args.dataset.startswith('cifar'):
         dataset_args['root'] = args.dataset_path
         dataset_args['train'] = True
-        dataset_args['transform'] = cifar_pipeline['T_train']
+        dataset_args['transform'] = strong_augs['cifar']['T_train']
         if args.dataset == 'cifar10':
             no_classes = 10
         elif args.dataset == 'cifar100':
@@ -226,12 +227,12 @@ def main():
     elif args.dataset.startswith('svhn'):
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'train'
-        dataset_args['transform'] = svhn_pipeline['T_train']
+        dataset_args['transform'] = strong_augs['svhn']['T_train']
         no_classes = 10
     elif args.dataset.startswith('inat'):
         dataset_args['root'] = args.dataset_path
         dataset_args['version'] = '2021_train_mini'
-        dataset_args['transform'] = inat_pipeline['T_train']
+        dataset_args['transform'] = strong_augs['inat']['T_train']
         no_classes = 10000
     
     train_dataset = DATASETS[args.dataset](**dataset_args)
@@ -242,15 +243,15 @@ def main():
     if args.dataset.startswith('cifar'):
         dataset_args['root'] = args.dataset_path
         dataset_args['train'] = False
-        dataset_args['transform'] = cifar_pipeline['T_val']
+        dataset_args['transform'] = strong_augs['cifar']['T_val']
     elif args.dataset.startswith('svhn'):
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'test'
-        dataset_args['transform'] = svhn_pipeline['T_val']
+        dataset_args['transform'] = strong_augs['svhn']['T_val']
     elif args.dataset.startswith('inat'):
         dataset_args['root'] = args.dataset_path
         dataset_args['version'] = '2021_valid'
-        dataset_args['transform'] = inat_pipeline['T_train']
+        dataset_args['transform'] = strong_augs['inat']['T_train']
         no_classes = 10000
     
     test_dataset = DATASETS[args.dataset](**dataset_args)
@@ -262,7 +263,8 @@ def main():
         wandb_logger = WandbLogger(
                     name=MODEL_NAME,
                     project='ht-image-ssl',
-                    entity='aarashfeizi'
+                    entity='aarashfeizi',
+                    offline=False,
                 )
         wandb_logger.watch(model, log="gradients", log_freq=100)
         wandb_logger.log_hyperparams(args)
