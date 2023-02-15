@@ -116,6 +116,8 @@ def get_name(args):
     name += f'bs{args.batch_size}_'
     name += f'lr{args.lr}_'
     name += f'wd{args.weight_decay}'
+    if args.lr_cosine_decay:
+        name += f'lr_cosineDec_'
 
     return name
 
