@@ -24,7 +24,8 @@ RESNETS = {'resnet18': resnet18,
 
 DATASETS = {'cifar100': datasets.CIFAR100,
             'cifar10': datasets.CIFAR10,
-            'svhn': datasets.SVHN}
+            'svhn': datasets.SVHN,
+            'inat': datasets.INaturalist}
 
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
@@ -120,7 +121,7 @@ def get_args():
     parser.add_argument('--num_workers', default=10,  type=int)
     parser.add_argument('--weight_decay', default=1e-5,  type=float)
     parser.add_argument('--backbone', default='resnet18', choices=['resnet18, resnet50'])
-    parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn'])
+    parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'cifar100', 'svhn', 'inat'])
     parser.add_argument('--dataset_path', default='../../scratch/')
     parser.add_argument('--save_path', default='../../scratch/ht-image-ssl/supervised_training/')
 
@@ -215,6 +216,11 @@ def main():
         dataset_args['split'] = 'train'
         dataset_args['transform'] = svhn_pipeline['T_train']
         no_classes = 10
+    elif args.dataset.startswith('inat'):
+        dataset_args['root'] = args.dataset_path
+        dataset_args['version'] = '2021_train_mini'
+        dataset_args['transform'] = inat_pipeline['T_train']
+        no_classes = 10000
     
     train_dataset = DATASETS[args.dataset](**dataset_args)
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, num_workers=args.num_workers, pin_memory=True)
@@ -229,6 +235,11 @@ def main():
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'test'
         dataset_args['transform'] = svhn_pipeline['T_val']
+    elif args.dataset.startswith('inat'):
+        dataset_args['root'] = args.dataset_path
+        dataset_args['version'] = '2021_valid'
+        dataset_args['transform'] = inat_pipeline['T_train']
+        no_classes = 10000
     
     test_dataset = DATASETS[args.dataset](**dataset_args)
     test_loader = DataLoader(dataset=test_dataset, batch_size=args.batch_size, num_workers=args.num_workers, pin_memory=True)
@@ -249,7 +260,7 @@ def main():
     es_tol = args.epochs // 5
     early_stop_callback = EarlyStopping(monitor="val_acc", min_delta=0.00, 
                                         patience=es_tol,
-                                        verbose=True,
+                                        verbose=False,
                                         mode="max")
     callbacks.append(early_stop_callback)
 
