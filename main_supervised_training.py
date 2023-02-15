@@ -160,66 +160,121 @@ def main():
     MODEL_NAME = get_name(args)
 
     strong_augs = {
-    'cifar' : {
-        "T_train": transforms.Compose(
-            [
-                transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
-            ]
-        ),
-        "T_val": transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
-            ]
-        ),
-    },
+        'cifar' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+                ]
+            ),
+        },
 
-    'svhn' : {
-        "T_train": transforms.Compose(
-            [
-                transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-            ]
-        ),
-        "T_val": transforms.Compose(
-            [
-                # transforms.Resize((96, 96)),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-            ]
-        ),
-    },
-    'inat' : {
-        "T_train": transforms.Compose(
-            [
-                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-            ]
-        ),
-        "T_val": transforms.Compose(
-            [
-                transforms.Resize(256),  # resize shorter
-                transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
-            ]
-        ),
+        'svhn' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    # transforms.Resize((96, 96)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+        },
+        'inat' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    transforms.Resize(256),  # resize shorter
+                    transforms.CenterCrop((224, 224)),  # take center crop
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
         }
     }
+    weak_augs = {
+        'cifar' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0)),
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
+                ]
+            ),
+        },
+
+        'svhn' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    # transforms.Resize((96, 96)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+        },
+        'inat' : {
+            "T_train": transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(size=224, scale=(0.8, 1.0)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+            "T_val": transforms.Compose(
+                [
+                    transforms.Resize(256),  # resize shorter
+                    transforms.CenterCrop((224, 224)),  # take center crop
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                ]
+            ),
+        }
+    }
+    
+    all_augs = {'strong': strong_augs,
+                'weak': weak_augs}
+
     dataset_args = {}
 
     no_classes = -1
     if args.dataset.startswith('cifar'):
         dataset_args['root'] = args.dataset_path
         dataset_args['train'] = True
-        dataset_args['transform'] = strong_augs['cifar']['T_train']
+        dataset_args['transform'] = all_augs[args.augs]['cifar']['T_train']
         if args.dataset == 'cifar10':
             no_classes = 10
         elif args.dataset == 'cifar100':
@@ -227,12 +282,12 @@ def main():
     elif args.dataset.startswith('svhn'):
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'train'
-        dataset_args['transform'] = strong_augs['svhn']['T_train']
+        dataset_args['transform'] = all_augs[args.augs]['svhn']['T_train']
         no_classes = 10
     elif args.dataset.startswith('inat'):
         dataset_args['root'] = args.dataset_path
         dataset_args['version'] = '2021_train_mini'
-        dataset_args['transform'] = strong_augs['inat']['T_train']
+        dataset_args['transform'] = all_augs[args.augs]['inat']['T_train']
         no_classes = 10000
     
     train_dataset = DATASETS[args.dataset](**dataset_args)
@@ -243,15 +298,15 @@ def main():
     if args.dataset.startswith('cifar'):
         dataset_args['root'] = args.dataset_path
         dataset_args['train'] = False
-        dataset_args['transform'] = strong_augs['cifar']['T_val']
+        dataset_args['transform'] = all_augs[args.augs]['cifar']['T_val']
     elif args.dataset.startswith('svhn'):
         dataset_args['root'] = args.dataset_path
         dataset_args['split'] = 'test'
-        dataset_args['transform'] = strong_augs['svhn']['T_val']
+        dataset_args['transform'] = all_augs[args.augs]['svhn']['T_val']
     elif args.dataset.startswith('inat'):
         dataset_args['root'] = args.dataset_path
         dataset_args['version'] = '2021_valid'
-        dataset_args['transform'] = strong_augs['inat']['T_train']
+        dataset_args['transform'] = all_augs[args.augs]['inat']['T_train']
         no_classes = 10000
     
     test_dataset = DATASETS[args.dataset](**dataset_args)
