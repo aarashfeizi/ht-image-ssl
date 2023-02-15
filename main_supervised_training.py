@@ -37,8 +37,9 @@ class ResNet(pl.LightningModule):
         self.backbone.fc = fc
         self.lr = config.lr
         self.weight_decay = config.weight_decay
-        self.train_acc = Accuracy()
-        self.val_acc = Accuracy()   
+        self.train_acc = Accuracy(task='multiclass', num_classes=self.no_classes)
+        self.val_acc = Accuracy(task='multiclass', num_classes=self.no_classes)   
+        self.test_acc = Accuracy(task='multiclass', num_classes=self.no_classes)
 
     
     def forward(self, x):
@@ -56,19 +57,27 @@ class ResNet(pl.LightningModule):
         loss = F.cross_entropy(y_logits, y)
         y_scores = torch.sigmoid(y_logits)
         y_true = y.view((-1, 1)).type_as(x)
-        self.log("train_loss", loss, prog_bar=True)
-        self.log("train_acc", self.train_acc(y_scores, y_true.int()), prog_bar=True)
-        return loss
+        return {'loss': loss, 'preds': y_scores, 'target': y_true.int()}
     
+    def training_step_end(self, outputs):
+        # update and log
+        self.train_acc(outputs['preds'], outputs['target'])
+        self.log("train_loss", outputs['loss'], prog_bar=True)
+        self.log('train_acc', self.train_acc, prog_bar=True)
+
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_logits = self(x)
         y_scores = torch.sigmoid(y_logits)
         y_true = y.view((-1, 1)).type_as(x)
         loss = F.cross_entropy(y_logits, y)
-        self.log("val_loss", loss, prog_bar=True)
-        self.log("val_acc", self.val_acc(y_scores, y_true.int()), prog_bar=True)
-        return loss
+        return {'loss': loss, 'preds': y_scores, 'target': y_true.int()}
+
+    def validation_step_end(self, outputs):
+        # update and log
+        self.val_acc(outputs['preds'], outputs['target'])
+        self.log("val_loss", outputs['loss'], prog_bar=True)
+        self.log("val_acc", self.val_acc, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
@@ -76,9 +85,14 @@ class ResNet(pl.LightningModule):
         y_scores = torch.sigmoid(y_hat)
         y_true = y.view((-1, 1)).type_as(x)
         loss = F.cross_entropy(y_hat, y)
-        self.log("val_loss", loss, prog_bar=True)
-        self.log("val_acc", self.val_acc(y_scores, y_true.int()), prog_bar=True)
-        return loss
+        return {'loss': loss, 'preds': y_scores, 'target': y_true.int()}
+
+    def test_step_end(self, outputs):
+        # update and log
+        self.test_acc(outputs['preds'], outputs['target'])
+        self.log("test_loss", outputs['loss'], prog_bar=True)
+        self.log("test_acc", self.test_acc, prog_bar=True)
+
 
 def get_args():
     parser = argparse.ArgumentParser()
