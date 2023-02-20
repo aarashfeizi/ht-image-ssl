@@ -21,11 +21,11 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
         if cfg.emb_model.pretrained == 'false':
             self.backbone = RESNETS_RANDOM[cfg.emb_model.name]
-        elif cfg.emb_model.pretrained == 'true':
+        elif cfg.emb_model.pretrained == 'true' or cfg.emb_model.pretrained == 'imagenet':
             self.backbone = RESNETS[cfg.emb_model.name]
         else:
             self.backbone = RESNETS_RANDOM[cfg.emb_model.name]
-            model_path = os.path.join(cfg.emb_model.ckpt_path, f'{cfg.emb_model.pretrained}.ckpt')
+            model_path = os.path.join(cfg.emb_model.ckpt_path, f'{cfg.emb_model.name}_{cfg.emb_model.pretrained}.ckpt')
 
             print(f'Loading {model_path}')
             assert os.path.exists(model_path), f'{model_path} does not exist! :('
