@@ -26,6 +26,7 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.loggers import CSVLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
 from solo.args.pretrain import parse_cfg
@@ -195,7 +196,14 @@ def main(cfg: DictConfig):
         # lr logging
         lr_monitor = LearningRateMonitor(logging_interval="step")
         callbacks.append(lr_monitor)
-
+    else:
+        now = datetime.now()
+        unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
+        print(f'Running wandb exp {cfg.name}_{unique_id}')
+        csv_logger = CSVLogger(
+            save_dir=cfg.wandb.save_dir,
+            name=f'{cfg.name}_{unique_id}',
+        )
 
 
     cache_path = os.path.join(cfg.log_path, 'cache')
@@ -328,7 +336,7 @@ def main(cfg: DictConfig):
     trainer_kwargs = {name: trainer_kwargs[name] for name in valid_kwargs if name in trainer_kwargs}
     trainer_kwargs.update(
         {
-            "logger": wandb_logger if cfg.wandb.enabled else None,
+            "logger": wandb_logger if cfg.wandb.enabled else csv_logger,
             "callbacks": callbacks,
             "enable_checkpointing": False,
             "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
