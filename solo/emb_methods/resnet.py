@@ -58,7 +58,7 @@ class ResNet(nn.Module):
         self.backbone.fc = nn.Identity()
         self.backbone.eval()
     
-    def __fix_keys(d, old, new):
+    def __fix_keys(self, d, old, new):
         new_d = {}
         for k, v in d.items():
             new_k = k.replace(old, new)
