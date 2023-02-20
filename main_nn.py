@@ -256,6 +256,7 @@ def main(cfg: DictConfig):
                             
             emb_model.eval()
             embeddings = misc.get_embeddings(emb_model, emb_train_loader)
+            print('saving embeddings:')
             misc.save_npy(embeddings, embeddings_path)
             if cfg.data.dataset == 'pets':
                 dataset_data = emb_train_loader.dataset._images
@@ -268,7 +269,7 @@ def main(cfg: DictConfig):
         else:
             print(f'Fetching {embeddings_path}')
             embeddings = misc.load_npy(embeddings_path)
-
+        print('Getting emb sim_matrix:')
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
         assert len(train_dataset) == len(embeddings)
 
