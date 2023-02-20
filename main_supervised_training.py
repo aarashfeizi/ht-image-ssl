@@ -144,7 +144,10 @@ def get_args():
     args = parser.parse_args()
 
     if args.wandb:
-        wandb.init(config=args, dir=args.save_path, mode='online')
+        wandb.init(config=args, dir=args.save_path, 
+                        mode='online',
+                        project='supervised-training',
+                        entity='aarashfeizi')
         args = wandb.config
 
     return args
@@ -317,7 +320,7 @@ def main():
     if args.wandb:
         wandb_logger = WandbLogger(
                     name=MODEL_NAME,
-                    project='ht-image-ssl',
+                    project='supervised-training',
                     entity='aarashfeizi',
                     offline=False,
                 )
@@ -347,6 +350,7 @@ def main():
 
     trainer_kwargs = (
         {
+            "max_epochs": args.epochs,
             "accelerator": 'gpu',
             "devices": -1 if args.all_gpus else None,
             "logger": wandb_logger if args.wandb else None,

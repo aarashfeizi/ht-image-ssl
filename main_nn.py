@@ -208,8 +208,11 @@ def main(cfg: DictConfig):
         if cfg.emb_model.train:
             additional_str += f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_loss-{cfg.emb_model.loss}'
 
-        if cfg.emb_model.pretrained != 'true':
+        if cfg.emb_model.pretrained == 'false':
             additional_str += f'_randomInit_seed{cfg.seed}'
+        
+        if cfg.emb_model.pretrained != 'true':
+            additional_str += f'_{cfg.emb_model.pretrained}'
 
 
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")

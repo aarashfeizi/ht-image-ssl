@@ -138,8 +138,10 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.train_method = omegaconf_select(cfg, "emb_model.train_method", 'supervised')
         cfg.emb_model.transform = omegaconf_select(cfg, "emb_model.transform", 'noTransform')
         cfg.emb_model.supervised = omegaconf_select(cfg, "emb_model.supervised", False)
+        cfg.emb_model.ckpt_path = omegaconf_select(cfg, "emb_model.ckpt_path", './emb_model_checkpoints')
         
         
+
     
     return cfg
 
