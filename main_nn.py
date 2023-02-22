@@ -330,7 +330,7 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
         )
 
-    datamodule = BaseDataModule(model=model)
+    datamodule = BaseDataModule(model=model, filter_sim_matrix=cfg.data.filter_sim_matrix)
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)
     datamodule.set_val_loader(val_loader)
