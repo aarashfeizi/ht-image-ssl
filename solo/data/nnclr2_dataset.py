@@ -26,12 +26,13 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
     
     def __get_labels(self, dataset):
-        if type(dataset) is datasets.CIFAR10 or \
-            type(dataset) is datasets.CIFAR100:
+        parent_class_type = type(dataset).__bases__[0] # type(dataset) will be DatasetWithIndex
+        if parent_class_type is datasets.CIFAR10 or \
+            parent_class_type is datasets.CIFAR100:
             return np.array(dataset.targets)
-        elif type(dataset) is datasets.SVHN:
+        elif parent_class_type is datasets.SVHN:
             return np.array(dataset.labels)
-        elif type(dataset) is datasets.INaturalist:
+        elif parent_class_type is datasets.INaturalist:
             return np.array(list(list(zip(*dataset.index))[0]))
         else:
             return dataset.labels
