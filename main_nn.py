@@ -201,7 +201,7 @@ def main(cfg: DictConfig):
         unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
         print(f'Running wandb exp {cfg.name}_{unique_id}')
         csv_logger = CSVLogger(
-            save_dir=cfg.wandb.save_dir,
+            save_dir=cfg.log_path,
             name=f'{cfg.name}_{unique_id}',
         )
 
