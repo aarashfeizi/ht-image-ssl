@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset
 import numpy as np
+from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
     def __init__(self, dataset, sim_matrix, num_nns=1, num_nns_choice=1, filter_sim_matrix=True) -> None:
@@ -14,6 +15,28 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         assert num_nns_choice >= num_nns
         self.sim_matrix = self.sim_matrix[:, :self.num_nns_choice]
         self.dataset = dataset
+        self.labels = self.__get_labels(dataset)
+        self.relevant_classes = self.get_class_percentage()
+    
+    def get_class_percentage(self):
+        all_lbls_sim_matrix = self.labels[self.sim_matrix]
+        all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
+        correct_lbls = (all_lbls_true == all_lbls_sim_matrix).sum()
+        return correct_lbls / (len(self.labels) * self.num_nns_choice)
+
+    
+    def __get_labels(self, dataset):
+        if type(dataset) is datasets.CIFAR10 or \
+            type(dataset) is datasets.CIFAR100:
+            return np.array(dataset.targets)
+        elif type(dataset) is datasets.SVHN:
+            return np.array(dataset.labels)
+        elif type(dataset) is datasets.INaturalist:
+            return np.array(list(list(zip(*dataset.index))[0]))
+        else:
+            return dataset.labels
+
+            
 
     def __getitem__(self, index):
         sim_index_idxes = np.random.randint(0, len(self.sim_matrix[index]), self.num_nns)

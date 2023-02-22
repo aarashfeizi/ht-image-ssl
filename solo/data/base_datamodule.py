@@ -45,7 +45,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix)
-
+            
+            print('Relevant class percentage: ', train_dataset.relevant_classes)
             self.train_loader = prepare_dataloader(
                 train_dataset, batch_size=self.train_loader.batch_size, num_workers=self.train_loader.num_workers)
             

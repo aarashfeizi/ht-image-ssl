@@ -34,6 +34,7 @@ from tqdm import tqdm
 from PIL import Image
 import faiss
 from sklearn import metrics
+from pytorch_lightning.callbacks import Callback
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.isfinite()
@@ -627,3 +628,9 @@ def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
     best_k_random = best_k[random_ids]
     create_nns(best_nns=best_k_random ,best_nn_ids=random_ids, save_path=save_path, dataset_data=dataset)
     return random_ids
+
+
+class ClassNNPecentageCallback(Callback):
+    def on_epoch_start(self, trainer, pl_module):
+        for logger in trainer.loggers:
+            logger.log_metrics({'relevant_class_percentage': trainer.train_dataloader.loaders.dataset.relevant_classes}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)

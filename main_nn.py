@@ -26,7 +26,7 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.loggers import CSVLogger
+from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
 from solo.args.pretrain import parse_cfg
@@ -199,11 +199,15 @@ def main(cfg: DictConfig):
     else:
         now = datetime.now()
         unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
+        tb_path = os.path.join(cfg.log_path, 'tensorboard')
+        misc.make_dirs(tb_path)
         print(f'Running wandb exp {cfg.name}_{unique_id}')
-        csv_logger = CSVLogger(
-            save_dir=cfg.log_path,
-            name=f'{cfg.name}_{unique_id}',
-        )
+        tb_logger = TensorBoardLogger(save_dir=tb_path,
+                        name=f'{cfg.name}_{unique_id}')
+
+        # lr logging
+        lr_monitor = LearningRateMonitor(logging_interval="step")
+        callbacks.append(lr_monitor)
 
 
     cache_path = os.path.join(cfg.log_path, 'cache')
@@ -284,11 +288,16 @@ def main(cfg: DictConfig):
         if cfg.nnclr2:
             print(f'num_nns: {cfg.data.num_nns}')
             print(f'num_nns_choice: {cfg.data.num_nns_choice}')
+            
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
                                                     sim_matrix=emb_sim_matrix,
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix)
+            
+            print('Relevant class percentage: ', train_dataset.relevant_classes)
+            class_percentage_cb = misc.ClassNNPecentageCallback()
+            callbacks.append(class_percentage_cb)
 
             train_loader = prepare_dataloader(
                 train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
@@ -336,7 +345,7 @@ def main(cfg: DictConfig):
     trainer_kwargs = {name: trainer_kwargs[name] for name in valid_kwargs if name in trainer_kwargs}
     trainer_kwargs.update(
         {
-            "logger": wandb_logger if cfg.wandb.enabled else csv_logger,
+            "logger": wandb_logger if cfg.wandb.enabled else tb_logger,
             "callbacks": callbacks,
             "enable_checkpointing": False,
             "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
