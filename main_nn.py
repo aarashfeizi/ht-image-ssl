@@ -350,7 +350,7 @@ def main(cfg: DictConfig):
     trainer_kwargs = {name: trainer_kwargs[name] for name in valid_kwargs if name in trainer_kwargs}
     trainer_kwargs.update(
         {
-            "logger": wandb_logger if cfg.wandb.enabled else tb_logger,
+            "logger": wandb_logger if cfg.wandb.enabled else [csv_logger, tb_logger],
             "callbacks": callbacks,
             "enable_checkpointing": False,
             "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
