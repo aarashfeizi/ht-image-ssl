@@ -338,6 +338,8 @@ def main(cfg: DictConfig):
     if cfg.wandb.enabled:
         wandb_logger.watch(model, log="gradients", log_freq=100)
         wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
+    else:
+        tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
 
     trainer_kwargs = OmegaConf.to_container(cfg)
     # we only want to pass in valid Trainer args, the rest may be user specific
