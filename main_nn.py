@@ -26,7 +26,7 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
 from solo.args.pretrain import parse_cfg
@@ -204,6 +204,8 @@ def main(cfg: DictConfig):
         print(f'Running wandb exp {cfg.name}_{unique_id}')
         tb_logger = TensorBoardLogger(save_dir=tb_path,
                         name=f'{cfg.name}_{unique_id}')
+        csv_logger = CSVLogger(save_dir=tb_path,
+                        name=f'{cfg.name}_{unique_id}')
 
         # lr logging
         lr_monitor = LearningRateMonitor(logging_interval="step")
@@ -340,6 +342,7 @@ def main(cfg: DictConfig):
         wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
+        csv_logger.log_hyperparams(OmegaConf.to_container(cfg))
 
     trainer_kwargs = OmegaConf.to_container(cfg)
     # we only want to pass in valid Trainer args, the rest may be user specific

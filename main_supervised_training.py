@@ -309,7 +309,7 @@ def main():
     elif args.dataset.startswith('inat'):
         dataset_args['root'] = args.dataset_path
         dataset_args['version'] = '2021_valid'
-        dataset_args['transform'] = all_augs[args.augs]['inat']['T_train']
+        dataset_args['transform'] = all_augs[args.augs]['inat']['T_val']
         no_classes = 10000
     
     test_dataset = DATASETS[args.dataset](**dataset_args)
