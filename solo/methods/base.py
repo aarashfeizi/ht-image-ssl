@@ -180,6 +180,9 @@ class BaseMethod(pl.LightningModule):
 
         # add default values and assert that config has the basic needed settings
         cfg = self.add_and_assert_specific_cfg(cfg)
+        self.new_metric = None
+        if not cfg.wandb.enabled:
+            self.new_metric = 'hp_metric'
 
         self.cfg: omegaconf.DictConfig = cfg
 
@@ -595,6 +598,9 @@ class BaseMethod(pl.LightningModule):
             "val_acc1": out["acc1"],
             "val_acc5": out["acc5"],
         }
+        if self.new_metric is not None:
+            metrics[self.new_metric] = out["acc1"]
+
         return metrics
 
     def validation_epoch_end(self, outs: List[Dict[str, Any]]):
@@ -609,8 +615,13 @@ class BaseMethod(pl.LightningModule):
         val_loss = weighted_mean(outs, "val_loss", "batch_size")
         val_acc1 = weighted_mean(outs, "val_acc1", "batch_size")
         val_acc5 = weighted_mean(outs, "val_acc5", "batch_size")
+        if self.new_metric is not None:
+            hp_metric = weighted_mean(outs, self.new_metric, "batch_size")
 
         log = {"val_loss": val_loss, "val_acc1": val_acc1, "val_acc5": val_acc5}
+
+        if self.new_metric is not None:
+            log[self.new_metric] = hp_metric 
 
         if self.knn_eval and not self.trainer.sanity_checking:
             val_knn_acc1, val_knn_acc5 = self.knn.compute()
@@ -870,6 +881,9 @@ class BaseMomentumMethod(BaseMethod):
                 "momentum_val_acc5": out["acc5"],
             }
 
+        if self.new_metric is not None:
+            metrics[f'momentum_{self.new_metric}'] = out["acc1"]
+
         return parent_metrics, metrics
 
     def validation_epoch_end(self, outs: Tuple[List[Dict[str, Any]]]):
@@ -890,10 +904,17 @@ class BaseMomentumMethod(BaseMethod):
             val_loss = weighted_mean(momentum_outs, "momentum_val_loss", "batch_size")
             val_acc1 = weighted_mean(momentum_outs, "momentum_val_acc1", "batch_size")
             val_acc5 = weighted_mean(momentum_outs, "momentum_val_acc5", "batch_size")
+            if self.new_metric is not None:
+                hp_metric = weighted_mean(momentum_outs, f'momentum_{self.new_metric}', "batch_size")
+
 
             log = {
                 "momentum_val_loss": val_loss,
                 "momentum_val_acc1": val_acc1,
                 "momentum_val_acc5": val_acc5,
             }
+            
+            if self.new_metric is not None:
+                log[f'momentum_{self.new_metric}'] = hp_metric 
+            
             self.log_dict(log, sync_dist=True)
