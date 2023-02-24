@@ -881,8 +881,8 @@ class BaseMomentumMethod(BaseMethod):
                 "momentum_val_acc5": out["acc5"],
             }
 
-        if self.new_metric is not None:
-            metrics[f'momentum_{self.new_metric}'] = out["acc1"]
+            if self.new_metric is not None:
+                metrics[f'momentum_{self.new_metric}'] = out["acc1"]
 
         return parent_metrics, metrics
 
