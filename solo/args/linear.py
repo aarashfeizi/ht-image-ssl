@@ -86,7 +86,9 @@ def add_and_assert_wandb_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
     cfg.wandb.entity = omegaconf_select(cfg, "wandb.entity", None)
     cfg.wandb.project = omegaconf_select(cfg, "wandb.project", "solo-learn")
     cfg.wandb.offline = omegaconf_select(cfg, "wandb.offline", False)
-
+    cfg.wandb.save_dir = omegaconf_select(cfg, "wandb.save_dir", 'wandb/')
+    cfg.wandb.tags = omegaconf_select(cfg, "wandb.tags", None)
+    
     return cfg
 
 

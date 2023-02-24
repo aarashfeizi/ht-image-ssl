@@ -183,6 +183,9 @@ def main(cfg: DictConfig):
         now = datetime.now()
         unique_id = f'{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}_{now.second}_{now.microsecond}'
         print(f'Running wandb exp {cfg.name}_{unique_id}')
+        tag_list = [cfg.data.dataset, cfg.method, f'{cfg.max_epochs}']
+        if cfg.wandb.tags is not None:
+            tag_list.extend(cfg.wandb.tags)
         wandb_logger = WandbLogger(
             name=f'{cfg.name}_{unique_id}',
             project=cfg.wandb.project,
@@ -191,6 +194,7 @@ def main(cfg: DictConfig):
             save_dir=cfg.wandb.save_dir,
             resume="allow" if wandb_run_id else None,
             id=wandb_run_id,
+            tags=tag_list
         )
 
         # lr logging
