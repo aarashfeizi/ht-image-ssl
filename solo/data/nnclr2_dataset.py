@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, num_nns=1, num_nns_choice=1, filter_sim_matrix=True) -> None:
+    def __init__(self, dataset, sim_matrix, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
         super().__init__()
         self.sim_matrix = sim_matrix
         if filter_sim_matrix:
@@ -15,27 +15,49 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         assert num_nns_choice >= num_nns
         self.sim_matrix = self.sim_matrix[:, :self.num_nns_choice]
         self.dataset = dataset
-        self.labels = self.__get_labels(dataset)
+        self.subsample_by = subsample_by
+        if subsample_by > 1:
+            self.__subsample_dataset()
+
+        self.labels = self.__get_labels()
         self.relevant_classes = self.get_class_percentage()
     
     def get_class_percentage(self):
         all_lbls_sim_matrix = self.labels[self.sim_matrix]
         all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
-        correct_lbls = (all_lbls_true == all_lbls_sim_matrix).sum()
-        return correct_lbls / (len(self.labels) * self.num_nns_choice)
+        correct_lbls = (all_lbls_true == all_lbls_sim_matrix)
+        avg = correct_lbls.sum() / (len(self.labels) * self.num_nns_choice)
+        all_percentages = correct_lbls.sum(axis=1) / self.num_nns_choice
+        median = np.median(all_percentages)
+        var = np.var(all_percentages)
+        return {'avg': avg, 'median': median, 'var': var}
 
     
-    def __get_labels(self, dataset):
-        parent_class_type = type(dataset).__bases__[0] # type(dataset) will be DatasetWithIndex
+    def __subsample_dataset(self):
+        # currently only for inat
+        labels = self.__get_labels()
+        imgs = np.array(list(list(zip(*self.dataset.index))[1]))
+        no_classes = len(np.unique(labels))
+        assert no_classes > labels.max()
+        new_no_classes = no_classes // self.subsample_by
+        new_imgs = imgs[labels <= new_no_classes]
+        new_labels = labels[labels <= new_no_classes]
+        new_index = list(zip(new_labels, new_imgs))
+        self.dataset.index = new_index
+        return
+        
+
+    def __get_labels(self):
+        parent_class_type = type(self.dataset).__bases__[0] # type(dataset) will be DatasetWithIndex
         if parent_class_type is datasets.CIFAR10 or \
             parent_class_type is datasets.CIFAR100:
-            return np.array(dataset.targets)
+            return np.array(self.dataset.targets)
         elif parent_class_type is datasets.SVHN:
-            return np.array(dataset.labels)
+            return np.array(self.dataset.labels)
         elif parent_class_type is datasets.INaturalist:
-            return np.array(list(list(zip(*dataset.index))[0]))
+            return np.array(list(list(zip(*self.dataset.index))[0]))
         else:
-            return dataset.labels
+            return self.dataset.labels
 
             
 

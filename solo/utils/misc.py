@@ -633,4 +633,7 @@ def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
 class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
-            logger.log_metrics({'relevant_class_percentage': trainer.train_dataloader.loaders.dataset.relevant_classes}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+            percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
+            logger.log_metrics({'relevant_class_percentage_AVG': percentage_metrics['avg'],
+                                'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
+                                'relevant_class_percentage_VAR': percentage_metrics['var']}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
