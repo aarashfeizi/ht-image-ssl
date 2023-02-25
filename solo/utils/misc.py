@@ -635,7 +635,7 @@ def subsample_dataset(dataset, subsample_by):
     dataset_type = type(dataset).__bases__[0]
     if dataset_type is not datasets.INaturalist:
         print(f'Subsampling not supported for {dataset_type}')
-        return
+        return dataset
     
     labels = np.array(list(list(zip(*dataset.index))[0]))
     imgs = np.array(list(list(zip(*dataset.index))[1]))
@@ -646,7 +646,7 @@ def subsample_dataset(dataset, subsample_by):
     new_labels = labels[labels <= new_no_classes]
     new_index = list(zip(new_labels, new_imgs))
     dataset.index = new_index
-    return
+    return dataset
 
 class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
