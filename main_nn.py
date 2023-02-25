@@ -299,7 +299,8 @@ def main(cfg: DictConfig):
                                                     sim_matrix=emb_sim_matrix,
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
-                                                    filter_sim_matrix=cfg.data.filter_sim_matrix)
+                                                    filter_sim_matrix=cfg.data.filter_sim_matrix,
+                                                    subsample_by=cfg.data.subsample_by)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             class_percentage_cb = misc.ClassNNPecentageCallback()
@@ -336,7 +337,10 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
         )
 
-    datamodule = BaseDataModule(model=model, filter_sim_matrix=cfg.data.filter_sim_matrix)
+    datamodule = BaseDataModule(model=model,
+                                filter_sim_matrix=cfg.data.filter_sim_matrix,
+                                subsample_by=cfg.data.subsample_by)
+    
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)
     datamodule.set_val_loader(val_loader)

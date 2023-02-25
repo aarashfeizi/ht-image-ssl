@@ -6,7 +6,13 @@ from solo.data.pretrain_dataloader import prepare_dataloader
 
 
 class BaseDataModule(pl.LightningDataModule):
-    def __init__(self, train_transforms=None, val_transforms=None, test_transforms=None, dims=None, model=None, filter_sim_matrix=True):
+    def __init__(self, train_transforms=None, 
+                    val_transforms=None,
+                    test_transforms=None,
+                    dims=None,
+                    model=None,
+                    filter_sim_matrix=True,
+                    subsample_by=1):
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
         self.train_loader = None
@@ -14,6 +20,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.epoch = -1 # once for sanity check
         self.model = model
         self.filter_sim_matrix = filter_sim_matrix
+        self.subsample_by = subsample_by
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -44,7 +51,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                     sim_matrix=emb_sim_matrix,
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
-                                                    filter_sim_matrix=self.filter_sim_matrix)
+                                                    filter_sim_matrix=self.filter_sim_matrix,
+                                                    subsample_by=self.subsample_by)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             self.train_loader = prepare_dataloader(

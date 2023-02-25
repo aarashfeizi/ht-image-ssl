@@ -15,6 +15,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         assert num_nns_choice >= num_nns
         self.sim_matrix = self.sim_matrix[:, :self.num_nns_choice]
         self.dataset = dataset
+        self.dataset_type = type(self.dataset).__bases__[0]
         self.subsample_by = subsample_by
         if subsample_by > 1:
             self.__subsample_dataset()
@@ -35,6 +36,10 @@ class NNCLR2_Dataset_Wrapper(Dataset):
     
     def __subsample_dataset(self):
         # currently only for inat
+        if self.dataset_type is not datasets.INaturalist:
+            print(f'Subsampling not supported for {self.dataset_type}')
+            return
+        
         labels = self.__get_labels()
         imgs = np.array(list(list(zip(*self.dataset.index))[1]))
         no_classes = len(np.unique(labels))
@@ -48,13 +53,12 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         
 
     def __get_labels(self):
-        parent_class_type = type(self.dataset).__bases__[0] # type(dataset) will be DatasetWithIndex
-        if parent_class_type is datasets.CIFAR10 or \
-            parent_class_type is datasets.CIFAR100:
+        if self.dataset_type is datasets.CIFAR10 or \
+            self.dataset_type is datasets.CIFAR100:
             return np.array(self.dataset.targets)
-        elif parent_class_type is datasets.SVHN:
+        elif self.dataset_type is datasets.SVHN:
             return np.array(self.dataset.labels)
-        elif parent_class_type is datasets.INaturalist:
+        elif self.dataset_type is datasets.INaturalist:
             return np.array(list(list(zip(*self.dataset.index))[0]))
         else:
             return self.dataset.labels

@@ -117,6 +117,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
     cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
     cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)
+    cfg.data.subsample_by = omegaconf_select(cfg, "data.subsample_by", 1)
     cfg.data.filter_sim_matrix = omegaconf_select(cfg, "data.filter_sim_matrix", False)
     
     assert cfg.data.num_nns_choice >= cfg.data.num_nns
