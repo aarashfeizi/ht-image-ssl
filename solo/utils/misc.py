@@ -632,7 +632,9 @@ def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
 def subsample_dataset(dataset, subsample_by):
     from torchvision import datasets
     # currently only for inat
+
     dataset_type = type(dataset).__bases__[0]
+    print(dataset_type)
     if dataset_type is not datasets.INaturalist:
         print(f'Subsampling not supported for {dataset_type}')
         return dataset
