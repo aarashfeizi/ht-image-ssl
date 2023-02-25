@@ -29,6 +29,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
+from solo.utils import misc
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -450,6 +451,7 @@ def prepare_data(
     download: bool = True,
     data_fraction: float = -1.0,
     auto_augment: bool = False,
+    subsample_by:int = 1,
 ) -> Tuple[DataLoader, DataLoader]:
     """Prepares transformations, creates dataset objects and wraps them in dataloaders.
 
@@ -497,6 +499,11 @@ def prepare_data(
         download=download,
         data_fraction=data_fraction,
     )
+
+    if subsample_by > 1:
+        train_dataset = misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
+        val_dataset = misc.subsample_dataset(val_dataset, subsample_by=subsample_by)
+
     train_loader, val_loader = prepare_dataloaders(
         train_dataset,
         val_dataset,
