@@ -77,6 +77,10 @@ def main(cfg: DictConfig):
 
     assert cfg.method in METHODS, f"Choose from {METHODS.keys()}"
 
+    if cfg.data.dataset != 'inat':
+        subsample_by = cfg.data.subsample_by
+    else:
+        subsample_by = 1
 
     # pretrain dataloader
     if cfg.data.format == "dali":
@@ -132,7 +136,7 @@ def main(cfg: DictConfig):
             data_fraction=cfg.data.fraction,
         )    
         
-        train_dataset = misc.subsample_dataset(train_dataset, subsample_by=cfg.data.subsample_by)
+        misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
 
         train_loader = prepare_dataloader(
             train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
@@ -252,7 +256,7 @@ def main(cfg: DictConfig):
             data_fraction=cfg.data.fraction,
         )
 
-        emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=cfg.data.subsample_by)
+        misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
         
         emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                                         batch_size=cfg.optimizer.batch_size,
@@ -341,7 +345,7 @@ def main(cfg: DictConfig):
             data_format=val_data_format,
             batch_size=cfg.optimizer.batch_size,
             num_workers=cfg.data.num_workers,
-            subsample_by=cfg.data.subsample_by,
+            subsample_by=subsample_by,
         )
 
     datamodule = BaseDataModule(model=model,

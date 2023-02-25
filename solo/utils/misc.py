@@ -646,7 +646,7 @@ def subsample_dataset(dataset, subsample_by):
     new_labels = labels[labels <= new_no_classes]
     new_index = list(zip(new_labels, new_imgs))
     dataset.index = new_index
-    return dataset
+    return
 
 class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
