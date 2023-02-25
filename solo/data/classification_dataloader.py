@@ -501,8 +501,8 @@ def prepare_data(
     )
 
     if subsample_by > 1:
-        misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
-        misc.subsample_dataset(val_dataset, subsample_by=subsample_by)
+        train_dataset = misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
+        val_dataset = misc.subsample_dataset(val_dataset, subsample_by=subsample_by)
 
     train_loader, val_loader = prepare_dataloaders(
         train_dataset,
