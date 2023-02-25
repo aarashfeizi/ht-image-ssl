@@ -131,6 +131,8 @@ def main(cfg: DictConfig):
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
         )    
+        
+        train_dataset = misc.subsample_dataset(train_dataset, subsample_by=cfg.data.subsample_by)
 
         train_loader = prepare_dataloader(
             train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
@@ -247,6 +249,8 @@ def main(cfg: DictConfig):
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
         )
+
+        emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=cfg.data.subsample_by)
         
         emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                                         batch_size=cfg.optimizer.batch_size,
@@ -300,7 +304,7 @@ def main(cfg: DictConfig):
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
-                                                    subsample_by=cfg.data.subsample_by)
+                                                    subsample_by=1)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             class_percentage_cb = misc.ClassNNPecentageCallback()
@@ -339,7 +343,7 @@ def main(cfg: DictConfig):
 
     datamodule = BaseDataModule(model=model,
                                 filter_sim_matrix=cfg.data.filter_sim_matrix,
-                                subsample_by=cfg.data.subsample_by)
+                                subsample_by=1)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)

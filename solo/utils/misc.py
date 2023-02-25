@@ -629,6 +629,24 @@ def check_nns(embeddings, dataset, save_path, k=5, random_ids=None):
     create_nns(best_nns=best_k_random ,best_nn_ids=random_ids, save_path=save_path, dataset_data=dataset)
     return random_ids
 
+def subsample_dataset(dataset, subsample_by):
+    from torchvision import datasets
+    # currently only for inat
+    dataset_type = type(dataset).__bases__[0]
+    if dataset_type is not datasets.INaturalist:
+        print(f'Subsampling not supported for {dataset_type}')
+        return
+    
+    labels = np.array(list(list(zip(*dataset.index))[0]))
+    imgs = np.array(list(list(zip(*dataset.index))[1]))
+    no_classes = len(np.unique(labels))
+    assert no_classes > labels.max()
+    new_no_classes = no_classes // subsample_by
+    new_imgs = imgs[labels <= new_no_classes]
+    new_labels = labels[labels <= new_no_classes]
+    new_index = list(zip(new_labels, new_imgs))
+    dataset.index = new_index
+    return dataset
 
 class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
