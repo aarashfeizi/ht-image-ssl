@@ -233,7 +233,9 @@ def main(cfg: DictConfig):
         
         if cfg.emb_model.pretrained != 'true':
             additional_str += f'_{cfg.emb_model.pretrained}'
-
+        
+        if cfg.data.subsample_by > 1 and cfg.data.dataset == 'inat':
+            additional_str += f'_SSB{cfg.data.subsample_by}'
 
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
 
