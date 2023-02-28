@@ -35,6 +35,7 @@ data:
   num_nns: 1
   reload_freq: 0
   filter_sim_matrix: False
+  subsample_by: 1
 optimizer:
   name: "lars"
   batch_size: 256
