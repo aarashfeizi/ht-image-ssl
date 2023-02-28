@@ -635,8 +635,9 @@ def subsample_dataset(dataset, subsample_by):
 
     dataset_type = type(dataset).__bases__[0]
     print(dataset_type)
-    if dataset_type is not datasets.INaturalist:
-        print(f'Subsampling not supported for {dataset_type}')
+    if dataset_type is not datasets.INaturalist and \
+        type(dataset) is not datasets.INaturalist:
+        print(f'Subsampling not supported for {dataset_type} or {type(dataset)}')
         return dataset
     
     labels = np.array(list(list(zip(*dataset.index))[0]))
