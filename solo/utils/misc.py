@@ -700,9 +700,10 @@ def _config_save(experiment, config_value_dict) -> None:
         config_util.save_config_file_from_dict(config_path, config_value_dict)
 
 def handle_wandb_offline(wandb_logger):
-    _config_telemetry_update(wandb_logger._experiment, wandb_logger._experiment.config)
+    config_file = Dict(wandb_logger._experiment.config)
+    _config_telemetry_update(wandb_logger._experiment, config_file)
     # self._config_metric_update(config_dict)
-    config_file = _dict_add_value_dict(wandb_logger._experiment.config)
+    config_file = _dict_add_value_dict(config_file)
     _config_save(wandb_logger._experiment, config_file)
 
 # def dict_from_proto_list(obj_list):
