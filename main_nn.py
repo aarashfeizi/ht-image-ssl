@@ -192,6 +192,8 @@ def main(cfg: DictConfig):
         tag_list = [cfg.data.dataset, cfg.method, f'{cfg.max_epochs}']
         if cfg.wandb.tags is not None:
             tag_list.extend(cfg.wandb.tags)
+        if cfg.wandb.offline:
+            tag_list.extend(['offline'])
         wandb_logger = WandbLogger(
             name=f'{cfg.name}_{unique_id}',
             project=cfg.wandb.project,
