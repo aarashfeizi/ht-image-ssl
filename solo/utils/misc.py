@@ -20,7 +20,7 @@
 import logging
 import math
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import torch
@@ -657,7 +657,7 @@ def _dict_add_value_dict(config_dict):
         d[k] = dict(desc=None, value=v)
     return d
 
-def _config_telemetry_update(experiment, config_dict) -> None:
+def _config_telemetry_update(experiment, config_dict: Dict[str, Any]) -> None:
         from wandb.sdk.lib import proto_util, config_util
         """Add legacy telemetry to config object."""
         wandb_key = "_wandb"
