@@ -365,6 +365,9 @@ def main(cfg: DictConfig):
     if cfg.wandb.enabled:
         wandb_logger.watch(model, log="gradients", log_freq=100)
         wandb_logger.log_hyperparams(OmegaConf.to_container(cfg))
+        if wandb_logger._offline:
+            misc.handle_wandb_offline(wandb_logger=wandb_logger)
+        
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
         csv_logger.log_hyperparams(OmegaConf.to_container(cfg))

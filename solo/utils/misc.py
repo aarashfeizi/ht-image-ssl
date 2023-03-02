@@ -651,6 +651,66 @@ def subsample_dataset(dataset, subsample_by):
     dataset.index = new_index
     return dataset
 
+def _dict_add_value_dict(config_dict):
+    d = dict()
+    for k, v in config_dict.items():
+        d[k] = dict(desc=None, value=v)
+    return d
+
+def _config_telemetry_update(experiment, config_dict) -> None:
+        from wandb.sdk.lib import proto_util, config_util
+        """Add legacy telemetry to config object."""
+        wandb_key = "_wandb"
+        config_dict.setdefault(wandb_key, dict())
+        s: str
+        b: bool
+        s = experiment._telemetry_obj.python_version
+        if s:
+            config_dict[wandb_key]["python_version"] = s
+        s = experiment._telemetry_obj.cli_version
+        if s:
+            config_dict[wandb_key]["cli_version"] = s
+        # s = self._telemetry_get_framework()
+        # if s:
+        #     config_dict[wandb_key]["framework"] = s
+        s = experiment._telemetry_obj.huggingface_version
+        if s:
+            config_dict[wandb_key]["huggingface_version"] = s
+        b = experiment._telemetry_obj.env.jupyter
+        config_dict[wandb_key]["is_jupyter_run"] = b
+        b = experiment._telemetry_obj.env.kaggle
+        config_dict[wandb_key]["is_kaggle_kernel"] = b
+
+        config_dict[wandb_key]["start_time"] = experiment._start_time
+        
+        t = proto_util.proto_encode_to_dict(experiment._telemetry_obj)
+        config_dict[wandb_key]["t"] = t
+    
+# def _config_metric_update(self, config_dict: Dict[str, Any]) -> None:
+#     """Add default xaxis to config."""
+#     if not self._config_metric_pbdict_list:
+#         return
+#     wandb_key = "_wandb"
+#     config_dict.setdefault(wandb_key, dict())
+#     config_dict[wandb_key]["m"] = self._config_metric_pbdict_list
+
+def _config_save(experiment, config_value_dict) -> None:
+        from wandb.sdk.lib import proto_util, config_util
+        config_path = os.path.join(experiment._settings.files_dir, "config.yaml")
+        config_util.save_config_file_from_dict(config_path, config_value_dict)
+
+def handle_wandb_offline(wandb_logger):
+    _config_telemetry_update(wandb_logger._experiment, wandb_logger._experiment.config)
+    # self._config_metric_update(config_dict)
+    config_file = _dict_add_value_dict(wandb_logger._experiment.config)
+    _config_save(wandb_logger._experiment, config_file)
+
+# def dict_from_proto_list(obj_list):
+#     d = dict()
+#     for item in obj_list:
+#         d[item.key] = dict(desc=None, value=json.loads(item.value_json))
+#     return d
+
 class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
@@ -658,3 +718,4 @@ class ClassNNPecentageCallback(Callback):
             logger.log_metrics({'relevant_class_percentage_AVG': percentage_metrics['avg'],
                                 'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
                                 'relevant_class_percentage_VAR': percentage_metrics['var']}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+
