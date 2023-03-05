@@ -121,7 +121,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             new_sim_idices = []
             for idx, row in enumerate(self.sim_matrix):
                 row_clusters = self.clusters[row]
-                idx_from_same_cluster = idx[row_clusters == row_clusters[0]]
+                idx_from_same_cluster = row[row_clusters == row_clusters[0]]
                 new_row = idx_from_same_cluster[:self.num_nns_choice]
                 if len(new_row) < self.num_nns_choice:
                     diff = self.num_nns_choice - len(new_row)
