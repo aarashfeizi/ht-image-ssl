@@ -311,7 +311,7 @@ def main(cfg: DictConfig):
         if cfg.data.num_clusters > 1:
             clusters = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
             clust_dist = clusters['dist']
-            clust_lbls = clust_lbls['lbls']
+            clust_lbls = clusters['lbls']
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
