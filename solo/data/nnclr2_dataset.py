@@ -5,6 +5,11 @@ from torchvision import datasets
 class NNCLR2_Dataset_Wrapper(Dataset):
     def __init__(self, dataset, sim_matrix, cluster_lbls=None, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
         super().__init__()
+
+        self.num_nns = num_nns
+        self.num_nns_choice = num_nns_choice
+        assert num_nns_choice >= num_nns
+
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
 
@@ -16,10 +21,6 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.not_from_cluster_percentage = {'avg': 0, 'var': 0, 'median': 0 }
         self._filter_sim_matrix_by_nnc()
 
-        self.num_nns = num_nns
-        self.num_nns_choice = num_nns_choice
-        assert num_nns_choice >= num_nns
-        
         self.dataset = dataset
         self.dataset_type = type(self.dataset).__bases__[0]
         self.subsample_by = subsample_by
@@ -130,7 +131,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
                 new_sim_idices.append(new_row)
 
-                not_from_cluster.append(len(set(new_row) - set(row[:self.num_nns_choice])))
+                not_from_cluster.append(len(set(row[:self.num_nns_choice]) - set(new_row)))
             
             new_sim_matrix = np.stack(new_sim_idices, axis=0)
             assert new_sim_matrix.shape[0] == self.sim_matrix.shape[0]
