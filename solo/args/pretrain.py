@@ -119,6 +119,8 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)
     cfg.data.subsample_by = omegaconf_select(cfg, "data.subsample_by", 1)
     cfg.data.filter_sim_matrix = omegaconf_select(cfg, "data.filter_sim_matrix", False)
+    cfg.data.num_clusters = omegaconf_select(cfg, "data.num_clusters", 1)
+    
     
     assert cfg.data.num_nns_choice >= cfg.data.num_nns
     

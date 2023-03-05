@@ -307,6 +307,9 @@ def main(cfg: DictConfig):
             embeddings = misc.load_npy(embeddings_path)
         print('Getting emb sim_matrix:')
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+        clust_dist, clust_lbls = None, None
+        if cfg.data.num_clusters > 1:
+            clust_dist, clust_lbls = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
@@ -315,12 +318,14 @@ def main(cfg: DictConfig):
             
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
                                                     sim_matrix=emb_sim_matrix,
+                                                    cluster_lbls=clust_lbls,
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
                                                     subsample_by=1)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
+            print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
             class_percentage_cb = misc.ClassNNPecentageCallback()
             callbacks.append(class_percentage_cb)
 
@@ -328,7 +333,8 @@ def main(cfg: DictConfig):
                 train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
             )
 
-
+    import numpy as np
+    
     model = METHODS[cfg.method](cfg)
     misc.make_contiguous(model)
     # can provide up to ~20% speed up
@@ -358,7 +364,8 @@ def main(cfg: DictConfig):
 
     datamodule = BaseDataModule(model=model,
                                 filter_sim_matrix=cfg.data.filter_sim_matrix,
-                                subsample_by=1)
+                                subsample_by=1,
+                                num_clusters=cfg.data.num_clusters)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)

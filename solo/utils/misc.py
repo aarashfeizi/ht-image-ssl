@@ -35,6 +35,9 @@ from PIL import Image
 import faiss
 from sklearn import metrics
 from pytorch_lightning.callbacks import Callback
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.isfinite()
@@ -587,6 +590,30 @@ def get_sim_matrix(embeddings, k=2048, gpu=True):
     
     return D, I
 
+def get_clusters(embeddings, k=100, gpu=True):
+    n, d = embeddings.shape
+    if embeddings.dtpe != np.float32:
+        embeddings = embeddings.astype(np.float32)
+    if gpu:
+        try:
+            kmeans = faiss.Kmeans(d=d, k=k, gpu=gpu)
+            kmeans.train(embeddings)
+            print('Thanks faiss for the gpu usage! :)')
+        except:
+            print("Couldn't use gpu for faiss! :(")
+            kmeans = faiss.Kmeans(d=d, k=k, gpu=False)
+            kmeans.train(embeddings)
+    else:
+        print('No gpu for faiss! :(')
+        kmeans = faiss.Kmeans(d=d, k=k, gpu=False)
+        kmeans.train(embeddings)
+    
+    cluster_dist, cluster_labels = kmeans.index.search(embeddings, 1)
+    return {'dist': cluster_dist, 
+            'lbls': cluster_labels}
+    
+    return kmeans
+
 def load_npy(path):
     return np.load(path)
 
@@ -705,6 +732,24 @@ def handle_wandb_offline(wandb_logger):
     # self._config_metric_update(config_dict)
     config_file = _dict_add_value_dict(config_file)
     _config_save(wandb_logger._experiment, config_file)
+
+def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls, k, bins=300):
+    plt.clf()
+    sim_matrix = emb_sim_matrix[:, 1:k]
+    all_lbls_sim_matrix = lbls[sim_matrix]
+    all_lbls_true = lbls.repeat(k - 1).reshape(-1, k - 1)
+    correct_lbls = (all_lbls_true == all_lbls_sim_matrix)
+    dist_matrix = emb_dist_matrix[:, 1:k]
+    plt.hist(dist_matrix[np.logical_not(correct_lbls)], bins=bins, color='r', alpha=0.3)
+    plt.hist(dist_matrix[correct_lbls], bins=bins, color='g', alpha=0.3)
+    plt.title(f'{dataset_name} k = {k}')
+    plt.savefig(f'{dataset_name}_k{k}.pdf')
+    plt.clf()
+    plt.hist(dist_matrix[np.logical_not(correct_lbls)], bins=bins, color='r', alpha=0.3)
+    plt.hist(dist_matrix[correct_lbls], bins=bins, color='g', alpha=0.3)
+    plt.yscale('log')
+    plt.title(f'{dataset_name} k = {k} Log Scale')
+    plt.savefig(f'{dataset_name}_k{k}_log.pdf')
 
 # def dict_from_proto_list(obj_list):
 #     d = dict()

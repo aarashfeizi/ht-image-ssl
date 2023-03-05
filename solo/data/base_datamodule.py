@@ -1,6 +1,6 @@
 import pytorch_lightning as pl
 import torch
-from solo.utils.misc import get_embeddings, get_sim_matrix
+from solo.utils.misc import get_embeddings, get_sim_matrix, get_clusters
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.pretrain_dataloader import prepare_dataloader
 
@@ -12,7 +12,9 @@ class BaseDataModule(pl.LightningDataModule):
                     dims=None,
                     model=None,
                     filter_sim_matrix=True,
-                    subsample_by=1):
+                    subsample_by=1,
+                    num_clusters=1):
+        
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
         self.train_loader = None
@@ -21,6 +23,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.model = model
         self.filter_sim_matrix = filter_sim_matrix
         self.subsample_by = subsample_by
+        self.num_clusters = num_clusters
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -47,8 +50,13 @@ class BaseDataModule(pl.LightningDataModule):
 
             embeddings = get_embeddings(self.model, self.emb_train_loader)
             _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+            clust_dist, clust_lbls = None, None
+            if self.num_clusters > 1:
+                clust_dist, clust_lbls = get_clusters(embeddings, k=self.num_clusters, gpu=torch.cuda.is_available())
+
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,
+                                                    cluster_lbls=clust_lbls,
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix,
