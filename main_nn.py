@@ -309,7 +309,9 @@ def main(cfg: DictConfig):
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
         clust_dist, clust_lbls = None, None
         if cfg.data.num_clusters > 1:
-            clust_dist, clust_lbls = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
+            clusters = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
+            clust_dist = clusters['dist']
+            clust_lbls = clust_lbls['lbls']
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
