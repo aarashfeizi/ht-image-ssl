@@ -121,7 +121,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         if self.clusters is not None:
             new_sim_idices = []
             for idx, row in enumerate(self.sim_matrix):
-                row_clusters = self.clusters[row]
+                row_clusters = self.clusters[row].flatten()
                 idx_from_same_cluster = row[row_clusters == row_clusters[0]]
                 new_row = idx_from_same_cluster[:self.num_nns_choice]
                 if len(new_row) < self.num_nns_choice:
