@@ -592,7 +592,7 @@ def get_sim_matrix(embeddings, k=2048, gpu=True):
 
 def get_clusters(embeddings, k=100, gpu=True):
     n, d = embeddings.shape
-    if embeddings.dtpe != np.float32:
+    if embeddings.dtype != np.float32:
         embeddings = embeddings.astype(np.float32)
     if gpu:
         try:
