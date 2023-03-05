@@ -761,7 +761,11 @@ class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
             percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
+            not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
             logger.log_metrics({'relevant_class_percentage_AVG': percentage_metrics['avg'],
                                 'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
-                                'relevant_class_percentage_VAR': percentage_metrics['var']}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                                'relevant_class_percentage_VAR': percentage_metrics['var'],
+                                'not_from_cluster_percentage_AVG': not_from_cluster_percentage_metrics['avg'],
+                                'not_from_cluster_percentage_MEDIAN': not_from_cluster_percentage_metrics['median'],
+                                'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
 
