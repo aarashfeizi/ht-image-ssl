@@ -197,6 +197,6 @@ class BYOL(BaseMomentumMethod):
             "train_neg_cos_sim": neg_cos_sim,
             "train_z_std": z_std,
         }
-        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        self.log_dict(metrics, on_epoch=True, on_step=False, sync_dist=True)
 
         return neg_cos_sim + class_loss

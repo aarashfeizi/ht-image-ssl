@@ -542,7 +542,7 @@ class BaseMethod(pl.LightningModule):
             "train_acc5": outs["acc5"],
         }
 
-        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
 
         if self.knn_eval: # does not support nnclr2
             targets = targets.repeat(self.num_large_crops)
@@ -817,7 +817,7 @@ class BaseMomentumMethod(BaseMethod):
                 "train_momentum_acc1": momentum_outs["momentum_acc1"],
                 "train_momentum_acc5": momentum_outs["momentum_acc5"],
             }
-            self.log_dict(metrics, on_epoch=True, sync_dist=True)
+            self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
 
             # adds the momentum classifier loss together with the general loss
             outs["loss"] += momentum_outs["momentum_loss"]
@@ -842,7 +842,7 @@ class BaseMomentumMethod(BaseMethod):
             for mp in momentum_pairs:
                 self.momentum_updater.update(*mp)
             # log tau momentum
-            self.log("tau", self.momentum_updater.cur_tau)
+            self.log("tau", self.momentum_updater.cur_tau, on_epoch=True, on_step=False)
             # update tau
             self.momentum_updater.update_tau(
                 cur_step=self.trainer.global_step,

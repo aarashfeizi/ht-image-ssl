@@ -215,6 +215,6 @@ class NNCLR(BaseMethod):
             "train_nnclr_loss": nnclr_loss,
             "train_nn_acc": nn_acc,
         }
-        self.log_dict(metrics, on_epoch=True, sync_dist=True)
+        self.log_dict(metrics, on_epoch=True, on_step=False, sync_dist=True)
 
         return nnclr_loss + class_loss

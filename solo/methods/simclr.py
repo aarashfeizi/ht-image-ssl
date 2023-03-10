@@ -146,6 +146,6 @@ class SimCLR(BaseMethod):
             temperature=self.temperature,
         )
 
-        self.log("train_nce_loss", nce_loss, on_epoch=True, sync_dist=True)
+        self.log("train_nce_loss", nce_loss, on_epoch=True, on_step=False, sync_dist=True)
 
         return nce_loss + class_loss

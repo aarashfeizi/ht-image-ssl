@@ -393,6 +393,7 @@ def main(cfg: DictConfig):
             "callbacks": callbacks,
             "enable_checkpointing": False,
             "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
+            "log_every_n_steps": 500,
             "progress_bar_refresh_rate": 0, # turn off progress bar
             "strategy": DDPStrategy(find_unused_parameters=True) if cfg.strategy == "ddp" else cfg.strategy,
         }
