@@ -3,22 +3,25 @@ import numpy as np
 from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, cluster_lbls=None, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
+    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=None, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
         super().__init__()
 
         self.num_nns = num_nns
         self.num_nns_choice = num_nns_choice
+        self.nn_threshold = nn_threshold
+        self.dist_matrix = dist_matrix
         assert num_nns_choice >= num_nns
 
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
 
         if filter_sim_matrix:
-            self._filter_sim_matrix()
+            self._filter_sim_matrix_omit_self()
         else:
             self.sim_matrix = sim_matrix[:, :-1]
 
         self.not_from_cluster_percentage = {'avg': 0, 'var': 0, 'median': 0 }
+        self.no_nns = {'avg': 0, 'var': 0, 'median': 0 }
         self._filter_sim_matrix_by_nnc()
 
         self.dataset = dataset
@@ -97,7 +100,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         return all_idxs, all_xs, all_ys
 
 
-    def _filter_sim_matrix(self):
+    def _filter_sim_matrix_omit_self(self):
         """
         remove datapoint itself from its nearest neighbors (default should be False)
         """
@@ -118,25 +121,62 @@ class NNCLR2_Dataset_Wrapper(Dataset):
     
     def _filter_sim_matrix_by_nnc(self):
         not_from_cluster = []
-        if self.clusters is not None:
-            new_sim_idices = []
-            for idx, row in enumerate(self.sim_matrix):
-                row_clusters = self.clusters[row].flatten()
-                idx_from_same_cluster = row[row_clusters == row_clusters[0]]
-                new_row = idx_from_same_cluster[:self.num_nns_choice]
-                if len(new_row) < self.num_nns_choice:
-                    diff = self.num_nns_choice - len(new_row)
-                    repeated_idxs = new_row[np.random.randint(0, len(new_row), diff)]
-                    new_row = np.hstack([new_row, repeated_idxs])
 
-                new_sim_idices.append(new_row)
+        if self.nn_threshold is not None:
+            new_dist_list = []
+            new_sim_list = []
+            nns = []
+            for idx, row in enumerate(self.sim_matrix):
+                
+                dist_row = self.dist_matrix[idx]
+
+                new_row = row[dist_row <= self.nn_threshold]
+                new_dist_row = dist_row[dist_row <= self.nn_threshold]
+                nns.append(len(new_row))
+                
+                new_sim_list.append(new_row)
+                new_dist_list.append(new_dist_row)
 
                 not_from_cluster.append(len(set(row[:self.num_nns_choice]) - set(new_row)))
             
-            new_sim_matrix = np.stack(new_sim_idices, axis=0)
-            assert new_sim_matrix.shape[0] == self.sim_matrix.shape[0]
-            assert new_sim_matrix.shape[1] == (self.num_nns_choice)
-            self.sim_matrix = new_sim_matrix
+            # new_sim_matrix = np.stack(new_sim_idices, axis=0)
+            # new_dist_matrix = np.stack(new_dist_list, axis=0)
+            assert len(new_sim_list) == len(self.sim_matrix)
+            assert len(new_dist_list) == len(self.dist_matrix)
+             
+
+            self.sim_matrix = new_sim_list
+            self.dist_matrix = new_dist_list
+
+            no_nns = np.array(nns)
+
+            self.no_nns['avg'] = no_nns.mean()
+            self.no_nns['median'] = np.median(no_nns)
+            self.no_nns['var'] = np.var(no_nns)
+
+        if self.clusters is not None:
+            new_dist_list = []
+            new_sim_list = []
+            for idx, row in enumerate(self.sim_matrix):
+                row_clusters = self.clusters[row].flatten()
+                
+                idx_from_same_cluster = row[row_clusters == row_clusters[0]]
+                new_row = idx_from_same_cluster[:self.num_nns_choice]
+
+                idx_from_same_cluster_dist = self.dist_matrix[idx][row_clusters == row_clusters[0]]
+                new_dist_row = idx_from_same_cluster_dist[:self.num_nns_choice]
+
+                new_sim_list.append(new_row)
+                new_dist_list.append(new_dist_row)
+                
+                not_from_cluster.append(len(set(row[:self.num_nns_choice]) - set(new_row)))
+            
+            assert len(new_sim_list) == len(self.sim_matrix)
+
+            assert len(new_dist_list) == len(self.dist_matrix)
+
+            self.sim_matrix = new_sim_list
+            self.dist_matrix = new_dist_list
 
             not_from_cluster = np.array(not_from_cluster) / self.num_nns_choice 
 
@@ -144,10 +184,19 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.not_from_cluster_percentage['median'] = np.median(not_from_cluster)
             self.not_from_cluster_percentage['var'] = np.var(not_from_cluster)
         else:
-            self.sim_matrix = self.sim_matrix[:, :self.num_nns_choice]
+            new_sim_list = []
+            new_dist_list = []
+            for idx in range(len(self.sim_matrix)):
+                new_sim_list.append(self.sim_matrix[idx][:, :self.num_nns_choice])
+                new_dist_list.append(self.dist_matrix[idx][:, :self.num_nns_choice])
+  
+            self.sim_matrix = new_sim_list
+            self.dist_matrix = new_dist_list
 
         return
     
+
+
 
     def __len__(self):
         return len(self.dataset)

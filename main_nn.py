@@ -312,6 +312,12 @@ def main(cfg: DictConfig):
             clusters = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
             clust_dist = clusters['dist']
             clust_lbls = clusters['lbls']
+        
+        if cfg.data.cluster_louvain:
+            clust_lbls = misc.get_louvain_clusters(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
+        
+        assert (cfg.data.cluster_louvain) != (cfg.data.num_clusters > 1), "Cannot do both clustering and Louvain community detection!"
+
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
@@ -320,7 +326,9 @@ def main(cfg: DictConfig):
             
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
                                                     sim_matrix=emb_sim_matrix,
+                                                    dist_matrix=emb_dist_matrix,
                                                     cluster_lbls=clust_lbls,
+                                                    nn_threshold=cfg.data.nn_threshold,
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
@@ -367,7 +375,8 @@ def main(cfg: DictConfig):
     datamodule = BaseDataModule(model=model,
                                 filter_sim_matrix=cfg.data.filter_sim_matrix,
                                 subsample_by=1,
-                                num_clusters=cfg.data.num_clusters)
+                                num_clusters=cfg.data.num_clusters,
+                                nn_threshold=cfg.data.nn_threshold)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)

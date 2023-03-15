@@ -612,7 +612,27 @@ def get_clusters(embeddings, k=100, gpu=True):
     return {'dist': cluster_dist, 
             'lbls': cluster_labels}
     
-    return kmeans
+def get_louvain_clusters(nn_matrix, dist_matrix, seed=None):
+    import networkx as nx
+    import networkx.algorithms.community as nx_comm
+    no_nodes = nn_matrix.shape[0]
+    knn_graph = nx.Graph()
+    knn_graph.add_nodes_from(range(0, no_nodes))
+    for i, row in enumerate(nn_matrix):
+        for j, nn in row:
+            knn_graph.add_edge(i, nn, weight=dist_matrix[i][j])
+    
+    communities = nx_comm.louvain_communities(knn_graph, seed=seed)
+    labels = {i: -1 for i in range(no_nodes)}
+    for comm_id, comm in enumerate(communities):
+        for i in comm:
+            assert labels[i] == -1
+            labels[i] = comm_id
+    
+    cluster_lbls = np.array(list(labels.values()))
+
+    return cluster_lbls, knn_graph
+
 
 def load_npy(path):
     return np.load(path)
@@ -761,11 +781,15 @@ class ClassNNPecentageCallback(Callback):
     def on_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
             percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
-            not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
+            not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.no_nns
+            no_nns_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
             logger.log_metrics({'relevant_class_percentage_AVG': percentage_metrics['avg'],
                                 'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
                                 'relevant_class_percentage_VAR': percentage_metrics['var'],
                                 'not_from_cluster_percentage_AVG': not_from_cluster_percentage_metrics['avg'],
                                 'not_from_cluster_percentage_MEDIAN': not_from_cluster_percentage_metrics['median'],
-                                'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                                'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],
+                                'no_nns_metrics_AVG': no_nns_metrics['avg'],
+                                'no_nns_metrics_MEDIAN': no_nns_metrics['median'],
+                                'no_nns_metrics_VAR': no_nns_metrics['var'],}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
 

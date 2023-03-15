@@ -13,7 +13,8 @@ class BaseDataModule(pl.LightningDataModule):
                     model=None,
                     filter_sim_matrix=True,
                     subsample_by=1,
-                    num_clusters=1):
+                    num_clusters=1,
+                    nn_threshold=None):
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
@@ -24,6 +25,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.filter_sim_matrix = filter_sim_matrix
         self.subsample_by = subsample_by
         self.num_clusters = num_clusters
+        self.nn_threshold = nn_threshold
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -49,14 +51,16 @@ class BaseDataModule(pl.LightningDataModule):
             assert self.emb_train_loader is not None
 
             embeddings = get_embeddings(self.model, self.emb_train_loader)
-            _, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+            emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
             clust_dist, clust_lbls = None, None
             if self.num_clusters > 1:
                 clust_dist, clust_lbls = get_clusters(embeddings, k=self.num_clusters, gpu=torch.cuda.is_available())
 
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,
+                                                    dist_matrix=emb_dist_matrix,
                                                     cluster_lbls=clust_lbls,
+                                                    nn_threshold=self.nn_threshold,
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix,
