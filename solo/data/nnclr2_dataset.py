@@ -207,8 +207,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             new_sim_list = []
             new_dist_list = []
             for idx in range(len(self.sim_matrix)):
-                new_sim_list.append(self.sim_matrix[idx][:, :self.num_nns_choice])
-                new_dist_list.append(self.dist_matrix[idx][:, :self.num_nns_choice])
+                new_sim_list.append(self.sim_matrix[idx][:self.num_nns_choice])
+                new_dist_list.append(self.dist_matrix[idx][:self.num_nns_choice])
   
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
