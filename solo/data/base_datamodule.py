@@ -67,6 +67,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                     subsample_by=self.subsample_by)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
+            print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
+            print('Number of nns: ', train_dataset.no_nns)
             self.train_loader = prepare_dataloader(
                 train_dataset, batch_size=self.train_loader.batch_size, num_workers=self.train_loader.num_workers)
             

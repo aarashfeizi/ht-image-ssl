@@ -337,6 +337,7 @@ def main(cfg: DictConfig):
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
+            print('Number of nns: ', train_dataset.no_nns)
             class_percentage_cb = misc.ClassNNPecentageCallback()
             callbacks.append(class_percentage_cb)
 
