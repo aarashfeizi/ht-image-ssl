@@ -158,9 +158,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                 
                 new_sim_list.append(new_row)
                 new_dist_list.append(new_dist_row)
-
-                not_from_cluster.append(len(set(row[:self.num_nns_choice]) - set(new_row)))
-            
+                
             # new_sim_matrix = np.stack(new_sim_idices, axis=0)
             # new_dist_matrix = np.stack(new_dist_list, axis=0)
             assert len(new_sim_list) == len(self.sim_matrix)
