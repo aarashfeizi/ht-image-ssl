@@ -203,7 +203,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.not_from_cluster_percentage['avg'] = not_from_cluster.mean()
             self.not_from_cluster_percentage['median'] = np.median(not_from_cluster)
             self.not_from_cluster_percentage['var'] = np.var(not_from_cluster)
-        else:
+        
+        if (self.clusters is None) and (self.nn_threshold < 0):
             new_sim_list = []
             new_dist_list = []
             for idx in range(len(self.sim_matrix)):
