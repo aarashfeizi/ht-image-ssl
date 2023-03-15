@@ -37,13 +37,21 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         
 
     def get_class_percentage(self):
-        all_lbls_sim_matrix = self.labels[self.sim_matrix]
-        all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
-        correct_lbls = (all_lbls_true == all_lbls_sim_matrix)
-        avg = correct_lbls.sum() / (len(self.labels) * self.num_nns_choice)
-        all_percentages = correct_lbls.sum(axis=1) / self.num_nns_choice
+        total_lengths = []
+        correct_lbls = []
+        for idx, sim_row in enumerate(self.sim_matrix):
+            all_lbls_sim_matrix = self.labels[sim_row]
+            # all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
+            correct_lbls.append(sum(self.labels[idx] == all_lbls_sim_matrix))
+            total_lengths.append(len(sim_row))
+
+        correct_lbls = np.array(correct_lbls, dtype=np.float32)
+        total_lengths = np.array(total_lengths, dtype=np.float32)
+        avg = correct_lbls.sum() / total_lengths.sum()
+        all_percentages = correct_lbls / total_lengths
         median = np.median(all_percentages)
         var = np.var(all_percentages)
+        
         return {'avg': avg, 'median': median, 'var': var}
 
     
