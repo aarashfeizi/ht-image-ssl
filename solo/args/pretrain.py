@@ -121,7 +121,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.data.filter_sim_matrix = omegaconf_select(cfg, "data.filter_sim_matrix", False)
     cfg.data.num_clusters = omegaconf_select(cfg, "data.num_clusters", 1)
     cfg.data.cluster_louvain = omegaconf_select(cfg, "data.cluster_louvain", False)
-    cfg.data.nn_threshold = omegaconf_select(cfg, "data.nn_threshold", None)
+    cfg.data.nn_threshold = omegaconf_select(cfg, "data.nn_threshold", -1)
     
     
     assert cfg.data.num_nns_choice >= cfg.data.num_nns

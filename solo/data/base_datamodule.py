@@ -14,7 +14,7 @@ class BaseDataModule(pl.LightningDataModule):
                     filter_sim_matrix=True,
                     subsample_by=1,
                     num_clusters=1,
-                    nn_threshold=None):
+                    nn_threshold=-1):
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None

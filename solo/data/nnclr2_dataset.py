@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=None, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
+    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
         super().__init__()
 
         self.num_nns = num_nns
@@ -144,7 +144,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
     def _filter_sim_matrix_by_nnc(self):
         not_from_cluster = []
 
-        if self.nn_threshold is not None:
+        if self.nn_threshold > 0:
             new_dist_list = []
             new_sim_list = []
             nns = []
@@ -158,7 +158,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                 
                 new_sim_list.append(new_row)
                 new_dist_list.append(new_dist_row)
-                
+
             # new_sim_matrix = np.stack(new_sim_idices, axis=0)
             # new_dist_matrix = np.stack(new_dist_list, axis=0)
             assert len(new_sim_list) == len(self.sim_matrix)
