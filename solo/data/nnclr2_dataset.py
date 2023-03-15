@@ -19,6 +19,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self._filter_sim_matrix_omit_self()
         else:
             self.sim_matrix = sim_matrix[:, :-1]
+            self.dist_matrix = self.dist_matrix[:, :-1]
 
         self.not_from_cluster_percentage = {'avg': 0, 'var': 0, 'median': 0 }
         self.no_nns = {'avg': 0, 'var': 0, 'median': 0 }
@@ -105,17 +106,30 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         remove datapoint itself from its nearest neighbors (default should be False)
         """
         new_sim_idices = []
+        new_dist_idices = []
         for idx, row in enumerate(self.sim_matrix):
             if idx in row:
                 new_row = np.concatenate([row[:np.argwhere(row == idx)[0][0]], row[np.argwhere(row == idx)[0][0] + 1:]])
+                new_dist_row = np.concatenate([self.dist_matrix[idx][:np.argwhere(row == idx)[0][0]], self.dist_matrix[idx][np.argwhere(row == idx)[0][0] + 1:]])
+                
             else:
                 new_row = row[:-1]
+                new_dist_row = self.dist_matrix[idx][:-1]
+
             new_sim_idices.append(new_row)
+            new_dist_idices.append(new_dist_row)
         
         new_sim_matrix = np.stack(new_sim_idices, axis=0)
+        new_dist_matrix = np.stack(new_dist_idices, axis=0)
+
         assert new_sim_matrix.shape[0] == self.sim_matrix.shape[0]
         assert new_sim_matrix.shape[1] == (self.sim_matrix.shape[1] - 1)
+        
+        assert new_dist_matrix.shape[0] == self.new_dist_matrix.shape[0]
+        assert new_dist_matrix.shape[1] == (self.new_dist_matrix.shape[1] - 1)
+        
         self.sim_matrix = new_sim_matrix
+        self.dist_matrix = new_dist_matrix
         return
     
     
