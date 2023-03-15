@@ -316,7 +316,8 @@ def main(cfg: DictConfig):
         if cfg.data.cluster_louvain:
             clust_lbls = misc.get_louvain_clusters(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
         
-        assert (cfg.data.cluster_louvain) != (cfg.data.num_clusters > 1), "Cannot do both clustering and Louvain community detection!"
+        if cfg.data.cluster_louvain or cfg.data.num_clusters > 1:
+            assert (cfg.data.cluster_louvain) != (cfg.data.num_clusters > 1), "Cannot do both clustering and Louvain community detection!"
 
         assert len(train_dataset) == len(embeddings)
 
