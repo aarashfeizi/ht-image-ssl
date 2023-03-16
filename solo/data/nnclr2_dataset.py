@@ -22,7 +22,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.dist_matrix = self.dist_matrix[:, :-1]
 
         self.not_from_cluster_percentage = {'avg': 0, 'var': 0, 'median': 0 }
-        self.no_nns = {'avg': 0, 'var': 0, 'median': 0 }
+        self.no_nns = {'avg': 0, 'var': 0, 'median': 0, 'max': 0, 'min': 0}
         self._filter_sim_matrix_by_nnc()
 
         self.dataset = dataset
@@ -173,6 +173,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.no_nns['avg'] = no_nns.mean()
             self.no_nns['median'] = np.median(no_nns)
             self.no_nns['var'] = np.var(no_nns)
+            self.no_nns['max'] = np.max(no_nns)
+            self.no_nns['min'] = np.min(no_nns)
 
         if self.clusters is not None:
             new_dist_list = []

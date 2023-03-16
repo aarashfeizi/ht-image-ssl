@@ -791,5 +791,7 @@ class ClassNNPecentageCallback(Callback):
                                 'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],
                                 'no_nns_metrics_AVG': no_nns_metrics['avg'],
                                 'no_nns_metrics_MEDIAN': no_nns_metrics['median'],
-                                'no_nns_metrics_VAR': no_nns_metrics['var'],}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                                'no_nns_metrics_VAR': no_nns_metrics['var'],
+                                'no_nns_metrics_MAX': no_nns_metrics['max'],
+                                'no_nns_metrics_MIN': no_nns_metrics['min'],}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
 
