@@ -771,6 +771,19 @@ def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls
     plt.title(f'{dataset_name} k = {k} Log Scale')
     plt.savefig(f'{dataset_name}_k{k}_log.pdf')
 
+def create_pos_neg_hist_plot_from_neg_and_pos(dataset_name, pos_dists, neg_dists, bins=300):
+    plt.clf()
+    plt.hist(neg_dists, bins=bins, color='r', alpha=0.3)
+    plt.hist(pos_dists, bins=bins, color='g', alpha=0.3)
+    plt.title(f'{dataset_name} all')
+    plt.savefig(f'{dataset_name}_all.pdf')
+    plt.clf()
+    plt.hist(neg_dists, bins=bins, color='r', alpha=0.3)
+    plt.hist(pos_dists, bins=bins, color='g', alpha=0.3)
+    plt.yscale('log')
+    plt.title(f'{dataset_name} all Log Scale')
+    plt.savefig(f'{dataset_name}_all_log.pdf')
+
 # def dict_from_proto_list(obj_list):
 #     d = dict()
 #     for item in obj_list:

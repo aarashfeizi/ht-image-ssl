@@ -185,6 +185,7 @@ class LinearModel(pl.LightningModule):
         cfg.scheduler.warmup_start_lr = omegaconf_select(cfg, "scheduler.warmup_start_lr", 3e-5)
         cfg.scheduler.warmup_epochs = omegaconf_select(cfg, "scheduler.warmup_epochs", 10)
         cfg.scheduler.interval = omegaconf_select(cfg, "scheduler.interval", "step")
+        cfg.scheduler.last_epoch = omegaconf_select(cfg, "scheduler.last_epoch", -1)
 
         # default parameters for performance optimization
         cfg.performance = omegaconf_select(cfg, "performance", {})

@@ -112,6 +112,17 @@ def add_and_assert_lightning_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictCon
 
     return cfg
 
+def add_and_assert_scheduler(cfg):
+    cfg.scheduler.lr_decay_steps = omegaconf_select(cfg, "scheduler.lr_decay_steps", None)
+    cfg.scheduler.min_lr = omegaconf_select(cfg, "scheduler.min_lr", 0.0)
+    cfg.scheduler.warmup_start_lr = omegaconf_select(cfg, "scheduler.warmup_start_lr", 3e-5)
+    cfg.scheduler.warmup_epochs = omegaconf_select(cfg, "scheduler.warmup_epochs", 10)
+    cfg.scheduler.interval = omegaconf_select(cfg, "scheduler.interval", "step")
+    cfg.scheduler.last_epoch = omegaconf_select(cfg, "scheduler.last_epoch", -1)
+
+    return cfg
+
+
 def add_and_assert_nnclr2_cfg(cfg):
     cfg.nnclr2 = omegaconf_select(cfg, "nnclr2", False)
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
@@ -172,6 +183,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     cfg = add_and_assert_dataset_cfg(cfg)
 
     cfg = add_and_assert_nnclr2_cfg(cfg)
+
+    cfg = add_and_assert_scheduler(cfg)
 
     # default values for wandb
     cfg = add_and_assert_wandb_cfg(cfg)
