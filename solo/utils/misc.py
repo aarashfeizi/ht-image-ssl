@@ -620,18 +620,21 @@ def get_louvain_clusters_weighted(nn_matrix, dist_matrix, seed=None, threshold=1
     knn_graph = nx.Graph()
     knn_graph.add_nodes_from(range(0, no_nodes))
     degree_one_nodes = 0
-    for i, row in enumerate(nn_matrix):
-        if len(dist_matrix[i][dist_matrix[i] <= threshold]) < 2:
-            row = row[:2]
-            dist_row = dist_matrix[i][:2]
-            degree_one_nodes += 1
-        else:
-            row = row[dist_matrix[i] <= threshold]
-            dist_row = dist_matrix[i][dist_matrix[i] <= threshold]
-        
-        for j, nn in enumerate(row):
-            knn_graph.add_edge(i, nn, weight= -1 * dist_row[j]) # weights represent strength of connection
+    with tqdm(total=len(nn_matrix), desc='Creating knn graph...') as t:
+        for i, row in enumerate(nn_matrix):
+            if len(dist_matrix[i][dist_matrix[i] <= threshold]) < 2:
+                row = row[:2]
+                dist_row = dist_matrix[i][:2]
+                degree_one_nodes += 1
+            else:
+                row = row[dist_matrix[i] <= threshold]
+                dist_row = dist_matrix[i][dist_matrix[i] <= threshold]
             
+            for j, nn in enumerate(row):
+                knn_graph.add_edge(i, nn, weight= -1 * dist_row[j]) # weights represent strength of connection
+            
+            t.update()
+
     print(f'Using KNN_graph with {(degree_one_nodes / no_nodes) * 100} pecent degree-one nodes')
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
     labels = {i: -1 for i in range(no_nodes)}
@@ -651,10 +654,13 @@ def get_louvain_clusters_unweighted(nn_matrix, dist_matrix, seed=None, k=6):
     no_nodes = nn_matrix.shape[0]
     knn_graph = nx.Graph()
     knn_graph.add_nodes_from(range(0, no_nodes))
-    for i, row in enumerate(nn_matrix):
-        for j, nn in enumerate(row[:k]):
-            knn_graph.add_edge(i, nn)
-    
+    with tqdm(total=len(nn_matrix), desc='Creating knn graph...') as t:
+        for i, row in enumerate(nn_matrix):
+            for j, nn in enumerate(row[:k]):
+                knn_graph.add_edge(i, nn)
+                
+            t.update()
+
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
     labels = {i: -1 for i in range(no_nodes)}
     for comm_id, comm in enumerate(communities):
