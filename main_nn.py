@@ -317,7 +317,7 @@ def main(cfg: DictConfig):
         elif cfg.data.clustering_algo.startswith('louvain'):
             clust_dist = None
             if cfg.data.clustering_algo == 'louvainW':
-                clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
+                clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, threshold=cfg.data.nn_threshold)
             elif cfg.data.clustering_algo == 'louvainU':
                 clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, k=cfg.data.num_nns_choice)
         

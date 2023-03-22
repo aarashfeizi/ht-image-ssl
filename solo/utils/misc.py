@@ -612,16 +612,27 @@ def get_clusters(embeddings, k=100, gpu=True):
     return {'dist': cluster_dist, 
             'lbls': cluster_labels}
     
-def get_louvain_clusters_weighted(nn_matrix, dist_matrix, seed=None):
+def get_louvain_clusters_weighted(nn_matrix, dist_matrix, seed=None, threshold=10000):
     import networkx as nx
     import networkx.algorithms.community as nx_comm
+    print(f'Using threshold for weighted Louvain clustering = {threshold}')
     no_nodes = nn_matrix.shape[0]
     knn_graph = nx.Graph()
     knn_graph.add_nodes_from(range(0, no_nodes))
+    degree_one_nodes = 0
     for i, row in enumerate(nn_matrix):
+        if len(dist_matrix[i][dist_matrix[i] <= threshold]) < 2:
+            row = row[:2]
+            dist_row = dist_matrix[i][:2]
+            degree_one_nodes += 1
+        else:
+            row = row[dist_matrix[i] <= threshold]
+            dist_row = dist_matrix[i][dist_matrix[i] <= threshold]
+        
         for j, nn in enumerate(row):
-            knn_graph.add_edge(i, nn, weight= -1 * dist_matrix[i][j]) # weights represent strength of connection
-    
+            knn_graph.add_edge(i, nn, weight= -1 * dist_row[j]) # weights represent strength of connection
+            
+    print(f'Using KNN_graph with {(degree_one_nodes / no_nodes) * 100} pecent degree-one nodes')
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
     labels = {i: -1 for i in range(no_nodes)}
     for comm_id, comm in enumerate(communities):
