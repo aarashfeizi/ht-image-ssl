@@ -182,7 +182,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
 
-        if self.clusters is not None and self.clustering_algo == 'kmeans':
+        if self.clusters is not None:
             new_dist_list = []
             new_sim_list = []
             for idx, row in enumerate(self.sim_matrix):
