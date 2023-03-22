@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1) -> None:
+    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1, clustering_algo=None) -> None:
         super().__init__()
 
         self.num_nns = num_nns
@@ -14,6 +14,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
+        self.clustering_algo = clustering_algo
+        assert (self.clustering_algo is None) == (self.clusters is None)
 
         if filter_sim_matrix:
             self._filter_sim_matrix_omit_self()
@@ -140,21 +142,33 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.dist_matrix = new_dist_matrix
         return
     
-    
+    def _update_nns_stats(self):
+        nns = []
+        for idx, row in enumerate(self.sim_matrix):
+            nns.append(len(row))
+
+        no_nns = np.array(nns)
+
+        self.no_nns['avg'] = no_nns.mean()
+        self.no_nns['median'] = np.median(no_nns)
+        self.no_nns['var'] = np.var(no_nns)
+        self.no_nns['max'] = np.max(no_nns)
+        self.no_nns['min'] = np.min(no_nns)
+
+        return
+
     def _filter_sim_matrix_by_nnc(self):
         not_from_cluster = []
 
-        if self.nn_threshold > 0:
+        if self.nn_threshold > 0 and (not self.clustering_algo.startswith('louvain')):
             new_dist_list = []
             new_sim_list = []
-            nns = []
             for idx, row in enumerate(self.sim_matrix):
                 
                 dist_row = self.dist_matrix[idx]
 
                 new_row = row[dist_row <= self.nn_threshold]
                 new_dist_row = dist_row[dist_row <= self.nn_threshold]
-                nns.append(len(new_row))
                 
                 new_sim_list.append(new_row)
                 new_dist_list.append(new_dist_row)
@@ -168,25 +182,23 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
 
-            no_nns = np.array(nns)
-
-            self.no_nns['avg'] = no_nns.mean()
-            self.no_nns['median'] = np.median(no_nns)
-            self.no_nns['var'] = np.var(no_nns)
-            self.no_nns['max'] = np.max(no_nns)
-            self.no_nns['min'] = np.min(no_nns)
-
-        if self.clusters is not None:
+        if self.clusters is not None and self.clustering_algo == 'kmeans':
             new_dist_list = []
             new_sim_list = []
             for idx, row in enumerate(self.sim_matrix):
                 row_clusters = self.clusters[row].flatten()
                 
                 idx_from_same_cluster = row[row_clusters == row_clusters[0]]
-                new_row = idx_from_same_cluster[:self.num_nns_choice]
+                if self.clustering_algo.startswith('louvain'):
+                    new_row = idx_from_same_cluster
+                else:
+                    new_row = idx_from_same_cluster[:self.num_nns_choice]
 
                 idx_from_same_cluster_dist = self.dist_matrix[idx][row_clusters == row_clusters[0]]
-                new_dist_row = idx_from_same_cluster_dist[:self.num_nns_choice]
+                if self.clustering_algo.startswith('louvain'):
+                    new_dist_row = idx_from_same_cluster_dist
+                else:
+                    new_dist_row = idx_from_same_cluster_dist[:self.num_nns_choice]
 
                 new_sim_list.append(new_row)
                 new_dist_list.append(new_dist_row)
@@ -216,6 +228,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
 
+        self._update_nns_stats()
         return
     
 
