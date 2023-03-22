@@ -335,7 +335,8 @@ def main(cfg: DictConfig):
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
-                                                    subsample_by=1)
+                                                    subsample_by=1,
+                                                    clustering_algo=cfg.data.clustering_algo)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
@@ -380,7 +381,8 @@ def main(cfg: DictConfig):
                                 filter_sim_matrix=cfg.data.filter_sim_matrix,
                                 subsample_by=1,
                                 num_clusters=cfg.data.num_clusters,
-                                nn_threshold=cfg.data.nn_threshold)
+                                nn_threshold=cfg.data.nn_threshold,
+                                clustering_algo=cfg.data.clustering_algo)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)

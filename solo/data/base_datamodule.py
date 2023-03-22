@@ -14,7 +14,8 @@ class BaseDataModule(pl.LightningDataModule):
                     filter_sim_matrix=True,
                     subsample_by=1,
                     num_clusters=1,
-                    nn_threshold=-1):
+                    nn_threshold=-1,
+                    clustering_algo=None):
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
@@ -26,6 +27,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.subsample_by = subsample_by
         self.num_clusters = num_clusters
         self.nn_threshold = nn_threshold
+        self.clustering_algo = clustering_algo
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -64,7 +66,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix,
-                                                    subsample_by=self.subsample_by)
+                                                    subsample_by=self.subsample_by,
+                                                    clustering_algo=self.clustering_algo)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
