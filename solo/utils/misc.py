@@ -619,7 +619,7 @@ def get_louvain_clusters_weighted(nn_matrix, dist_matrix, seed=None):
     knn_graph = nx.Graph()
     knn_graph.add_nodes_from(range(0, no_nodes))
     for i, row in enumerate(nn_matrix):
-        for j, nn in row:
+        for j, nn in enumerate(row):
             knn_graph.add_edge(i, nn, weight= -1 * dist_matrix[i][j]) # weights represent strength of connection
     
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
@@ -641,7 +641,7 @@ def get_louvain_clusters_unweighted(nn_matrix, dist_matrix, seed=None, k=6):
     knn_graph = nx.Graph()
     knn_graph.add_nodes_from(range(0, no_nodes))
     for i, row in enumerate(nn_matrix):
-        for j, nn in row[:k]:
+        for j, nn in enumerate(row[:k]):
             knn_graph.add_edge(i, nn)
     
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
