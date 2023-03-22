@@ -319,7 +319,7 @@ def main(cfg: DictConfig):
             if cfg.data.clustering_algo == 'louvainW':
                 clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
             elif cfg.data.clustering_algo == 'louvainU':
-                clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
+                clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, k=cfg.data.num_nns_choice)
         
         assert len(train_dataset) == len(embeddings)
 
