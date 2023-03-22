@@ -612,7 +612,7 @@ def get_clusters(embeddings, k=100, gpu=True):
     return {'dist': cluster_dist, 
             'lbls': cluster_labels}
     
-def get_louvain_clusters(nn_matrix, dist_matrix, seed=None):
+def get_louvain_clusters_weighted(nn_matrix, dist_matrix, seed=None):
     import networkx as nx
     import networkx.algorithms.community as nx_comm
     no_nodes = nn_matrix.shape[0]
@@ -620,7 +620,7 @@ def get_louvain_clusters(nn_matrix, dist_matrix, seed=None):
     knn_graph.add_nodes_from(range(0, no_nodes))
     for i, row in enumerate(nn_matrix):
         for j, nn in row:
-            knn_graph.add_edge(i, nn, weight=dist_matrix[i][j])
+            knn_graph.add_edge(i, nn, weight= -1 * dist_matrix[i][j]) # weights represent strength of connection
     
     communities = nx_comm.louvain_communities(knn_graph, seed=seed)
     labels = {i: -1 for i in range(no_nodes)}
@@ -632,6 +632,29 @@ def get_louvain_clusters(nn_matrix, dist_matrix, seed=None):
     cluster_lbls = np.array(list(labels.values()))
 
     return cluster_lbls, knn_graph
+
+
+def get_louvain_clusters_unweighted(nn_matrix, dist_matrix, seed=None, k=6):
+    import networkx as nx
+    import networkx.algorithms.community as nx_comm
+    no_nodes = nn_matrix.shape[0]
+    knn_graph = nx.Graph()
+    knn_graph.add_nodes_from(range(0, no_nodes))
+    for i, row in enumerate(nn_matrix):
+        for j, nn in row[:k]:
+            knn_graph.add_edge(i, nn)
+    
+    communities = nx_comm.louvain_communities(knn_graph, seed=seed)
+    labels = {i: -1 for i in range(no_nodes)}
+    for comm_id, comm in enumerate(communities):
+        for i in comm:
+            assert labels[i] == -1
+            labels[i] = comm_id
+    
+    cluster_lbls = np.array(list(labels.values()))
+
+    return cluster_lbls, knn_graph
+
 
 
 def load_npy(path):

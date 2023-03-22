@@ -308,17 +308,19 @@ def main(cfg: DictConfig):
         print('Getting emb sim_matrix:')
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
         clust_dist, clust_lbls = None, None
-        if cfg.data.num_clusters > 1:
-            clusters = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
-            clust_dist = clusters['dist']
-            clust_lbls = clusters['lbls']
+        if cfg.data.clustering_algo == 'kmeans':
+            if cfg.data.num_clusters > 1:
+                clusters = misc.get_clusters(embeddings, k=cfg.data.num_clusters, gpu=torch.cuda.is_available())
+                clust_dist = clusters['dist']
+                clust_lbls = clusters['lbls']
         
-        if cfg.data.cluster_louvain:
-            clust_lbls = misc.get_louvain_clusters(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
+        elif cfg.data.clustering_algo.startswith('louvain'):
+            clust_dist = None
+            if cfg.data.clustering_algo == 'louvainW':
+                clust_lbls = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
+            elif cfg.data.clustering_algo == 'louvainU':
+                clust_lbls = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed)
         
-        if cfg.data.cluster_louvain or cfg.data.num_clusters > 1:
-            assert (cfg.data.cluster_louvain) != (cfg.data.num_clusters > 1), "Cannot do both clustering and Louvain community detection!"
-
         assert len(train_dataset) == len(embeddings)
 
         if cfg.nnclr2:
