@@ -234,7 +234,6 @@ class BaseMethod(pl.LightningModule):
         self.warmup_start_lr: float = cfg.scheduler.warmup_start_lr
         self.warmup_epochs: int = cfg.scheduler.warmup_epochs
         self.scheduler_interval: str = cfg.scheduler.interval
-        self.last_epoch: str = cfg.scheduler.last_epoch
         assert self.scheduler_interval in ["step", "epoch"]
         if self.scheduler_interval == "step":
             logging.warn(
@@ -380,8 +379,7 @@ class BaseMethod(pl.LightningModule):
                     warmup_epochs=max_warmup_steps,
                     max_epochs=max_scheduler_steps,
                     warmup_start_lr=self.warmup_start_lr if self.warmup_epochs > 0 else self.lr,
-                    eta_min=self.min_lr,
-                    last_epoch=self.last_epoch,
+                    eta_min=self.min_lr
                 ),
                 "interval": self.scheduler_interval,
                 "frequency": 1,
