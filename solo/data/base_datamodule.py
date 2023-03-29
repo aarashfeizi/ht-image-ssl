@@ -53,7 +53,7 @@ class BaseDataModule(pl.LightningDataModule):
             print('Updating train_loader sim_matrix on epoch = ', self.epoch)
 
             assert self.emb_train_loader is not None
-
+            extra_info = {}
             embeddings = get_embeddings(self.model, self.emb_train_loader)
             emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
             clust_dist, clust_lbls = None, None
@@ -62,6 +62,9 @@ class BaseDataModule(pl.LightningDataModule):
             
             if self.threshold_mode == 'adaptive':
                 threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
                 print(f'Seeting threshold to {threshold}')
             elif self.threshold_mode == 'fixed':
                 threshold = self.nn_threshold
@@ -75,7 +78,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix,
                                                     subsample_by=self.subsample_by,
-                                                    clustering_algo=self.clustering_algo)
+                                                    clustering_algo=self.clustering_algo,
+                                                    extra_info=extra_info)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

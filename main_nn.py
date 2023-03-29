@@ -323,13 +323,18 @@ def main(cfg: DictConfig):
                 clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, k=cfg.data.num_nns_choice + 1)
         
         assert len(train_dataset) == len(embeddings)
+        
+        extra_info = {}
 
-        if cfg.nnclr2:
+        if cfg.nnclr2:    
             print(f'num_nns: {cfg.data.num_nns}')
             print(f'num_nns_choice: {cfg.data.num_nns_choice}')
 
             if cfg.data.threshold_mode == 'adaptive':
                 threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
+                extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
                 print(f'Seeting threshold to {threshold}')
             elif cfg.data.threshold_mode == 'fixed':
                 threshold = cfg.data.nn_threshold
@@ -343,7 +348,8 @@ def main(cfg: DictConfig):
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
                                                     subsample_by=1,
-                                                    clustering_algo=cfg.data.clustering_algo)
+                                                    clustering_algo=cfg.data.clustering_algo,
+                                                    extra_info=extra_info)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

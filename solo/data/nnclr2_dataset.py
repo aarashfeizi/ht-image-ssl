@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import datasets
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1, clustering_algo=None) -> None:
+    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1, clustering_algo=None, extra_info={}) -> None:
         super().__init__()
 
         self.num_nns = num_nns
@@ -15,6 +15,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
         self.clustering_algo = clustering_algo
+        self.extra_info = extra_info
         if self.clusters is not None:
             assert (self.clustering_algo is not None) 
 
