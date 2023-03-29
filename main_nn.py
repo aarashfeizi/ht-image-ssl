@@ -33,6 +33,7 @@ from solo.args.pretrain import parse_cfg
 from solo.data.classification_dataloader import prepare_data as prepare_data_classification
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.base_datamodule import BaseDataModule
+import numpy as np
 from solo.data.pretrain_dataloader import (
     FullTransformPipeline,
     NCropAugmentation,
@@ -47,7 +48,6 @@ from solo.utils.auto_resumer import AutoResumer
 from solo.utils.checkpointer import Checkpointer
 from solo.utils import misc
 from datetime import datetime
-import numpy as np
 
 
 try:
@@ -354,8 +354,6 @@ def main(cfg: DictConfig):
             train_loader = prepare_dataloader(
                 train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
             )
-
-    import numpy as np
     
     model = METHODS[cfg.method](cfg)
     misc.make_contiguous(model)
