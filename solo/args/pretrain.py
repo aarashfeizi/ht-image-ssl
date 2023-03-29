@@ -134,6 +134,8 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.data.clustering_algo = omegaconf_select(cfg, "data.clustering_algo", 'kmeans') # ['kmeans', 'louvainW', 'louvainU']
     cfg.data.cluster_louvain = omegaconf_select(cfg, "data.cluster_louvain", False)
     cfg.data.nn_threshold = omegaconf_select(cfg, "data.nn_threshold", -1)
+    cfg.data.threshold_mode = omegaconf_select(cfg, "data.threshold_mode", "fixed") # ['fixed', 'adaptive']
+    
     
     
     assert cfg.data.num_nns_choice >= cfg.data.num_nns

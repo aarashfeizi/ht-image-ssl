@@ -47,6 +47,7 @@ from solo.utils.auto_resumer import AutoResumer
 from solo.utils.checkpointer import Checkpointer
 from solo.utils import misc
 from datetime import datetime
+import numpy as np
 
 
 try:
@@ -326,12 +327,18 @@ def main(cfg: DictConfig):
         if cfg.nnclr2:
             print(f'num_nns: {cfg.data.num_nns}')
             print(f'num_nns_choice: {cfg.data.num_nns_choice}')
+
+            if cfg.data.threshold_mode == 'adaptive':
+                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+                print(f'Seeting threshold to {threshold}')
+            elif cfg.data.threshold_mode == 'fixed':
+                threshold = cfg.data.nn_threshold
             
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
                                                     sim_matrix=emb_sim_matrix,
                                                     dist_matrix=emb_dist_matrix,
                                                     cluster_lbls=clust_lbls,
-                                                    nn_threshold=cfg.data.nn_threshold,
+                                                    nn_threshold=threshold,
                                                     num_nns=cfg.data.num_nns,
                                                     num_nns_choice=cfg.data.num_nns_choice,
                                                     filter_sim_matrix=cfg.data.filter_sim_matrix,
@@ -382,6 +389,7 @@ def main(cfg: DictConfig):
                                 subsample_by=1,
                                 num_clusters=cfg.data.num_clusters,
                                 nn_threshold=cfg.data.nn_threshold,
+                                threshold_mode=cfg.data.threshold_mode,
                                 clustering_algo=cfg.data.clustering_algo)
     
     datamodule.set_emb_dataloder(emb_train_loader)

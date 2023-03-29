@@ -3,7 +3,7 @@ import torch
 from solo.utils.misc import get_embeddings, get_sim_matrix, get_clusters
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.pretrain_dataloader import prepare_dataloader
-
+import numpy as np
 
 class BaseDataModule(pl.LightningDataModule):
     def __init__(self, train_transforms=None, 
@@ -15,6 +15,7 @@ class BaseDataModule(pl.LightningDataModule):
                     subsample_by=1,
                     num_clusters=1,
                     nn_threshold=-1,
+                    threshold_mode='fixed',
                     clustering_algo=None):
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
@@ -27,6 +28,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.subsample_by = subsample_by
         self.num_clusters = num_clusters
         self.nn_threshold = nn_threshold
+        self.threshold_mode = threshold_mode
         self.clustering_algo = clustering_algo
 
     def set_emb_dataloder(self, loader):
@@ -57,12 +59,18 @@ class BaseDataModule(pl.LightningDataModule):
             clust_dist, clust_lbls = None, None
             if self.num_clusters > 1:
                 clust_dist, clust_lbls = get_clusters(embeddings, k=self.num_clusters, gpu=torch.cuda.is_available())
+            
+            if self.threshold_mode == 'adaptive':
+                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+                print(f'Seeting threshold to {threshold}')
+            elif self.threshold_mode == 'fixed':
+                threshold = self.nn_threshold
 
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,
                                                     dist_matrix=emb_dist_matrix,
                                                     cluster_lbls=clust_lbls,
-                                                    nn_threshold=self.nn_threshold,
+                                                    nn_threshold=threshold,
                                                     num_nns=self.train_loader.dataset.num_nns,
                                                     num_nns_choice=self.train_loader.dataset.num_nns_choice,
                                                     filter_sim_matrix=self.filter_sim_matrix,
