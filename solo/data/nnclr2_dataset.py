@@ -15,7 +15,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
         self.clustering_algo = clustering_algo
-        assert (self.clustering_algo is None) == (self.clusters is None)
+        if self.clusters is not None:
+            assert (self.clustering_algo is not None) 
 
         if filter_sim_matrix:
             self._filter_sim_matrix_omit_self()
