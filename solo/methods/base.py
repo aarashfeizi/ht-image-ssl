@@ -216,6 +216,9 @@ class BaseMethod(pl.LightningModule):
 
         # training related
         self.max_epochs: int = cfg.max_epochs
+        self.scheduler_max_epochs: int = cfg.scheduler_max_epochs
+        if self.scheduler_max_epochs <= 0:
+            self.scheduler_max_epochs = self.max_epochs
         self.accumulate_grad_batches: Union[int, None] = cfg.accumulate_grad_batches
 
         # optimizer related
@@ -369,9 +372,9 @@ class BaseMethod(pl.LightningModule):
                 else self.warmup_epochs
             )
             max_scheduler_steps = (
-                self.trainer.estimated_stepping_batches
+                self.scheduler_max_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
                 if self.scheduler_interval == "step"
-                else self.max_epochs
+                else self.scheduler_max_epochs
             )
             scheduler = {
                 "scheduler": LinearWarmupCosineAnnealingLR(
