@@ -57,8 +57,8 @@ from solo.utils.lars import LARS
 from solo.utils.metrics import accuracy_at_k, weighted_mean
 from solo.utils.misc import omegaconf_select, remove_bias_and_norm_from_weight_decay
 from solo.utils.momentum import MomentumUpdater, initialize_momentum_params
-from torch.optim.lr_scheduler import MultiStepLR
-
+from torch.optim.lr_scheduler import MultiStepLR, ExponentialLR, LambdaLR
+from solo.schedulers import WarmUpExponentialLR
 
 def static_lr(
     get_lr: Callable,
@@ -108,6 +108,7 @@ class BaseMethod(pl.LightningModule):
         "warmup_cosine",
         "step",
         "exponential",
+        "warmup_exponential",
         "none",
     ]
 
@@ -233,6 +234,7 @@ class BaseMethod(pl.LightningModule):
         # scheduler related
         self.scheduler: str = cfg.scheduler.name
         self.lr_decay_steps: Union[List[int], None] = cfg.scheduler.lr_decay_steps
+        self.lr_gamma = cfg.scheduler.lr_decay_steps
         self.min_lr: float = cfg.scheduler.min_lr
         self.warmup_start_lr: float = cfg.scheduler.warmup_start_lr
         self.warmup_epochs: int = cfg.scheduler.warmup_epochs
@@ -294,6 +296,7 @@ class BaseMethod(pl.LightningModule):
 
         # default parameters for the scheduler
         cfg.scheduler.lr_decay_steps = omegaconf_select(cfg, "scheduler.lr_decay_steps", None)
+        cfg.scheduler.lr_gamma = omegaconf_select(cfg, "scheduler.lr_gamma", 1.0)
         cfg.scheduler.min_lr = omegaconf_select(cfg, "scheduler.min_lr", 0.0)
         cfg.scheduler.warmup_start_lr = omegaconf_select(cfg, "scheduler.warmup_start_lr", 3e-5)
         cfg.scheduler.warmup_epochs = omegaconf_select(cfg, "scheduler.warmup_epochs", 10)
@@ -389,6 +392,22 @@ class BaseMethod(pl.LightningModule):
             }
         elif self.scheduler == "step":
             scheduler = MultiStepLR(optimizer, self.lr_decay_steps)
+        elif self.scheduler == "exponential":
+            scheduler = ExponentialLR(optimizer, self.lr_gamma)
+        elif self.scheduler == "warmup_exponential":
+            max_warmup_steps = (
+                self.warmup_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
+                if self.scheduler_interval == "step"
+                else self.warmup_epochs
+            )
+
+            scheduler_function = WarmUpExponentialLR(gamma=self.lr_gamma,
+                                                     warmup_epochs=max_warmup_steps)
+            scheduler = {
+                "scheduler": LambdaLR(optimizer, scheduler_function),
+                "interval": self.scheduler_interval,
+                "frequency": 1,
+            }
         else:
             raise ValueError(f"{self.scheduler} not in (warmup_cosine, cosine, step)")
 
