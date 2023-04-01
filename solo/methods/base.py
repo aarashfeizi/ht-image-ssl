@@ -234,7 +234,7 @@ class BaseMethod(pl.LightningModule):
         # scheduler related
         self.scheduler: str = cfg.scheduler.name
         self.lr_decay_steps: Union[List[int], None] = cfg.scheduler.lr_decay_steps
-        self.lr_gamma = cfg.scheduler.lr_decay_steps
+        self.lr_gamma = cfg.scheduler.lr_gamma
         self.min_lr: float = cfg.scheduler.min_lr
         self.warmup_start_lr: float = cfg.scheduler.warmup_start_lr
         self.warmup_epochs: int = cfg.scheduler.warmup_epochs
