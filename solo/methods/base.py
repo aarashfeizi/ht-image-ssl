@@ -400,9 +400,14 @@ class BaseMethod(pl.LightningModule):
                 if self.scheduler_interval == "step"
                 else self.warmup_epochs
             )
-
+            if self.scheduler_interval == "step":
+                steps_per_epoch = (self.trainer.estimated_stepping_batches // self.max_epochs)
+            else:
+                steps_per_epoch = 1
+                
             scheduler_function = WarmUpExponentialLR(gamma=self.lr_gamma,
-                                                     warmup_epochs=max_warmup_steps)
+                                                     warmup_epochs=max_warmup_steps,
+                                                     steps_per_epoch=steps_per_epoch)
             scheduler = {
                 "scheduler": LambdaLR(optimizer, scheduler_function),
                 "interval": self.scheduler_interval,
