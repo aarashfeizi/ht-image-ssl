@@ -549,12 +549,13 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
     return model
         
 
-def get_embeddings(model, dataloader, index=0, key='feats'):
+def get_embeddings(model, dataloader, index=0, key='feats', return_global_idxes=False):
     embs = []
+    glb_idxes = []
 
     with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
         for idx, batch in enumerate(dataloader):
-            _, X, targets = batch
+            img_idx, X, targets = batch
             if type(X) == list:
                 X = X[index]
             X = X.cuda()
@@ -562,10 +563,15 @@ def get_embeddings(model, dataloader, index=0, key='feats'):
             if type(batch_emb) == dict:
                 batch_emb = batch_emb[key]
             embs.append(batch_emb.detach().cpu().numpy())
+            glb_idxes.append(img_idx.numpy())
             t.update()
 
     embs = np.concatenate(embs)
-    return embs
+    glb_idxes = np.concatenate(glb_idxes)
+    if return_global_idxes:
+        return embs, glb_idxes
+    else:
+        return embs
 
 def get_sim_matrix(embeddings, k=2048, gpu=True):
     d = embeddings.shape[-1]
@@ -860,7 +866,7 @@ class ClassNNPecentageCallback(Callback):
 
 class ClassNNPecentageCallback_NNCLR(Callback):
     def on_epoch_start(self, trainer, pl_module):
-        embeddings = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
+        embeddings, glb_idxes = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z', return_global_idxes=True)
         queue = pl_module.queue
         queue_y = pl_module.queue_y
         queue_idx = pl_module.queue_idx
