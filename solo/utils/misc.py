@@ -865,6 +865,7 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         embeddings = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         queue = pl_module.queue
         queue_y = pl_module.queue_y
+        queue_idx = pl_module.queue_idx
         index = faiss.IndexFlatL2(queue.shape[1])
         index.add(queue)
         D, I = index.search(embeddings, k=10) # actual search

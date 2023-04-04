@@ -72,7 +72,7 @@ class NNCLR(BaseMethod):
         # queue
         self.register_buffer("queue", torch.randn(self.queue_size, proj_output_dim))
         self.register_buffer("queue_y", -torch.ones(self.queue_size, dtype=torch.long))
-        self.register_buffer("queue_idx", -torch.ones(1, dtype=torch.long))
+        self.register_buffer("queue_idx", -torch.ones(self.queue_size, dtype=torch.long))
         self.queue = F.normalize(self.queue, dim=1)
         self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))
 
