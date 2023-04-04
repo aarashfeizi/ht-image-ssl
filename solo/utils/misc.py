@@ -860,15 +860,15 @@ class ClassNNPecentageCallback(Callback):
 
 class ClassNNPecentageCallback_NNCLR(Callback):
     def on_epoch_start(self, trainer, pl_module):
-        import pdb
-        pdb.set_trace()
         embeddings = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         queue = pl_module.queue
         queue_y = pl_module.queue_y
         queue_idx = pl_module.queue_idx
         index = faiss.IndexFlatL2(queue.shape[1])
-        index.add(queue)
-        D, I = index.search(embeddings, k=10) # actual search
+        index.add(queue.cpu().numpy())
+        D, I = index.search(embeddings, k=100) # actual search
+        import pdb
+        pdb.set_trace()
         
         for logger in trainer.loggers:
             percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
