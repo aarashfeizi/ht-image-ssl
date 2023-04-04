@@ -864,7 +864,7 @@ class ClassNNPecentageCallback(Callback):
 
 class ClassNNPecentageCallback_NNCLR(Callback):
     def on_epoch_start(self, trainer, pl_module):
-        output = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z', labels=True, return_global_idxes=True)
+        output = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         embeddings = output['embs']
         embedding_labels = output['targets']
         glb_idxes = output['glb_idxes']
