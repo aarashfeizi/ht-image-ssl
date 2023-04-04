@@ -54,7 +54,7 @@ class BaseDataModule(pl.LightningDataModule):
 
             assert self.emb_train_loader is not None
             extra_info = {}
-            embeddings = get_embeddings(self.model, self.emb_train_loader)
+            embeddings = get_embeddings(self.model, self.emb_train_loader)['embs']
             emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
             clust_dist, clust_lbls = None, None
             if self.num_clusters > 1:

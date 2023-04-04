@@ -549,10 +549,10 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
     return model
         
 
-def get_embeddings(model, dataloader, index=0, key='feats', return_global_idxes=False):
+def get_embeddings(model, dataloader, index=0, key='feats'):
     embs = []
     glb_idxes = []
-
+    returning_targets = []
     with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
         for idx, batch in enumerate(dataloader):
             img_idx, X, targets = batch
@@ -564,14 +564,12 @@ def get_embeddings(model, dataloader, index=0, key='feats', return_global_idxes=
                 batch_emb = batch_emb[key]
             embs.append(batch_emb.detach().cpu().numpy())
             glb_idxes.append(img_idx.numpy())
+            returning_targets.append(targets.numpy())
             t.update()
-
     embs = np.concatenate(embs)
     glb_idxes = np.concatenate(glb_idxes)
-    if return_global_idxes:
-        return embs, glb_idxes
-    else:
-        return embs
+    returning_targets = np.concatenate(returning_targets)
+    return {'embs': embs, 'targets': targets, 'glb_idxs': glb_idxes}
 
 def get_sim_matrix(embeddings, k=2048, gpu=True):
     d = embeddings.shape[-1]
@@ -866,25 +864,42 @@ class ClassNNPecentageCallback(Callback):
 
 class ClassNNPecentageCallback_NNCLR(Callback):
     def on_epoch_start(self, trainer, pl_module):
-        embeddings, glb_idxes = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z', return_global_idxes=True)
-        queue = pl_module.queue
-        queue_y = pl_module.queue_y
-        queue_idx = pl_module.queue_idx
+        output = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z', labels=True, return_global_idxes=True)
+        embeddings = output['embs']
+        embedding_labels = output['targets']
+        glb_idxes = output['glb_idxes']
+        queue = pl_module.queue.cpu().numpy()
+        queue_y = pl_module.queue_y.cpu().numpy()
+        queue_idx = pl_module.queue_idx.cpu().numpy()
         index = faiss.IndexFlatL2(queue.shape[1])
-        index.add(queue.cpu().numpy())
-        D, I = index.search(embeddings, k=100) # actual search
-        import pdb
-        pdb.set_trace()
+        index.add(queue)
+        D, I = index.search(embeddings, k=20) # actual search
+        
+        nearest_neighbor_queue_idxes = queue_idx[I[:, 0]].flatten()
+        embedding_idxes = glb_idxes.flatten()
 
-        # for logger in trainer.loggers:
+        nearest_neighbor_queue_labels = queue_y[I]
+        embedding_labels = np.repeat(embedding_labels, I.shape[1]).reshape(-1, I.shape[1])
+        
+
+        same_img_percentage = (embedding_idxes == nearest_neighbor_queue_idxes).mean()
+        
+        relevant_class_percentage_AVG = (embedding_labels == nearest_neighbor_queue_labels).mean()
+        relevant_class_percentage_VAR = (embedding_labels == nearest_neighbor_queue_labels).sum(axis=1).var()
+        relevant_class_percentage_MEDIAN = (embedding_labels == nearest_neighbor_queue_labels).sum(axis=1).median()
+
+
+
+        for logger in trainer.loggers:
         #     percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
         #     not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
         #     no_nns_metrics = trainer.train_dataloader.loaders.dataset.no_nns
         #     nn_threshold = trainer.train_dataloader.loaders.dataset.nn_threshold
         #     extra_info = trainer.train_dataloader.loaders.dataset.extra_info
-        #     metrics_to_log = {'relevant_class_percentage_AVG': percentage_metrics['avg'],
-        #                         'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
-        #                         'relevant_class_percentage_VAR': percentage_metrics['var'],
+            metrics_to_log = {'relevant_class_percentage_AVG': relevant_class_percentage_AVG,
+                                'relevant_class_percentage_MEDIAN': relevant_class_percentage_MEDIAN,
+                                'relevant_class_percentage_VAR': relevant_class_percentage_VAR,
+                                'same_img_percentage': same_img_percentage}
         #                         'not_from_cluster_percentage_AVG': not_from_cluster_percentage_metrics['avg'],
         #                         'not_from_cluster_percentage_MEDIAN': not_from_cluster_percentage_metrics['median'],
         #                         'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],
@@ -895,6 +910,4 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         #                         'no_nns_metrics_MIN': no_nns_metrics['min'],
         #                         'nn_threshold': nn_threshold}
             
-        #     metrics_to_log.update(extra_info)
-
-        #     logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+            logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)

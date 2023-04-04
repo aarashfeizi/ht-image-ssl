@@ -286,7 +286,7 @@ def main(cfg: DictConfig):
                 emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader, cfg.emb_model.supervised)
                             
             emb_model.eval()
-            embeddings = misc.get_embeddings(emb_model, emb_train_loader)
+            embeddings = misc.get_embeddings(emb_model, emb_train_loader)['embs']
             print('saving embeddings:')
             misc.save_npy(embeddings, embeddings_path)
             if cfg.data.dataset == 'pets':
