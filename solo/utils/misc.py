@@ -837,7 +837,7 @@ def create_pos_neg_hist_plot_from_neg_and_pos(dataset_name, pos_dists, neg_dists
 #     return d
 
 class ClassNNPecentageCallback(Callback):
-    def on_epoch_start(self, trainer, pl_module):
+    def on_train_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
             percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
             not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
@@ -863,7 +863,7 @@ class ClassNNPecentageCallback(Callback):
 
 
 class ClassNNPecentageCallback_NNCLR(Callback):
-    def on_epoch_start(self, trainer, pl_module):
+    def on_train_epoch_start(self, trainer, pl_module):
         output = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         embeddings = output['embs']
         embedding_labels = output['targets']
