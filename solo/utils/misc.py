@@ -881,13 +881,11 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         nearest_neighbor_queue_labels = queue_y[I]
         embedding_labels = np.repeat(embedding_labels, I.shape[1]).reshape(-1, I.shape[1])
         
-        import pdb
-        pdb.set_trace()
         same_img_percentage = (embedding_idxes == nearest_neighbor_queue_idxes).mean()
         
         relevant_class_percentage_AVG = (embedding_labels == nearest_neighbor_queue_labels).mean()
-        relevant_class_percentage_VAR = (embedding_labels == nearest_neighbor_queue_labels).sum(axis=1).var()
-        relevant_class_percentage_MEDIAN = (embedding_labels == nearest_neighbor_queue_labels).sum(axis=1).median()
+        relevant_class_percentage_VAR = np.var((embedding_labels == nearest_neighbor_queue_labels).sum(axis=1))
+        relevant_class_percentage_MEDIAN = np.median((embedding_labels == nearest_neighbor_queue_labels).sum(axis=1))
 
 
 
