@@ -72,6 +72,7 @@ class NNCLR(BaseMethod):
         # queue
         self.register_buffer("queue", torch.randn(self.queue_size, proj_output_dim))
         self.register_buffer("queue_y", -torch.ones(self.queue_size, dtype=torch.long))
+        self.register_buffer("queue_idx", -torch.ones(1, dtype=torch.long))
         self.queue = F.normalize(self.queue, dim=1)
         self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))
 
@@ -112,17 +113,19 @@ class NNCLR(BaseMethod):
         return super().learnable_params + extra_learnable_params
 
     @torch.no_grad()
-    def dequeue_and_enqueue(self, z: torch.Tensor, y: torch.Tensor):
+    def dequeue_and_enqueue(self, z: torch.Tensor, y: torch.Tensor, global_idx: torch.Tensor):
         """Adds new samples and removes old samples from the queue in a fifo manner. Also stores
         the labels of the samples.
 
         Args:
             z (torch.Tensor): batch of projected features.
             y (torch.Tensor): labels of the samples in the batch.
+            global_idx (torch.Tensor): unique idxes of the images out of the dataset in the batch
         """
 
         z = gather(z)
         y = gather(y)
+        global_idx = gather(global_idx)
 
         batch_size = z.shape[0]
 
@@ -131,6 +134,7 @@ class NNCLR(BaseMethod):
 
         self.queue[ptr : ptr + batch_size, :] = z
         self.queue_y[ptr : ptr + batch_size] = y  # type: ignore
+        self.queue_idx[ptr : ptr + batch_size] = global_idx  # type: ignore
         ptr = (ptr + batch_size) % self.queue_size
 
         self.queue_ptr[0] = ptr  # type: ignore
@@ -183,6 +187,7 @@ class NNCLR(BaseMethod):
         """
 
         targets = batch[-1]
+        global_img_idxes = batch[0]
 
         out = super().training_step(batch, batch_idx)
         class_loss = out["loss"]
@@ -204,12 +209,12 @@ class NNCLR(BaseMethod):
             b = targets[0].size(0)
             nn_acc = (targets[0] == self.queue_y[idx1]).sum() / b
             # dequeue and enqueue    
-            self.dequeue_and_enqueue(z1, targets[0])
+            self.dequeue_and_enqueue(z1, targets[0], global_img_idxes)
         else:
             b = targets.size(0)
             nn_acc = (targets == self.queue_y[idx1]).sum() / b
             # dequeue and enqueue    
-            self.dequeue_and_enqueue(z1, targets)
+            self.dequeue_and_enqueue(z1, targets, global_img_idxes)
 
         metrics = {
             "train_nnclr_loss": nnclr_loss,

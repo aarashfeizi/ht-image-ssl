@@ -549,16 +549,18 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
     return model
         
 
-def get_embeddings(model, dataloader):
+def get_embeddings(model, dataloader, index=0, key='feats'):
     embs = []
 
     with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
         for idx, batch in enumerate(dataloader):
             _, X, targets = batch
+            if type(X) == list:
+                X = X[index]
             X = X.cuda()
             batch_emb = model(X)
             if type(batch_emb) == dict:
-                batch_emb = batch_emb['feats']
+                batch_emb = batch_emb[key]
             embs.append(batch_emb.detach().cpu().numpy())
             t.update()
 
@@ -860,10 +862,10 @@ class ClassNNPecentageCallback_NNCLR(Callback):
     def on_epoch_start(self, trainer, pl_module):
         import pdb
         pdb.set_trace()
-        embeddings = get_embeddings(pl_module, trainer.train_dataloader)
+        embeddings = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         queue = pl_module.queue
         queue_y = pl_module.queue_y
-        index = faiss.IndexFlatL2(embeddings.shape[1])
+        index = faiss.IndexFlatL2(queue.shape[1])
         index.add(queue)
         D, I = index.search(embeddings, k=10) # actual search
         
