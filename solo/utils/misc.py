@@ -876,10 +876,7 @@ class ClassNNPecentageCallback_NNCLR(Callback):
             try:
                 cpu_index = faiss.IndexFlatL2(d)
                 final_index = faiss.index_cpu_to_all_gpus(cpu_index)
-
                 final_index.add(queue)
-                print('Using GPU for NN!! Thanks FAISS! :)')
-                print(final_index.ntotal)
             except:
                 cpu_index = faiss.IndexFlatL2(d)
                 print('No gpus for faiss! :( ')
