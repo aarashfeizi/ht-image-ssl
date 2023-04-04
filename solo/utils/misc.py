@@ -869,26 +869,26 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         D, I = index.search(embeddings, k=100) # actual search
         import pdb
         pdb.set_trace()
-        
-        for logger in trainer.loggers:
-            percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
-            not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
-            no_nns_metrics = trainer.train_dataloader.loaders.dataset.no_nns
-            nn_threshold = trainer.train_dataloader.loaders.dataset.nn_threshold
-            extra_info = trainer.train_dataloader.loaders.dataset.extra_info
-            metrics_to_log = {'relevant_class_percentage_AVG': percentage_metrics['avg'],
-                                'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
-                                'relevant_class_percentage_VAR': percentage_metrics['var'],
-                                'not_from_cluster_percentage_AVG': not_from_cluster_percentage_metrics['avg'],
-                                'not_from_cluster_percentage_MEDIAN': not_from_cluster_percentage_metrics['median'],
-                                'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],
-                                'no_nns_metrics_AVG': no_nns_metrics['avg'],
-                                'no_nns_metrics_MEDIAN': no_nns_metrics['median'],
-                                'no_nns_metrics_VAR': no_nns_metrics['var'],
-                                'no_nns_metrics_MAX': no_nns_metrics['max'],
-                                'no_nns_metrics_MIN': no_nns_metrics['min'],
-                                'nn_threshold': nn_threshold}
-            
-            metrics_to_log.update(extra_info)
 
-            logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+        # for logger in trainer.loggers:
+        #     percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
+        #     not_from_cluster_percentage_metrics = trainer.train_dataloader.loaders.dataset.not_from_cluster_percentage
+        #     no_nns_metrics = trainer.train_dataloader.loaders.dataset.no_nns
+        #     nn_threshold = trainer.train_dataloader.loaders.dataset.nn_threshold
+        #     extra_info = trainer.train_dataloader.loaders.dataset.extra_info
+        #     metrics_to_log = {'relevant_class_percentage_AVG': percentage_metrics['avg'],
+        #                         'relevant_class_percentage_MEDIAN': percentage_metrics['median'],
+        #                         'relevant_class_percentage_VAR': percentage_metrics['var'],
+        #                         'not_from_cluster_percentage_AVG': not_from_cluster_percentage_metrics['avg'],
+        #                         'not_from_cluster_percentage_MEDIAN': not_from_cluster_percentage_metrics['median'],
+        #                         'not_from_cluster_percentage_VAR': not_from_cluster_percentage_metrics['var'],
+        #                         'no_nns_metrics_AVG': no_nns_metrics['avg'],
+        #                         'no_nns_metrics_MEDIAN': no_nns_metrics['median'],
+        #                         'no_nns_metrics_VAR': no_nns_metrics['var'],
+        #                         'no_nns_metrics_MAX': no_nns_metrics['max'],
+        #                         'no_nns_metrics_MIN': no_nns_metrics['min'],
+        #                         'nn_threshold': nn_threshold}
+            
+        #     metrics_to_log.update(extra_info)
+
+        #     logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
