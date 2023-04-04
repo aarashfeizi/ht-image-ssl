@@ -569,7 +569,7 @@ def get_embeddings(model, dataloader, index=0, key='feats'):
     embs = np.concatenate(embs)
     glb_idxes = np.concatenate(glb_idxes)
     returning_targets = np.concatenate(returning_targets)
-    return {'embs': embs, 'targets': targets, 'glb_idxes': glb_idxes}
+    return {'embs': embs, 'targets': returning_targets, 'glb_idxes': glb_idxes}
 
 def get_sim_matrix(embeddings, k=2048, gpu=True):
     d = embeddings.shape[-1]
