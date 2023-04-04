@@ -360,9 +360,9 @@ def main(cfg: DictConfig):
             train_loader = prepare_dataloader(
                 train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
             )
-        elif cfg.method == 'nnclr':
-            class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR()
-            callbacks.append(class_percentage_cb)
+    elif cfg.method == 'nnclr':
+        class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR()
+        callbacks.append(class_percentage_cb)
     
     model = METHODS[cfg.method](cfg)
     misc.make_contiguous(model)
