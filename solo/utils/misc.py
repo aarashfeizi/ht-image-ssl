@@ -871,9 +871,27 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         queue = pl_module.queue.cpu().numpy()
         queue_y = pl_module.queue_y.cpu().numpy()
         queue_idx = pl_module.queue_idx.cpu().numpy()
-        index = faiss.IndexFlatL2(queue.shape[1])
-        index.add(queue)
-        D, I = index.search(embeddings, k=20) # actual search
+        d = queue.shape[1]
+        if torch.cuda.is_available():
+            try:
+                cpu_index = faiss.IndexFlatL2(d)
+                final_index = faiss.index_cpu_to_all_gpus(cpu_index)
+
+                final_index.add(queue)
+                print('Using GPU for NN!! Thanks FAISS! :)')
+                print(final_index.ntotal)
+            except:
+                cpu_index = faiss.IndexFlatL2(d)
+                print('No gpus for faiss! :( ')
+                final_index = cpu_index
+                final_index.add(queue)
+        else:
+            cpu_index = faiss.IndexFlatL2(d)
+            print('No gpus avaialble for faiss! :((( ')
+            final_index = cpu_index
+            final_index.add(queue)
+
+        D, I = final_index.search(embeddings, k=20) # actual search
         
         nearest_neighbor_queue_idxes = queue_idx[I[:, 0]].flatten()
         embedding_idxes = glb_idxes.flatten()
