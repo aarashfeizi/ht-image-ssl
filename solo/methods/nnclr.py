@@ -198,6 +198,8 @@ class NNCLR(BaseMethod):
         idx1, nn1 = self.find_nn(z1)
         _, nn2 = self.find_nn(z2)
 
+        
+
         # ------- contrastive loss -------
         nnclr_loss = (
             nnclr_loss_func(nn1, p2, temperature=self.temperature) / 2

@@ -1,6 +1,6 @@
 import pytorch_lightning as pl
 import torch
-from solo.utils.misc import get_embeddings, get_sim_matrix, get_clusters
+from solo.utils import misc
 from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
 from solo.data.pretrain_dataloader import prepare_dataloader
 import numpy as np
@@ -16,7 +16,8 @@ class BaseDataModule(pl.LightningDataModule):
                     num_clusters=1,
                     nn_threshold=-1,
                     threshold_mode='fixed',
-                    clustering_algo=None):
+                    clustering_algo=None,
+                    seed=1):
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
@@ -30,6 +31,7 @@ class BaseDataModule(pl.LightningDataModule):
         self.nn_threshold = nn_threshold
         self.threshold_mode = threshold_mode
         self.clustering_algo = clustering_algo
+        self.seed = seed
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -54,12 +56,11 @@ class BaseDataModule(pl.LightningDataModule):
 
             assert self.emb_train_loader is not None
             extra_info = {}
-            embeddings = get_embeddings(self.model, self.emb_train_loader)['embs']
-            emb_dist_matrix, emb_sim_matrix = get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+            embeddings = misc.get_embeddings(self.model, self.emb_train_loader)['embs']
+            emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
             clust_dist, clust_lbls = None, None
-            if self.num_clusters > 1:
-                clust_dist, clust_lbls = get_clusters(embeddings, k=self.num_clusters, gpu=torch.cuda.is_available())
-            
+
+
             if self.threshold_mode == 'adaptive':
                 threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
                 extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
@@ -68,6 +69,24 @@ class BaseDataModule(pl.LightningDataModule):
                 print(f'Seeting threshold to {threshold}')
             elif self.threshold_mode == 'fixed':
                 threshold = self.nn_threshold
+
+
+            if self.clustering_algo == 'kmeans':
+                if self.num_clusters > 1:
+                    clusters = misc.get_clusters(embeddings, k=self.num_clusters, gpu=torch.cuda.is_available())
+                    clust_dist = clusters['dist']
+                    clust_lbls = clusters['lbls']
+            
+            elif self.clustering_algo.startswith('louvain'):
+                clust_dist = None
+                if self.clustering_algo == 'louvainW':
+                    clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=self.seed, threshold=threshold)
+                elif self.clustering_algo == 'louvainU':
+                    clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=self.seed, k=self.train_loader.dataset.num_nns_choice + 1)
+            
+        
+            if self.clustering_algo.startswith('louvain'):
+                extra_info['no_clusters'] = len(set(clust_lbls))
 
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
                                                     sim_matrix=emb_sim_matrix,

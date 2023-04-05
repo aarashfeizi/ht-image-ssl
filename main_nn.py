@@ -308,6 +308,21 @@ def main(cfg: DictConfig):
             embeddings = misc.load_npy(embeddings_path)
         print('Getting emb sim_matrix:')
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+
+        print(f'num_nns: {cfg.data.num_nns}')
+        print(f'num_nns_choice: {cfg.data.num_nns_choice}')
+
+        if cfg.data.threshold_mode == 'adaptive':
+            threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+            extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
+            extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
+            extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
+            print(f'Seeting threshold to {threshold}')
+
+        elif cfg.data.threshold_mode == 'fixed':
+            threshold = cfg.data.nn_threshold
+
+
         clust_dist, clust_lbls = None, None
         if cfg.data.clustering_algo == 'kmeans':
             if cfg.data.num_clusters > 1:
@@ -318,7 +333,7 @@ def main(cfg: DictConfig):
         elif cfg.data.clustering_algo.startswith('louvain'):
             clust_dist = None
             if cfg.data.clustering_algo == 'louvainW':
-                clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, threshold=cfg.data.nn_threshold)
+                clust_lbls, knn_graph = misc.get_louvain_clusters_weighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, threshold=threshold)
             elif cfg.data.clustering_algo == 'louvainU':
                 clust_lbls, knn_graph = misc.get_louvain_clusters_unweighted(emb_sim_matrix, dist_matrix=emb_dist_matrix, seed=cfg.seed, k=cfg.data.num_nns_choice + 1)
         
@@ -326,40 +341,33 @@ def main(cfg: DictConfig):
         
         extra_info = {}
 
-        if cfg.nnclr2:    
-            print(f'num_nns: {cfg.data.num_nns}')
-            print(f'num_nns_choice: {cfg.data.num_nns_choice}')
 
-            if cfg.data.threshold_mode == 'adaptive':
-                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
-                print(f'Seeting threshold to {threshold}')
-            elif cfg.data.threshold_mode == 'fixed':
-                threshold = cfg.data.nn_threshold
-            
-            train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
-                                                    sim_matrix=emb_sim_matrix,
-                                                    dist_matrix=emb_dist_matrix,
-                                                    cluster_lbls=clust_lbls,
-                                                    nn_threshold=threshold,
-                                                    num_nns=cfg.data.num_nns,
-                                                    num_nns_choice=cfg.data.num_nns_choice,
-                                                    filter_sim_matrix=cfg.data.filter_sim_matrix,
-                                                    subsample_by=1,
-                                                    clustering_algo=cfg.data.clustering_algo,
-                                                    extra_info=extra_info)
-            
-            print('Relevant class percentage: ', train_dataset.relevant_classes)
-            print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
-            print('Number of nns: ', train_dataset.no_nns)
-            class_percentage_cb = misc.ClassNNPecentageCallback()
-            callbacks.append(class_percentage_cb)
+        
+        if cfg.data.clustering_algo.startswith('louvain'):
+            extra_info['no_clusters'] = len(set(clust_lbls))
+        
+        train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
+                                                sim_matrix=emb_sim_matrix,
+                                                dist_matrix=emb_dist_matrix,
+                                                cluster_lbls=clust_lbls,
+                                                nn_threshold=threshold,
+                                                num_nns=cfg.data.num_nns,
+                                                num_nns_choice=cfg.data.num_nns_choice,
+                                                filter_sim_matrix=cfg.data.filter_sim_matrix,
+                                                subsample_by=1,
+                                                clustering_algo=cfg.data.clustering_algo,
+                                                extra_info=extra_info)
+        
+        print('Relevant class percentage: ', train_dataset.relevant_classes)
+        print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
+        print('Number of nns: ', train_dataset.no_nns)
+        class_percentage_cb = misc.ClassNNPecentageCallback()
+        callbacks.append(class_percentage_cb)
 
-            train_loader = prepare_dataloader(
-                train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
-            )
+        train_loader = prepare_dataloader(
+            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
+        )
+
     elif cfg.method == 'nnclr':
         class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR()
         callbacks.append(class_percentage_cb)
@@ -397,7 +405,8 @@ def main(cfg: DictConfig):
                                 num_clusters=cfg.data.num_clusters,
                                 nn_threshold=cfg.data.nn_threshold,
                                 threshold_mode=cfg.data.threshold_mode,
-                                clustering_algo=cfg.data.clustering_algo)
+                                clustering_algo=cfg.data.clustering_algo,
+                                seed=cfg.seed)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)
