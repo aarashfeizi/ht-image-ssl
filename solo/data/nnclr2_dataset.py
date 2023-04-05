@@ -184,17 +184,14 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
 
-        if self.clusters is not None:
+        if self.clusters is not None and not self.clustering_algo.startswith('louvain'):
             new_dist_list = []
             new_sim_list = []
             for idx, row in enumerate(self.sim_matrix):
                 row_clusters = self.clusters[row].flatten()
                 
                 idx_from_same_cluster = row[row_clusters == row_clusters[0]]
-                if self.clustering_algo.startswith('louvain'):
-                    new_row = idx_from_same_cluster
-                else:
-                    new_row = idx_from_same_cluster[:self.num_nns_choice]
+                new_row = idx_from_same_cluster[:self.num_nns_choice]
 
                 idx_from_same_cluster_dist = self.dist_matrix[idx][row_clusters == row_clusters[0]]
                 if self.clustering_algo.startswith('louvain'):
@@ -213,6 +210,27 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
             self.sim_matrix = new_sim_list
             self.dist_matrix = new_dist_list
+
+            not_from_cluster = np.array(not_from_cluster) / self.num_nns_choice 
+
+            self.not_from_cluster_percentage['avg'] = not_from_cluster.mean()
+            self.not_from_cluster_percentage['median'] = np.median(not_from_cluster)
+            self.not_from_cluster_percentage['var'] = np.var(not_from_cluster)
+        
+        if self.clusters is not None and self.clustering_algo.startswith('louvain'):
+            new_dist_list = []
+            new_sim_list = []
+            all_image_row = np.array([i for i in range(len(self.clusters))])
+            for idx, row in enumerate(self.sim_matrix):
+                
+                new_row = all_image_row[self.clusters[idx] == self.clusters]
+
+                new_sim_list.append(new_row)
+                
+                not_from_cluster.append(len(set(row[:self.num_nns_choice]) - set(new_row)))
+            
+            
+            self.sim_matrix = new_sim_list
 
             not_from_cluster = np.array(not_from_cluster) / self.num_nns_choice 
 
