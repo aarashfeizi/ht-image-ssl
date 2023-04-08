@@ -311,9 +311,17 @@ def main(cfg: DictConfig):
 
         print(f'num_nns: {cfg.data.num_nns}')
         print(f'num_nns_choice: {cfg.data.num_nns_choice}')
-
+        
+        extra_info = {}
+        
         if cfg.data.threshold_mode == 'adaptive':
-            threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+            if cfg.data.threshold_mode_type == 'mean+std':
+                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+            elif cfg.data.threshold_mode_type == 'mean':
+                threshold = np.mean(emb_dist_matrix[:, 1:21])
+            elif cfg.data.threshold_mode_type == 'mean-std':
+                threshold = np.mean(emb_dist_matrix[:, 1:21]) - np.std(emb_dist_matrix[:, 1:21])
+                
             extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
@@ -339,9 +347,6 @@ def main(cfg: DictConfig):
         
         assert len(train_dataset) == len(embeddings)
         
-        extra_info = {}
-
-
         
         if cfg.data.clustering_algo.startswith('louvain'):
             extra_info['no_clusters'] = len(set(clust_lbls))
