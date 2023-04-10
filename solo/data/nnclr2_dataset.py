@@ -42,6 +42,13 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             assert (self.clustering_algo is not None) 
         
 
+                
+        self.subsample_by = subsample_by
+        if subsample_by > 1:
+            self.__subsample_dataset()
+
+        self.dataset = dataset
+        self.dataset_type = type(self.dataset).__bases__[0]
         self.labels = self.__get_labels()
 
         if filter_sim_matrix:
@@ -53,12 +60,6 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.not_from_cluster_percentage = {'avg': 0, 'var': 0, 'median': 0 }
         self.no_nns = {'avg': 0, 'var': 0, 'median': 0, 'max': 0, 'min': 0}
         self._filter_sim_matrix_by_nnc()
-
-        self.dataset = dataset
-        self.dataset_type = type(self.dataset).__bases__[0]
-        self.subsample_by = subsample_by
-        if subsample_by > 1:
-            self.__subsample_dataset()
 
         
         self.relevant_classes = self.get_class_percentage()
