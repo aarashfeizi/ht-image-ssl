@@ -213,8 +213,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         neg_dist_matrix = []
         for idx, sim_row in enumerate(self.sim_matrix):
             correct_lbls = (self.labels[idx] == self.labels[sim_row])
-            pos_dist_matrix.append(self.dist_matrix[idx][correct_lbls])
-            neg_dist_matrix.append(self.dist_matrix[idx][np.logical_not(correct_lbls)])
+            pos_dist_matrix.extend(self.dist_matrix[idx][correct_lbls])
+            neg_dist_matrix.extend(self.dist_matrix[idx][np.logical_not(correct_lbls)])
 
         plt.hist(neg_dist_matrix, bins=bins, color='r', alpha=0.3)
         plt.hist(pos_dist_matrix, bins=bins, color='g', alpha=0.3)
