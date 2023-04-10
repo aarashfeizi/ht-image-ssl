@@ -89,16 +89,20 @@ class BaseDataModule(pl.LightningDataModule):
                 extra_info['no_clusters'] = len(set(clust_lbls))
 
             train_dataset = NNCLR2_Dataset_Wrapper(dataset=self.train_loader.dataset.dataset,
-                                                    sim_matrix=emb_sim_matrix,
-                                                    dist_matrix=emb_dist_matrix,
-                                                    cluster_lbls=clust_lbls,
-                                                    nn_threshold=threshold,
-                                                    num_nns=self.train_loader.dataset.num_nns,
-                                                    num_nns_choice=self.train_loader.dataset.num_nns_choice,
-                                                    filter_sim_matrix=self.filter_sim_matrix,
-                                                    subsample_by=self.subsample_by,
-                                                    clustering_algo=self.clustering_algo,
-                                                    extra_info=extra_info)
+                                                   dataset_name=self.train_loader.dataset.dataset_name,
+                                                   sim_matrix=emb_sim_matrix,
+                                                   dist_matrix=emb_dist_matrix,
+                                                   cluster_lbls=clust_lbls,
+                                                   nn_threshold=threshold,
+                                                   num_nns=self.train_loader.dataset.num_nns,
+                                                   num_nns_choice=self.train_loader.dataset.num_nns_choice,
+                                                   filter_sim_matrix=self.filter_sim_matrix,
+                                                   subsample_by=self.subsample_by,
+                                                   clustering_algo=self.clustering_algo,
+                                                   extra_info=extra_info,
+                                                   plot_distances=self.train_loader.dataset.plot_distances,
+                                                   save_path=self.train_loader.dataset.save_path,
+                                                   no_reloads=self.train_loader.dataset.no_reloads + 1)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

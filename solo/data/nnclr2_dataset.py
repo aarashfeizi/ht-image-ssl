@@ -1,15 +1,37 @@
 from torch.utils.data import Dataset
 import numpy as np
 from torchvision import datasets
+import matplotlib.pyplot as plt
+import os
 
 class NNCLR2_Dataset_Wrapper(Dataset):
-    def __init__(self, dataset, sim_matrix, dist_matrix, cluster_lbls=None, nn_threshold=-1, num_nns=1, num_nns_choice=1, filter_sim_matrix=True, subsample_by=1, clustering_algo=None, extra_info={}) -> None:
+    def __init__(self,
+                 dataset_name,
+                 dataset, 
+                 sim_matrix,
+                 dist_matrix, 
+                 cluster_lbls=None, 
+                 nn_threshold=-1, 
+                 num_nns=1, 
+                 num_nns_choice=1, 
+                 filter_sim_matrix=True, 
+                 subsample_by=1, 
+                 clustering_algo=None, 
+                 extra_info={},
+                 plot_distances=False,
+                 save_path='./',
+                 no_reloads=None) -> None:
         super().__init__()
 
+        self.dataset_name = dataset_name
         self.num_nns = num_nns
         self.num_nns_choice = num_nns_choice
         self.nn_threshold = nn_threshold
         self.dist_matrix = dist_matrix
+        self.clusters_as_labels = False
+        self.plot_distances = plot_distances
+        self.save_path = save_path
+        self.no_reloads = no_reloads
         assert num_nns_choice >= num_nns
 
         self.sim_matrix = sim_matrix
@@ -43,11 +65,21 @@ class NNCLR2_Dataset_Wrapper(Dataset):
     def get_class_percentage(self):
         total_lengths = []
         correct_lbls = []
-        for idx, sim_row in enumerate(self.sim_matrix):
-            all_lbls_sim_matrix = self.labels[sim_row]
-            # all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
-            correct_lbls.append(sum(self.labels[idx] == all_lbls_sim_matrix))
-            total_lengths.append(len(sim_row))
+
+        if self.clusters_as_labels:
+            # TODO
+            different_clusters = np.unique(self.clusters)
+            for c in different_clusters:
+                cluster_idx = np.argwhere(self.clusters == c).flatten()
+                ...
+            # end TODO
+        else:
+            for idx in range(len(self.sim_matrix)):
+                sim_row = self.sim_matrix[idx]
+                all_lbls_sim_matrix = self.labels[sim_row]
+                # all_lbls_true = self.labels.repeat(self.num_nns_choice).reshape(-1, self.num_nns_choice)
+                correct_lbls.append(sum(self.labels[idx] == all_lbls_sim_matrix))
+                total_lengths.append(len(sim_row))
 
         correct_lbls = np.array(correct_lbls, dtype=np.float32)
         total_lengths = np.array(total_lengths, dtype=np.float32)
@@ -90,8 +122,16 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
 
     def __getitem__(self, index):
-        sim_index_idxes = np.random.randint(0, len(self.sim_matrix[index]), self.num_nns)
-        sim_index = self.sim_matrix[index][sim_index_idxes]
+        if self.clusters_as_labels:
+            # TODO
+            img_cluster = self.clusters[index]
+            candidates = np.argwhere(self.clusters == img_cluster).flatten()
+            # end TODO
+        else:
+            candidates = self.sim_matrix[index]
+
+        sim_index_idxes = np.random.randint(0, len(candidates), self.num_nns)
+        sim_index = candidates[sim_index_idxes]
         all_idxs = []
         all_xs = []
         all_ys = []
@@ -157,7 +197,36 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.no_nns['max'] = np.max(no_nns)
         self.no_nns['min'] = np.min(no_nns)
 
+        if self.plot_distances:
+            self._plot_pos_neg_hist()
+
         return
+
+    def _plot_pos_neg_hist(self, bins=300):
+        print(f'Plotting pos neg histograms on reload {self.no_reloads}...')
+        plt.clf()
+        correct_lbls = []
+        pos_dist_matrix = []
+        neg_dist_matrix = []
+        for idx, sim_row in enumerate(self.sim_matrix):
+            correct_lbls = (self.labels[idx] == self.labels[sim_row])
+            pos_dist_matrix.append(self.dist_matrix[idx][correct_lbls])
+            neg_dist_matrix.append(self.dist_matrix[idx][np.logical_not(correct_lbls)])
+
+        plt.hist(neg_dist_matrix, bins=bins, color='r', alpha=0.3)
+        plt.hist(pos_dist_matrix, bins=bins, color='g', alpha=0.3)
+        if self.no_reloads is not None:
+            title = f'{self.dataset_name}_reloads{self.no_reloads}'
+        else:
+            title = self.dataset_name
+        plt.savefig(os.path.join(self.save_path, f'{title}.pdf'))
+
+        plt.clf()
+        plt.hist(neg_dist_matrix, bins=bins, color='r', alpha=0.3)
+        plt.hist(pos_dist_matrix, bins=bins, color='g', alpha=0.3)
+        plt.yscale('log')
+        plt.title(f'{title} Log Scale')
+        plt.savefig(os.path.join(self.save_path, f'{title}_log.pdf'))
 
     def _filter_sim_matrix_by_nnc(self):
         not_from_cluster = []
@@ -221,6 +290,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             new_dist_list = []
             new_sim_list = []
             all_image_row = np.array([i for i in range(len(self.clusters))])
+            self.clusters_as_labels = True
             for idx, row in enumerate(self.sim_matrix):
                 
                 new_row = all_image_row[self.clusters[idx] == self.clusters]

@@ -321,13 +321,14 @@ def main(cfg: DictConfig):
                 threshold = np.mean(emb_dist_matrix[:, 1:21])
             elif cfg.data.threshold_mode_type == 'mean-std':
                 threshold = np.mean(emb_dist_matrix[:, 1:21]) - np.std(emb_dist_matrix[:, 1:21])
-                
+            threshold_name = f'{cfg.data.threshold_mode}_{cfg.data.threshold_mode_type}'
             extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
             print(f'Seeting threshold to {threshold}')
 
         elif cfg.data.threshold_mode == 'fixed':
+            threshold_name = f'{cfg.data.threshold_mode}'
             threshold = cfg.data.nn_threshold
 
 
@@ -351,7 +352,14 @@ def main(cfg: DictConfig):
         if cfg.data.clustering_algo.startswith('louvain'):
             extra_info['no_clusters'] = len(set(clust_lbls))
         
+        if cfg.data.plot_distances:
+            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms/', f'{cfg.data.dataset}_n{cfg.method}_threshold_{threshold_name}_reloadFreq{cfg.data.reload_freq}')
+            misc.make_dirs(plot_save_path)
+        else:
+            plot_save_path = './'
+
         train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
+                                               dataset_name=cfg.data.dataset,
                                                 sim_matrix=emb_sim_matrix,
                                                 dist_matrix=emb_dist_matrix,
                                                 cluster_lbls=clust_lbls,
@@ -361,7 +369,10 @@ def main(cfg: DictConfig):
                                                 filter_sim_matrix=cfg.data.filter_sim_matrix,
                                                 subsample_by=1,
                                                 clustering_algo=cfg.data.clustering_algo,
-                                                extra_info=extra_info)
+                                                extra_info=extra_info,
+                                                plot_distances=cfg.data.plot_distances,
+                                                save_path=plot_save_path,
+                                                no_reloads=1)
         
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
