@@ -222,6 +222,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             title = f'{self.dataset_name}_reloads{self.no_reloads}'
         else:
             title = self.dataset_name
+        plt.title(f'{title}')
         plt.savefig(os.path.join(self.save_path, f'{title}.pdf'))
 
         plt.clf()
