@@ -40,6 +40,9 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         self.extra_info = extra_info
         if self.clusters is not None:
             assert (self.clustering_algo is not None) 
+        
+
+        self.labels = self.__get_labels()
 
         if filter_sim_matrix:
             self._filter_sim_matrix_omit_self()
@@ -57,7 +60,6 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         if subsample_by > 1:
             self.__subsample_dataset()
 
-        self.labels = self.__get_labels()
         
         self.relevant_classes = self.get_class_percentage()
         
