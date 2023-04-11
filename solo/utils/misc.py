@@ -799,23 +799,26 @@ def handle_wandb_offline(wandb_logger):
     config_file = _dict_add_value_dict(config_file)
     _config_save(wandb_logger._experiment, config_file)
 
-def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls, k, bins=300):
+def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls, k, bins=300, save_path='./'):
     plt.clf()
-    sim_matrix = emb_sim_matrix[:, 1:k]
+    # sim_matrix = emb_sim_matrix[:, 1:k]
+    sim_matrix = emb_sim_matrix[:, :k]
     all_lbls_sim_matrix = lbls[sim_matrix]
-    all_lbls_true = lbls.repeat(k - 1).reshape(-1, k - 1)
+    # all_lbls_true = lbls.repeat(k - 1).reshape(-1, k - 1)
+    all_lbls_true = lbls.repeat(k).reshape(-1, k)
     correct_lbls = (all_lbls_true == all_lbls_sim_matrix)
-    dist_matrix = emb_dist_matrix[:, 1:k]
+    # dist_matrix = emb_dist_matrix[:, 1:k]
+    dist_matrix = emb_dist_matrix[:, :k]
     plt.hist(dist_matrix[np.logical_not(correct_lbls)], bins=bins, color='r', alpha=0.3)
     plt.hist(dist_matrix[correct_lbls], bins=bins, color='g', alpha=0.3)
     plt.title(f'{dataset_name} k = {k}')
-    plt.savefig(f'{dataset_name}_k{k}.pdf')
+    plt.savefig(os.path.join(save_path, f'{dataset_name}_k{k}.pdf'))
     plt.clf()
     plt.hist(dist_matrix[np.logical_not(correct_lbls)], bins=bins, color='r', alpha=0.3)
     plt.hist(dist_matrix[correct_lbls], bins=bins, color='g', alpha=0.3)
     plt.yscale('log')
     plt.title(f'{dataset_name} k = {k} Log Scale')
-    plt.savefig(f'{dataset_name}_k{k}_log.pdf')
+    plt.savefig(os.path.join(save_path, f'{dataset_name}_k{k}_log.pdf'))
 
 def create_pos_neg_hist_plot_from_neg_and_pos(dataset_name, pos_dists, neg_dists, bins=300):
     plt.clf()
@@ -863,7 +866,14 @@ class ClassNNPecentageCallback(Callback):
 
 
 class ClassNNPecentageCallback_NNCLR(Callback):
+    def __init__(self, dataset_name, save_path):
+        super().__init__()
+        self.epoch = 0
+        self.dataset_name = dataset_name
+        self.save_path = save_path
+
     def on_train_epoch_start(self, trainer, pl_module):
+        self.epoch += 1
         output = get_embeddings(pl_module, trainer.train_dataloader, index=0, key='z')
         embeddings = output['embs']
         embedding_labels = output['targets']
@@ -871,6 +881,9 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         queue = pl_module.queue.cpu().numpy()
         queue_y = pl_module.queue_y.cpu().numpy()
         queue_idx = pl_module.queue_idx.cpu().numpy()
+
+        # dists = torch.matmul(pl_module.queue, pl_module.queue.T).cpu().numpy()
+
         d = queue.shape[1]
         if torch.cuda.is_available():
             try:
@@ -888,7 +901,7 @@ class ClassNNPecentageCallback_NNCLR(Callback):
             final_index = cpu_index
             final_index.add(queue)
 
-        D, I = final_index.search(embeddings, k=20) # actual search
+        D, I = final_index.search(embeddings, k=200) # actual search
         
         nearest_neighbor_queue_idxes = queue_idx[I[:, 0]].flatten()
         embedding_idxes = glb_idxes.flatten()
@@ -902,6 +915,15 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         relevant_class_percentage_VAR = np.var((embedding_labels == nearest_neighbor_queue_labels).sum(axis=1))
         relevant_class_percentage_MEDIAN = np.median((embedding_labels == nearest_neighbor_queue_labels).sum(axis=1))
 
+        for k in [5, 25, 100]:
+            print(f'creating plot for k = {k}...')
+            create_pos_neg_hist_plot(f"{self.dataset_name}_ep{self.epoch}",
+                                     emb_sim_matrix=I,
+                                     emb_dist_matrix=D,
+                                     lbls=embedding_labels, 
+                                     k=k, 
+                                     bins=300, 
+                                     save_path=self.save_path)
 
 
         for logger in trainer.loggers:

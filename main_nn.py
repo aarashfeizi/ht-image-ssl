@@ -385,7 +385,13 @@ def main(cfg: DictConfig):
         )
 
     elif cfg.method == 'nnclr':
-        class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR()
+        if cfg.data.plot_distances:
+            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms/', f'{cfg.data.dataset}_{cfg.method}')
+            misc.make_dirs(plot_save_path)
+        else:
+            plot_save_path = './'
+
+        class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR(dataset_name=cfg.data.dataset, save_path=plot_save_path)
         callbacks.append(class_percentage_cb)
     
     model = METHODS[cfg.method](cfg)
