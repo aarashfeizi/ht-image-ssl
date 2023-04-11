@@ -799,13 +799,16 @@ def handle_wandb_offline(wandb_logger):
     config_file = _dict_add_value_dict(config_file)
     _config_save(wandb_logger._experiment, config_file)
 
-def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls, k, bins=300, save_path='./'):
+def create_pos_neg_hist_plot(dataset_name, emb_sim_matrix, emb_dist_matrix, lbls, k, bins=300, save_path='./', true_lbls=None):
     plt.clf()
     # sim_matrix = emb_sim_matrix[:, 1:k]
     sim_matrix = emb_sim_matrix[:, :k]
     all_lbls_sim_matrix = lbls[sim_matrix]
     # all_lbls_true = lbls.repeat(k - 1).reshape(-1, k - 1)
-    all_lbls_true = lbls.repeat(k).reshape(-1, k)
+    if true_lbls is None:
+        all_lbls_true = lbls.repeat(k).reshape(-1, k)
+    else:
+        all_lbls_true = true_lbls.repeat(k).reshape(-1, k)
     correct_lbls = (all_lbls_true == all_lbls_sim_matrix)
     # dist_matrix = emb_dist_matrix[:, 1:k]
     dist_matrix = emb_dist_matrix[:, :k]
@@ -923,7 +926,8 @@ class ClassNNPecentageCallback_NNCLR(Callback):
                                      lbls=queue_y, 
                                      k=k, 
                                      bins=300, 
-                                     save_path=self.save_path)
+                                     save_path=self.save_path,
+                                     true_lbls=embedding_labels)
 
 
         for logger in trainer.loggers:
