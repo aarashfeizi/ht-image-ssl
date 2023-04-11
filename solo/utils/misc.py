@@ -920,7 +920,7 @@ class ClassNNPecentageCallback_NNCLR(Callback):
             create_pos_neg_hist_plot(f"{self.dataset_name}_ep{self.epoch}",
                                      emb_sim_matrix=I,
                                      emb_dist_matrix=D,
-                                     lbls=embedding_labels, 
+                                     lbls=queue_y, 
                                      k=k, 
                                      bins=300, 
                                      save_path=self.save_path)
