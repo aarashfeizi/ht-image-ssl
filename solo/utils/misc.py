@@ -836,11 +836,13 @@ def create_pos_neg_hist_plot_from_neg_and_pos(dataset_name, pos_dists, neg_dists
     plt.title(f'{dataset_name} all Log Scale')
     plt.savefig(f'{dataset_name}_all_log.pdf')
 
-def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./'):
-    labels1 = labels.repeat(sims.shape[0]).reshape(-1, sims.shape[0])
-    labels_t = torch.tensor(labels)
-    labels2 = labels_t.repeat(sims.shape[0]).reshape(sims.shape[0], -1).numpy()
-    pos_mask = (labels1 == labels2)
+def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./', pos_mask=None):
+    if pos_mask is None:
+        labels1 = labels.repeat(sims.shape[0]).reshape(-1, sims.shape[0])
+        labels_t = torch.tensor(labels)
+        labels2 = labels_t.repeat(sims.shape[0]).reshape(sims.shape[0], -1).numpy()
+        pos_mask = (labels1 == labels2)
+        
     print('Started plotting first')
     plt.hist(sims[np.logical_not(pos_mask)], bins=bins, color='r', alpha=0.3)
     plt.hist(sims[pos_mask], bins=bins, color='g', alpha=0.3)
@@ -853,6 +855,7 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./'):
     plt.yscale('log')
     plt.title(f'{dataset_name} Log Scale')
     plt.savefig(os.path.join(save_path, f'{dataset_name}_all_log.pdf'))
+    return pos_mask
 
 # def dict_from_proto_list(obj_list):
 #     d = dict()
@@ -867,6 +870,7 @@ class PlotEmbeddingsCallback(Callback):
         self.dataset_name = dataset_name
         self.data_loader = data_loader
         self.save_path = save_path
+        self.pos_mask = None
 
     def on_train_epoch_start(self, trainer, pl_module):
         self.epoch += 1
@@ -877,7 +881,9 @@ class PlotEmbeddingsCallback(Callback):
         embeddings_norm = torch.tensor(embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)).cuda()
         sims = torch.matmul(embeddings_norm, embeddings_norm.T).cpu().numpy()
         embeddings_norm = embeddings_norm.cpu().numpy()
-        plot_sim_histogram(self.dataset_name + f'_ep{self.epoch}', sims, embedding_labels, bins=50, save_path=self.save_path)
+        pos_mask = plot_sim_histogram(self.dataset_name + f'_ep{self.epoch}', sims, embedding_labels, bins=50, save_path=self.save_path, pos_mask=self.pos_mask)
+        if self.pos_mask is None:
+            self.pos_mask == pos_mask
         
 
 class ClassNNPecentageCallback(Callback):
