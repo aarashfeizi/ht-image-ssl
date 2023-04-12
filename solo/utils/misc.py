@@ -858,6 +858,26 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./'):
 #         d[item.key] = dict(desc=None, value=json.loads(item.value_json))
 #     return d
 
+class PlotEmbeddingsCallback(Callback):
+    def __init__(self, dataset_name, data_loader, save_path):
+        super().__init__()
+        self.epoch = 0
+        self.dataset_name = dataset_name
+        self.data_loader = data_loader
+        self.save_path = save_path
+
+    def on_train_epoch_start(self, trainer, pl_module):
+        self.epoch += 1
+        output = get_embeddings(pl_module, self.data_loader)
+        embeddings = output['embs']
+        embedding_labels = output['targets']
+
+        embeddings_norm = torch.tensor(embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)).cuda()
+        sims = torch.matmul(embeddings_norm, embeddings_norm.T).cpu().numpy()
+        embeddings_norm = embeddings_norm.cpu().numpy()
+        plot_sim_histogram(self.dataset_name + f'_ep{self.epoch}', sims, embedding_labels, bins=50, save_path=self.save_path)
+        
+
 class ClassNNPecentageCallback(Callback):
     def on_train_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
