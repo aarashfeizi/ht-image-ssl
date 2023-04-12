@@ -842,7 +842,7 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./', pos
         labels_t = torch.tensor(labels)
         labels2 = labels_t.repeat(sims.shape[0]).reshape(sims.shape[0], -1).numpy()
         pos_mask = (labels1 == labels2)
-        
+
     print('Started plotting first')
     plt.hist(sims[np.logical_not(pos_mask)], bins=bins, color='r', alpha=0.3)
     plt.hist(sims[pos_mask], bins=bins, color='g', alpha=0.3)
@@ -878,9 +878,8 @@ class PlotEmbeddingsCallback(Callback):
         embeddings = output['embs']
         embedding_labels = output['targets']
 
-        embeddings_norm = torch.tensor(embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)).cuda()
-        sims = torch.matmul(embeddings_norm, embeddings_norm.T).cpu().numpy()
-        embeddings_norm = embeddings_norm.cpu().numpy()
+        embeddings_norm = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+        sims = np.matmul(embeddings_norm, embeddings_norm.T)
         pos_mask = plot_sim_histogram(self.dataset_name + f'_ep{self.epoch}', sims, embedding_labels, bins=50, save_path=self.save_path, pos_mask=self.pos_mask)
         if self.pos_mask is None:
             self.pos_mask == pos_mask
