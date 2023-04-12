@@ -352,7 +352,7 @@ def main(cfg: DictConfig):
         if cfg.data.clustering_algo.startswith('louvain'):
             extra_info['no_clusters'] = len(set(clust_lbls))
         
-        if cfg.data.plot_distances:
+        if cfg.data.plot_distances or cfg.data.plot_distances_after_epoch:
             plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms/', f'{cfg.data.dataset}_n{cfg.method}_threshold_{threshold_name}_reloadFreq{cfg.data.reload_freq}')
             misc.make_dirs(plot_save_path)
         else:
@@ -377,7 +377,7 @@ def main(cfg: DictConfig):
         if cfg.data.plot_distances_after_epoch:
             plot_embeddings_cb = misc.PlotEmbeddingsCallback(save_path=plot_save_path, dataset_name=cfg.data.dataset, data_loader=emb_train_loader)
             callbacks.append(plot_embeddings_cb)
-            
+
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
         print('Number of nns: ', train_dataset.no_nns)
