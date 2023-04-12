@@ -103,6 +103,11 @@ class BaseDataModule(pl.LightningDataModule):
                                                    plot_distances=self.train_loader.dataset.plot_distances,
                                                    save_path=self.train_loader.dataset.save_path,
                                                    no_reloads=self.train_loader.dataset.no_reloads + 1)
+
+            if self.train_loader.dataset.plot_distances:
+                embeddings_norm = embeddings
+                sims = torch.matmul(embeddings_norm, embeddings_norm.T)
+                misc.plot_sim_histogram(self.train_loader.dataset.dataset_name + f'_{train_dataset.no_reloads}', sims, train_dataset.labels, bins=300, save_path=self.train_loader.dataset.save_path)
             
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

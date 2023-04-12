@@ -836,6 +836,22 @@ def create_pos_neg_hist_plot_from_neg_and_pos(dataset_name, pos_dists, neg_dists
     plt.title(f'{dataset_name} all Log Scale')
     plt.savefig(f'{dataset_name}_all_log.pdf')
 
+def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./'):
+    labels1 = labels.repeat(sims.shape[0]).reshape(-1, sims.shape[0])
+    labels_t = torch.tensor(labels)
+    labels2 = labels_t.repeat(sims.shape[0]).reshape(sims.shape[0], -1).numpy()
+    pos_mask = (labels1 == labels2)
+    plt.hist(sims[np.logical_not(pos_mask)], bins=bins, color='r', alpha=0.3)
+    plt.hist(sims[pos_mask], bins=bins, color='g', alpha=0.3)
+    plt.title(f'{dataset_name}')
+    plt.savefig(os.path.join(save_path, f'{dataset_name}_all.pdf'))
+    plt.clf()
+    plt.hist(sims[np.logical_not(pos_mask)], bins=bins, color='r', alpha=0.3)
+    plt.hist(sims[pos_mask], bins=bins, color='g', alpha=0.3)
+    plt.yscale('log')
+    plt.title(f'{dataset_name} Log Scale')
+    plt.savefig(os.path.join(save_path, f'{dataset_name}_all_log.pdf'))
+
 # def dict_from_proto_list(obj_list):
 #     d = dict()
 #     for item in obj_list:

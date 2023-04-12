@@ -374,6 +374,12 @@ def main(cfg: DictConfig):
                                                 save_path=plot_save_path,
                                                 no_reloads=1)
         
+        if cfg.data.plot_distances:
+            embeddings_norm = torch.tensor(embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)).cuda()
+            sims = torch.matmul(embeddings_norm, embeddings_norm.T).cpu().numpy()
+            embeddings_norm = embeddings_norm.cpu().numpy()
+            misc.plot_sim_histogram(cfg.data.dataset + f'_ep{train_dataset.no_reloads}', sims, train_dataset.labels, bins=50, save_path=plot_save_path)
+
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
         print('Number of nns: ', train_dataset.no_nns)
