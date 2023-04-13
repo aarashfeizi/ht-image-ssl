@@ -167,7 +167,10 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.transform = omegaconf_select(cfg, "emb_model.transform", 'noTransform')
         cfg.emb_model.supervised = omegaconf_select(cfg, "emb_model.supervised", False)
         cfg.emb_model.ckpt_path = omegaconf_select(cfg, "emb_model.ckpt_path", './emb_model_checkpoints')
-        
+        cfg.emb_model.outputs = omegaconf_select(cfg, "emb_model.outputs", '4') # default: 4 
+        cfg.emb_model.get_extended_features = omegaconf_select(cfg, "emb_model.get_extended_features", False)
+
+        cfg.emb_model.outputs = [int(num.) for num in cfg.emb_model.outputs.split(',')]
         
 
     

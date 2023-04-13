@@ -395,6 +395,20 @@ def main(cfg: DictConfig):
         else:
             plot_save_path = './'
 
+        if cfg.data.plot_distances_after_epoch:
+            no_shuffle_train_loader = prepare_dataloader(
+                                            train_dataset, 
+                                            batch_size=cfg.optimizer.batch_size, 
+                                            num_workers=cfg.data.num_workers, 
+                                            shuffle=False, 
+                                            drop_last=False)
+            plot_embeddings_cb = misc.PlotEmbeddingsCallback(save_path=plot_save_path, 
+                                                             dataset_name=cfg.data.dataset,
+                                                             data_loader=no_shuffle_train_loader, 
+                                                             index=0, 
+                                                             key='z')
+            callbacks.append(plot_embeddings_cb)
+
         class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR(dataset_name=cfg.data.dataset, save_path=plot_save_path)
         callbacks.append(class_percentage_cb)
     

@@ -865,17 +865,18 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./', pos
 #     return d
 
 class PlotEmbeddingsCallback(Callback):
-    def __init__(self, dataset_name, data_loader, save_path):
+    def __init__(self, dataset_name, data_loader, save_path, **kwargs):
         super().__init__()
         self.epoch = 0
         self.dataset_name = dataset_name
         self.data_loader = data_loader
         self.save_path = save_path
         self.pos_mask = None
+        self.kwargs = kwargs
 
     def on_train_epoch_start(self, trainer, pl_module):
         self.epoch += 1
-        output = get_embeddings(pl_module, self.data_loader)
+        output = get_embeddings(pl_module, self.data_loader, self.kwargs)
         embeddings = output['embs']
         embedding_labels = output['targets']
 
