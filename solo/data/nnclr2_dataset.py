@@ -180,8 +180,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
         assert new_sim_matrix.shape[0] == self.sim_matrix.shape[0]
         assert new_sim_matrix.shape[1] == (self.sim_matrix.shape[1] - 1)
         
-        assert new_dist_matrix.shape[0] == self.new_dist_matrix.shape[0]
-        assert new_dist_matrix.shape[1] == (self.new_dist_matrix.shape[1] - 1)
+        assert new_dist_matrix.shape[0] == self.dist_matrix.shape[0]
+        assert new_dist_matrix.shape[1] == (self.dist_matrix.shape[1] - 1)
         
         self.sim_matrix = new_sim_matrix
         self.dist_matrix = new_dist_matrix
