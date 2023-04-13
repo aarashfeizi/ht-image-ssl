@@ -244,7 +244,10 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
                 new_row = row[dist_row <= self.nn_threshold]
                 new_dist_row = dist_row[dist_row <= self.nn_threshold]
-                
+                if len(new_row) == 0:
+                    new_row = np.array([idx])
+                    new_dist_row = np.array([0.0])
+                    
                 new_sim_list.append(new_row)
                 new_dist_list.append(new_dist_row)
 
