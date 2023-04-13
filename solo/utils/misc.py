@@ -876,7 +876,7 @@ class PlotEmbeddingsCallback(Callback):
 
     def on_train_epoch_start(self, trainer, pl_module):
         self.epoch += 1
-        output = get_embeddings(pl_module, self.data_loader, self.kwargs)
+        output = get_embeddings(pl_module, self.data_loader, **self.kwargs)
         embeddings = output['embs']
         embedding_labels = output['targets']
 
