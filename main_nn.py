@@ -321,15 +321,17 @@ def main(cfg: DictConfig):
                 threshold = np.mean(emb_dist_matrix[:, 1:21])
             elif cfg.data.threshold_mode_type == 'mean-std':
                 threshold = np.mean(emb_dist_matrix[:, 1:21]) - np.std(emb_dist_matrix[:, 1:21])
-            threshold_name = f'{cfg.data.threshold_mode}_{cfg.data.threshold_mode_type}'
+            threshold_name = f'threshold_{cfg.data.threshold_mode}_{cfg.data.threshold_mode_type}'
             extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
             extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
             print(f'Seeting threshold to {threshold}')
 
         elif cfg.data.threshold_mode == 'fixed':
-            threshold_name = f'{cfg.data.threshold_mode}'
+            threshold_name = f'threshold_{cfg.data.threshold_mode}'
             threshold = cfg.data.nn_threshold
+            if threshold < 0:
+                threshold_name = f'nnc_{cfg.data.num_nns_choice}'
 
 
         clust_dist, clust_lbls = None, None
@@ -353,7 +355,7 @@ def main(cfg: DictConfig):
             extra_info['no_clusters'] = len(set(clust_lbls))
         
         if cfg.data.plot_distances or cfg.data.plot_distances_after_epoch:
-            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms/', f'{cfg.data.dataset}_n{cfg.method}_threshold_{threshold_name}_reloadFreq{cfg.data.reload_freq}')
+            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms_new/', f'{cfg.data.dataset}_n{cfg.method}_{threshold_name}_reloadFreq{cfg.data.reload_freq}')
             misc.make_dirs(plot_save_path)
         else:
             plot_save_path = './'
@@ -370,7 +372,7 @@ def main(cfg: DictConfig):
                                                 subsample_by=1,
                                                 clustering_algo=cfg.data.clustering_algo,
                                                 extra_info=extra_info,
-                                                plot_distances=cfg.data.plot_distances,
+                                                plot_distances=False,
                                                 save_path=plot_save_path,
                                                 no_reloads=1)
         
@@ -381,7 +383,7 @@ def main(cfg: DictConfig):
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
         print('Number of nns: ', train_dataset.no_nns)
-        class_percentage_cb = misc.ClassNNPecentageCallback()
+        class_percentage_cb = misc.ClassNNPecentageCallback(dataset_name=cfg.data.dataset, data_loader=emb_train_loader, save_path=plot_save_path, plot_nearest_neighbors=cfg.data.plot_distances)
         callbacks.append(class_percentage_cb)
 
         train_loader = prepare_dataloader(

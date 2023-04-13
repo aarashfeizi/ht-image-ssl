@@ -865,6 +865,9 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./', pos
 #     return d
 
 class PlotEmbeddingsCallback(Callback):
+    """
+        For both NNCLR2 and NNCLR
+    """
     def __init__(self, dataset_name, data_loader, save_path, **kwargs):
         super().__init__()
         self.epoch = 0
@@ -888,6 +891,14 @@ class PlotEmbeddingsCallback(Callback):
         
 
 class ClassNNPecentageCallback(Callback):
+    def __init__(self, dataset_name, data_loader, save_path, plot_nearest_neighbors=False):
+        super().__init__()
+        self.epoch = 0
+        self.data_loader = data_loader
+        self.dataset_name = dataset_name
+        self.save_path = save_path
+        self.plot_nearest_neighbors = plot_nearest_neighbors
+
     def on_train_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
             percentage_metrics = trainer.train_dataloader.loaders.dataset.relevant_classes
@@ -912,6 +923,41 @@ class ClassNNPecentageCallback(Callback):
 
             logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
 
+        self.epoch += 1
+        if self.plot_nearest_neighbors:
+            output = get_embeddings(pl_module, self.data_loader)
+            embeddings = output['embs']
+            embedding_labels = output['targets']
+
+            d = embeddings.shape[1]
+            if torch.cuda.is_available():
+                try:
+                    cpu_index = faiss.IndexFlatL2(d)
+                    final_index = faiss.index_cpu_to_all_gpus(cpu_index)
+                    final_index.add(embeddings)
+                except:
+                    cpu_index = faiss.IndexFlatL2(d)
+                    print('No gpus for faiss! :( ')
+                    final_index = cpu_index
+                    final_index.add(embeddings)
+            else:
+                cpu_index = faiss.IndexFlatL2(d)
+                print('No gpus avaialble for faiss! :((( ')
+                final_index = cpu_index
+                final_index.add(embeddings)
+
+            D, I = final_index.search(embeddings, k=200) # actual search
+
+            for k in [5, 25, 100]:
+                print(f'creating plot for k = {k}...')
+                create_pos_neg_hist_plot(f"{self.dataset_name}_ep{self.epoch}",
+                                        emb_sim_matrix=I,
+                                        emb_dist_matrix=D,
+                                        lbls=embedding_labels, 
+                                        k=k, 
+                                        bins=300, 
+                                        save_path=self.save_path,
+                                        true_lbls=embedding_labels)
 
 class ClassNNPecentageCallback_NNCLR(Callback):
     def __init__(self, dataset_name, save_path):
