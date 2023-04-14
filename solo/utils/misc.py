@@ -930,21 +930,21 @@ class ClassNNPecentageCallback(Callback):
             embedding_labels = output['targets']
 
             d = embeddings.shape[1]
-            if torch.cuda.is_available():
-                try:
-                    cpu_index = faiss.IndexFlatL2(d)
-                    final_index = faiss.index_cpu_to_all_gpus(cpu_index)
-                    final_index.add(embeddings)
-                except:
-                    cpu_index = faiss.IndexFlatL2(d)
-                    print('No gpus for faiss! :( ')
-                    final_index = cpu_index
-                    final_index.add(embeddings)
-            else:
-                cpu_index = faiss.IndexFlatL2(d)
-                print('No gpus avaialble for faiss! :((( ')
-                final_index = cpu_index
-                final_index.add(embeddings)
+            # if torch.cuda.is_available():
+            #     try:
+            #         cpu_index = faiss.IndexFlatL2(d)
+            #         final_index = faiss.index_cpu_to_all_gpus(cpu_index)
+            #         final_index.add(embeddings)
+            #     except:
+            #         cpu_index = faiss.IndexFlatL2(d)
+            #         print('No gpus for faiss! :( ')
+            #         final_index = cpu_index
+            #         final_index.add(embeddings)
+            # else:
+            cpu_index = faiss.IndexFlatL2(d)
+            print('No gpus avaialble for faiss! :((( ')
+            final_index = cpu_index
+            final_index.add(embeddings)
 
             D, I = final_index.search(embeddings, k=200) # actual search
 
