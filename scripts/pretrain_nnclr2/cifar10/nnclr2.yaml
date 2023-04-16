@@ -24,9 +24,9 @@ method_kwargs:
   proj_output_dim: 256
   temperature: 0.2
 data:
-  dataset: svhn # change here for cifar10
-  train_path: "/home/mila/f/feiziaar/scratch/svhn/"
-  val_path: "/home/mila/f/feiziaar/scratch/svhn/"
+  dataset: cifar10 # change here for cifar10
+  train_path: "/home/mila/f/feiziaar/scratch/cifar10/"
+  val_path: "/home/mila/f/feiziaar/scratch/cifar10/"
   format: "image_folder"
   num_workers: 4
   reload_freq: 0
