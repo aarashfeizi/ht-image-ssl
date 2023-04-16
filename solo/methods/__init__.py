@@ -28,6 +28,7 @@ from solo.methods.mocov2plus import MoCoV2Plus
 from solo.methods.mocov3 import MoCoV3
 from solo.methods.nnbyol import NNBYOL
 from solo.methods.nnclr import NNCLR
+from solo.methods.nnclr2 import NNCLR2
 from solo.methods.nnsiam import NNSiam
 from solo.methods.ressl import ReSSL
 from solo.methods.simclr import SimCLR
@@ -52,6 +53,7 @@ METHODS = {
     "mocov3": MoCoV3,
     "nnbyol": NNBYOL,
     "nnclr": NNCLR,
+    "nnclr2": NNCLR2,
     "nnsiam": NNSiam,
     "ressl": ReSSL,
     "simclr": SimCLR,
@@ -74,6 +76,7 @@ __all__ = [
     "MoCoV3",
     "NNBYOL",
     "NNCLR",
+    "NNCLR2",
     "NNSiam",
     "ReSSL",
     "SimCLR",

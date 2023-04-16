@@ -866,7 +866,7 @@ def plot_sim_histogram(dataset_name, sims, labels, bins=300, save_path='./', pos
 
 class PlotEmbeddingsCallback(Callback):
     """
-        For both NNCLR2 and NNCLR
+        Plot global pairwise cosine similarities for both NNCLR2 and NNCLR
     """
     def __init__(self, dataset_name, data_loader, save_path, **kwargs):
         super().__init__()

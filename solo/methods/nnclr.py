@@ -31,7 +31,7 @@ from solo.utils.misc import gather, omegaconf_select, get_sim_matrix
 class NNCLR(BaseMethod):
     def __init__(self, cfg: omegaconf.DictConfig):
         """Implements NNCLR (https://arxiv.org/abs/2104.14548).
-
+    
         Extra cfg settings:
             method_kwargs:
                 proj_output_dim (int): number of dimensions of projected features.
