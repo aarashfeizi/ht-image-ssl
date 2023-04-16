@@ -125,6 +125,7 @@ def add_and_assert_scheduler(cfg):
 
 def add_and_assert_nnclr2_cfg(cfg):
     cfg.nnclr2 = omegaconf_select(cfg, "nnclr2", False)
+    cfg.nn_key = omegaconf_select(cfg, "nn_key", 'feats')
     cfg.log_path = omegaconf_select(cfg, "log_path", '../../scratch/ht-image-ssl/logs/')
     cfg.data.num_nns = omegaconf_select(cfg, "data.num_nns", 1)
     cfg.data.num_nns_choice = omegaconf_select(cfg, "data.num_nns_choice", 1)

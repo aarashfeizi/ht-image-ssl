@@ -891,13 +891,18 @@ class PlotEmbeddingsCallback(Callback):
         
 
 class ClassNNPecentageCallback(Callback):
-    def __init__(self, dataset_name, data_loader, save_path, plot_nearest_neighbors=False):
+    def __init__(self, dataset_name,
+                 data_loader, 
+                 save_path, 
+                 plot_nearest_neighbors=False,
+                 key='feats'):
         super().__init__()
         self.epoch = 0
         self.data_loader = data_loader
         self.dataset_name = dataset_name
         self.save_path = save_path
         self.plot_nearest_neighbors = plot_nearest_neighbors
+        self.key = key
 
     def on_train_epoch_start(self, trainer, pl_module):
         for logger in trainer.loggers:
@@ -925,7 +930,7 @@ class ClassNNPecentageCallback(Callback):
 
         self.epoch += 1
         if self.plot_nearest_neighbors:
-            output = get_embeddings(pl_module, self.data_loader)
+            output = get_embeddings(pl_module, self.data_loader, key=self.key)
             embeddings = output['embs']
             embedding_labels = output['targets']
 

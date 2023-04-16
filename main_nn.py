@@ -383,7 +383,11 @@ def main(cfg: DictConfig):
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
         print('Number of nns: ', train_dataset.no_nns)
-        class_percentage_cb = misc.ClassNNPecentageCallback(dataset_name=cfg.data.dataset, data_loader=emb_train_loader, save_path=plot_save_path, plot_nearest_neighbors=cfg.data.plot_distances)
+        class_percentage_cb = misc.ClassNNPecentageCallback(dataset_name=cfg.data.dataset, 
+                                                            data_loader=emb_train_loader, 
+                                                            save_path=plot_save_path, 
+                                                            plot_nearest_neighbors=cfg.data.plot_distances,
+                                                            key=cfg.nn_key)
         callbacks.append(class_percentage_cb)
 
         train_loader = prepare_dataloader(

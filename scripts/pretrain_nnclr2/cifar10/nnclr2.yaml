@@ -15,6 +15,7 @@ hydra:
 name: "simclr-E-svhn-nnclr2" # change here for cifar10
 method: "nnclr2"
 nnclr2: True
+nn_key: 'feats'
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
@@ -32,7 +33,7 @@ data:
   reload_freq: 0
   num_nns: 1
   num_nns_choice: 1
-  filter_sim_matrix: True
+  filter_sim_matrix: False
 optimizer:
   name: "lars"
   batch_size: 256
