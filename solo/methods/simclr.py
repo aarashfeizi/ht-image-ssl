@@ -22,6 +22,7 @@ from typing import Any, Dict, List, Sequence
 import omegaconf
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from solo.losses.simclr import simclr_loss_func
 from solo.methods.base import BaseMethod
 
@@ -43,6 +44,8 @@ class SimCLR(BaseMethod):
 
         proj_hidden_dim: int = cfg.method_kwargs.proj_hidden_dim
         proj_output_dim: int = cfg.method_kwargs.proj_output_dim
+
+        self.normalize_projector = cfg.method_kwargs.normalize_projector
 
         # projector
         self.projector = nn.Sequential(
@@ -67,6 +70,7 @@ class SimCLR(BaseMethod):
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.proj_output_dim")
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.proj_hidden_dim")
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.temperature")
+        assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.normalize_projector")
 
         return cfg
 
@@ -95,6 +99,8 @@ class SimCLR(BaseMethod):
 
         out = super().forward(X)
         z = self.projector(out["feats"])
+        if self.normalize_projector:
+            z = F.normalize(z, dim=-1)
         out.update({"z": z})
         return out
 
@@ -111,6 +117,8 @@ class SimCLR(BaseMethod):
 
         out = super().multicrop_forward(X)
         z = self.projector(out["feats"])
+        if self.normalize_projector:
+            z = F.normalize(z, dim=-1)
         out.update({"z": z})
         return out
 

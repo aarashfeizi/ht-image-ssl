@@ -453,7 +453,9 @@ def main(cfg: DictConfig):
                                 nn_threshold=cfg.data.nn_threshold,
                                 threshold_mode=cfg.data.threshold_mode,
                                 clustering_algo=cfg.data.clustering_algo,
-                                seed=cfg.seed)
+                                seed=cfg.seed,
+                                threshold_k=cfg.data.threshold_k,
+                                key=cfg.nn_key)
     
     datamodule.set_emb_dataloder(emb_train_loader)
     datamodule.set_train_loader(train_loader)

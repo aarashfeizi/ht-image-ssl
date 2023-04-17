@@ -17,7 +17,9 @@ class BaseDataModule(pl.LightningDataModule):
                     nn_threshold=-1,
                     threshold_mode='fixed',
                     clustering_algo=None,
-                    seed=1):
+                    seed=1,
+                    threshold_k=20,
+                    key='feats'): # 'feats' or 'z'
         
         super().__init__(train_transforms, val_transforms, test_transforms, dims)
         self.emb_train_loader = None
@@ -32,6 +34,8 @@ class BaseDataModule(pl.LightningDataModule):
         self.threshold_mode = threshold_mode
         self.clustering_algo = clustering_algo
         self.seed = seed
+        self.threshold_k = threshold_k + 1
+        self.key = key
 
     def set_emb_dataloder(self, loader):
         self.emb_train_loader = loader
@@ -56,16 +60,16 @@ class BaseDataModule(pl.LightningDataModule):
 
             assert self.emb_train_loader is not None
             extra_info = {}
-            embeddings = misc.get_embeddings(self.model, self.emb_train_loader, key='z')['embs']
+            embeddings = misc.get_embeddings(self.model, self.emb_train_loader, key=self.key)['embs']
             emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
             clust_dist, clust_lbls = None, None
 
 
             if self.threshold_mode == 'adaptive':
-                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
-                extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
+                threshold = np.mean(emb_dist_matrix[:, 1:self.threshold_k]) + np.std(emb_dist_matrix[:, 1:self.threshold_k])
+                extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:self.threshold_k])
+                extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:self.threshold_k])
+                extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:self.threshold_k])
                 print(f'Seeting threshold to {threshold}')
             elif self.threshold_mode == 'fixed':
                 threshold = self.nn_threshold

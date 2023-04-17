@@ -173,6 +173,8 @@ def add_and_assert_nnclr2_cfg(cfg):
         cfg.emb_model.get_extended_features = omegaconf_select(cfg, "emb_model.get_extended_features", False)
 
         cfg.emb_model.outputs = [int(num) for num in cfg.emb_model.outputs.split(',')]
+
+    
         
 
     
@@ -205,7 +207,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
 
-    
+    # make sure method_kwargs has normalize_projector set to False as default (this is only used in SimClr)
+    cfg.method_kwargs.normalize_projector = omegaconf_select(cfg, "method_kwargs.normalize_projector", False)
 
     # extra processing
     if cfg.data.dataset in _N_CLASSES_PER_DATASET:
