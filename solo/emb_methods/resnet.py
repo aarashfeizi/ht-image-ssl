@@ -101,7 +101,6 @@ class ResNet(nn.Module):
     def eval(self):
         self.train(False)
         self.fc = nn.Identity()
-        self.eval()
     
     def __fix_keys(self, d, old, new):
         new_d = {}
