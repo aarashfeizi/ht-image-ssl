@@ -24,6 +24,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from solo.losses.simclr import simclr_loss_func
+from solo.utils import misc
 from solo.methods.base import BaseMethod
 
 
@@ -45,7 +46,7 @@ class SimCLR(BaseMethod):
         proj_hidden_dim: int = cfg.method_kwargs.proj_hidden_dim
         proj_output_dim: int = cfg.method_kwargs.proj_output_dim
 
-        self.normalize_projector = cfg.method_kwargs.normalize_projector
+        self.normalize_projector = misc.MAP_STRING_TO_BOOL[cfg.method_kwargs.normalize_projector]
 
         # projector
         self.projector = nn.Sequential(

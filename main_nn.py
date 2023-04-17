@@ -397,7 +397,7 @@ def main(cfg: DictConfig):
 
     elif cfg.method == 'nnclr':
         if cfg.data.plot_distances:
-            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms/', f'{cfg.data.dataset}_{cfg.method}')
+            plot_save_path = os.path.join(cfg.log_path, 'pos_neg_histograms_new/', f'{cfg.data.dataset}_{cfg.method}')
             misc.make_dirs(plot_save_path)
         else:
             plot_save_path = './'

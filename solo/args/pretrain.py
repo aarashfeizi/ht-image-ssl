@@ -207,9 +207,9 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
 
-    # make sure method_kwargs has normalize_projector set to False as default (this is only used in SimClr)
-    cfg.method_kwargs.normalize_projector = omegaconf_select(cfg, "method_kwargs.normalize_projector", False)
-
+    # make sure method_kwargs has normalize_projector set to False as default (this is only used in SimClr and BYOL)
+    cfg.method_kwargs.normalize_projector = omegaconf_select(cfg, "method_kwargs.normalize_projector", 'false')
+    
     # extra processing
     if cfg.data.dataset in _N_CLASSES_PER_DATASET:
         cfg.data.num_classes = _N_CLASSES_PER_DATASET[cfg.data.dataset]

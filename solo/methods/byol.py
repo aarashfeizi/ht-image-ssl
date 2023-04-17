@@ -27,6 +27,7 @@ import torch.nn.functional as F
 from solo.losses.byol import byol_loss_func
 from solo.methods.base import BaseMomentumMethod
 from solo.utils.momentum import initialize_momentum_params
+from solo.utils import misc
 
 
 class BYOL(BaseMomentumMethod):
@@ -45,6 +46,8 @@ class BYOL(BaseMomentumMethod):
         proj_hidden_dim: int = cfg.method_kwargs.proj_hidden_dim
         proj_output_dim: int = cfg.method_kwargs.proj_output_dim
         pred_hidden_dim: int = cfg.method_kwargs.pred_hidden_dim
+
+        self.normalize_projector = misc.MAP_STRING_TO_BOOL[cfg.method_kwargs.normalize_projector]
 
         # projector
         self.projector = nn.Sequential(
@@ -87,6 +90,7 @@ class BYOL(BaseMomentumMethod):
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.proj_hidden_dim")
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.proj_output_dim")
         assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.pred_hidden_dim")
+        assert not omegaconf.OmegaConf.is_missing(cfg, "method_kwargs.normalize_projector")
 
         return cfg
 
@@ -128,6 +132,8 @@ class BYOL(BaseMomentumMethod):
         out = super().forward(X)
         z = self.projector(out["feats"])
         p = self.predictor(z)
+        if self.normalize_projector:
+            z = F.normalize(z, dim=-1)
         out.update({"z": z, "p": p})
         return out
 
@@ -145,6 +151,8 @@ class BYOL(BaseMomentumMethod):
         out = super().multicrop_forward(X)
         z = self.projector(out["feats"])
         p = self.predictor(z)
+        if self.normalize_projector:
+            z = F.normalize(z, dim=-1)
         out.update({"z": z, "p": p})
         return out
 

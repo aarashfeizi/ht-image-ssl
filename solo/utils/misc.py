@@ -38,6 +38,9 @@ from pytorch_lightning.callbacks import Callback
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
+MAP_STRING_TO_BOOL = {'true': True,
+                      'false': False}
+
 
 def _1d_filter(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.isfinite()
