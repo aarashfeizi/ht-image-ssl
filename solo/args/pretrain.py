@@ -136,6 +136,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.data.cluster_louvain = omegaconf_select(cfg, "data.cluster_louvain", False)
     cfg.data.nn_threshold = omegaconf_select(cfg, "data.nn_threshold", -1)
     cfg.data.threshold_mode = omegaconf_select(cfg, "data.threshold_mode", "fixed") # ['fixed', 'adaptive']
+    cfg.data.threshold_k = omegaconf_select(cfg, "data.threshold_k", 20) # e.g., 20, 5, etc.
     cfg.data.threshold_mode_type = omegaconf_select(cfg, "data.threshold_mode_type", "mean+std") # ['mean+std', 'mean', 'mean-std']
     cfg.data.plot_distances = omegaconf_select(cfg, "data.plot_distances", False) # [True, False]
     cfg.data.plot_distances_after_epoch = omegaconf_select(cfg, "data.plot_distances_after_epoch", False) # [True, False]

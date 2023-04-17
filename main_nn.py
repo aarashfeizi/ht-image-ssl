@@ -315,16 +315,17 @@ def main(cfg: DictConfig):
         extra_info = {}
         
         if cfg.data.threshold_mode == 'adaptive':
+            threshold_k = cfg.data.threshold_k + 1 # default is 21
             if cfg.data.threshold_mode_type == 'mean+std':
-                threshold = np.mean(emb_dist_matrix[:, 1:21]) + np.std(emb_dist_matrix[:, 1:21])
+                threshold = np.mean(emb_dist_matrix[:, 1:threshold_k]) + np.std(emb_dist_matrix[:, 1:threshold_k])
             elif cfg.data.threshold_mode_type == 'mean':
-                threshold = np.mean(emb_dist_matrix[:, 1:21])
+                threshold = np.mean(emb_dist_matrix[:, 1:threshold_k])
             elif cfg.data.threshold_mode_type == 'mean-std':
-                threshold = np.mean(emb_dist_matrix[:, 1:21]) - np.std(emb_dist_matrix[:, 1:21])
+                threshold = np.mean(emb_dist_matrix[:, 1:threshold_k]) - np.std(emb_dist_matrix[:, 1:threshold_k])
             threshold_name = f'threshold_{cfg.data.threshold_mode}_{cfg.data.threshold_mode_type}'
-            extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:21])
-            extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:21])
-            extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:21])
+            extra_info['emb_dist_AVG'] = np.mean(emb_dist_matrix[:, 1:threshold_k])
+            extra_info['emb_dist_STD'] = np.std(emb_dist_matrix[:, 1:threshold_k])
+            extra_info['emb_dist_VAR'] = np.var(emb_dist_matrix[:, 1:threshold_k])
             print(f'Seeting threshold to {threshold}')
 
         elif cfg.data.threshold_mode == 'fixed':
