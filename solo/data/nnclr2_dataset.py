@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 import numpy as np
 from torchvision import datasets
 import matplotlib.pyplot as plt
@@ -318,15 +319,19 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.not_from_cluster_percentage['var'] = np.var(not_from_cluster)
         
         if self.hop > 0:
-            adj_matrix = np.zeros((len(self.sim_matrix), len(self.sim_matrix)), dtype=np.int32)
+            adj_matrix = np.zeros((len(self.sim_matrix), len(self.sim_matrix)), dtype=np.float64)
             x_idx = np.array([i for i in range(len(self.sim_matrix))])
             x_idx = x_idx.repeat(self.num_nns_choice)
             adj_matrix[x_idx, self.sim_matrix[:, :self.num_nns_choice].flatten()] = 1
-            hop_matrix = np.identity(len(self.sim_matrix))
-            hop_matrix = hop_matrix @ adj_matrix
+            hop_matrix = np.identity(len(self.sim_matrix), dtype=np.float64)
+            adj_matrix = torch.tensor(adj_matrix).to_sparse()
+            hop_matrix = torch.tensor(hop_matrix).to_sparse()
+            hop_matrix = torch.sparse.mm(adj_matrix, hop_matrix)
             for _ in range(self.hop):
-                hop_matrix = hop_matrix @ adj_matrix
+                hop_matrix = torch.sparse.mm(adj_matrix, hop_matrix)
             
+
+            hop_matrix = hop_matrix.to_dense().numpy()
             new_sim_list = []
             new_dist_list = []
 
