@@ -340,7 +340,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                 new_dist_list.append(np.ones(new_sim_list[-1].shape).flatten())
 
             self.sim_matrix = new_sim_list
-            self.sim_matrix = new_dist_list
+            self.dist_matrix = new_dist_list
 
         if (self.clusters is None) and (self.nn_threshold < 0) and (self.hop == 0):
             new_sim_list = []
