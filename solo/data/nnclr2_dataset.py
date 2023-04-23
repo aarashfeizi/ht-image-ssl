@@ -342,7 +342,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.sim_matrix = new_sim_list
             self.sim_matrix = new_dist_list
 
-        if (self.clusters is None) and (self.nn_threshold < 0):
+        if (self.clusters is None) and (self.nn_threshold < 0) and (self.hop == 0):
             new_sim_list = []
             new_dist_list = []
             for idx in range(len(self.sim_matrix)):
