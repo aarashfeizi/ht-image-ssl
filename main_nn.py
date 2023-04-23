@@ -375,7 +375,8 @@ def main(cfg: DictConfig):
                                                 extra_info=extra_info,
                                                 plot_distances=False,
                                                 save_path=plot_save_path,
-                                                no_reloads=1)
+                                                no_reloads=1,
+                                                hop=cfg.data.nn_hop)
         
         if cfg.data.plot_distances_after_epoch:
             plot_embeddings_cb = misc.PlotEmbeddingsCallback(save_path=plot_save_path, dataset_name=cfg.data.dataset, data_loader=emb_train_loader)

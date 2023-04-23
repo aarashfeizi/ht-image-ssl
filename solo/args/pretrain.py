@@ -140,6 +140,7 @@ def add_and_assert_nnclr2_cfg(cfg):
     cfg.data.threshold_mode_type = omegaconf_select(cfg, "data.threshold_mode_type", "mean+std") # ['mean+std', 'mean', 'mean-std']
     cfg.data.plot_distances = omegaconf_select(cfg, "data.plot_distances", False) # [True, False]
     cfg.data.plot_distances_after_epoch = omegaconf_select(cfg, "data.plot_distances_after_epoch", False) # [True, False]
+    cfg.data.nn_hop = omegaconf_select(cfg, "data.nn_hop", 0) # {0, 1, 2, ...}
     
     cfg.scheduler_max_epochs = omegaconf_select(cfg, "scheduler_max_epochs", -1)
     

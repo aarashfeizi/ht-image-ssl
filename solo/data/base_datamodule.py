@@ -106,7 +106,8 @@ class BaseDataModule(pl.LightningDataModule):
                                                    extra_info=extra_info,
                                                    plot_distances=self.train_loader.dataset.plot_distances,
                                                    save_path=self.train_loader.dataset.save_path,
-                                                   no_reloads=self.train_loader.dataset.no_reloads + 1)
+                                                   no_reloads=self.train_loader.dataset.no_reloads + 1,
+                                                   hop=self.train_loader.dataset.hop)
 
             print('Relevant class percentage: ', train_dataset.relevant_classes)
             print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

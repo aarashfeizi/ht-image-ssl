@@ -20,7 +20,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                  extra_info={},
                  plot_distances=False,
                  save_path='./',
-                 no_reloads=None) -> None:
+                 no_reloads=None,
+                 hop=0) -> None:
         super().__init__()
 
         self.dataset_name = dataset_name
@@ -36,6 +37,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
 
         self.sim_matrix = sim_matrix
         self.clusters = cluster_lbls
+        self.hop = hop
         self.clustering_algo = clustering_algo
         self.extra_info = extra_info
         if self.clusters is not None:
@@ -315,6 +317,26 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             self.not_from_cluster_percentage['median'] = np.median(not_from_cluster)
             self.not_from_cluster_percentage['var'] = np.var(not_from_cluster)
         
+        if self.hop > 0:
+            adj_matrix = np.zeros((len(self.sim_matrix), len(self.sim_matrix)), dtype=np.int32)
+            x_idx = np.array([i for i in range(len(self.sim_matrix))])
+            x_idx = x_idx.repeat(self.num_nns_choice)
+            adj_matrix[x_idx, self.sim_matrix[:, :self.num_nns_choice].flatten()] = 1
+            hop_matrix = np.identity(len(self.sim_matrix))
+            hop_matrix = hop_matrix @ adj_matrix
+            for _ in range(self.hop):
+                hop_matrix = hop_matrix @ adj_matrix
+            
+            new_sim_list = []
+            new_dist_list = []
+
+            for h in hop_matrix:
+                new_sim_list.append(np.argwhere(h != 0).flatten())
+                new_dist_list.append(np.ones(new_sim_list[-1].shape).flatten())
+
+            self.sim_matrix = new_sim_list
+            self.sim_matrix = new_dist_list
+
         if (self.clusters is None) and (self.nn_threshold < 0):
             new_sim_list = []
             new_dist_list = []
