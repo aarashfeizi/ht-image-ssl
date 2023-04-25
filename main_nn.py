@@ -244,12 +244,14 @@ def main(cfg: DictConfig):
         if cfg.data.subsample_by > 1 and cfg.data.dataset == 'inat':
             additional_str += f'_SSB{cfg.data.subsample_by}'
 
-        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
-
         if cfg.emb_model.transform == 'noTransform':
             emb_model_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
         else:
+            additional_str += '_transformed'
             emb_model_transform = build_transform_pipeline(cfg.data.dataset, cfg.augmentations[0])
+
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
+        
         emb_train_dataset = prepare_datasets(
             cfg.data.dataset,
             emb_model_transform,
