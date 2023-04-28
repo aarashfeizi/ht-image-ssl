@@ -328,7 +328,7 @@ class LinearModel(pl.LightningModule):
                         "acc1": acc1,
                         "acc5": acc5,
                         "pc_acc1_avg": torch.mean(perclass_acc1),
-                        "pc_acc1_var": torch.std(perclass_acc1),
+                        "pc_acc1_std": torch.std(perclass_acc1),
                         "pc_acc1_med": torch.median(perclass_acc1)})
             
         return metrics
