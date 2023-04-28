@@ -26,7 +26,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 from solo.utils.lars import LARS
-from solo.utils.metrics import accuracy_at_k, weighted_mean
+from solo.utils.metrics import accuracy_at_k, weighted_mean, perclass_accuracy_at_k
 from solo.utils.misc import (
     omegaconf_select,
     param_groups_layer_decay,
@@ -108,7 +108,8 @@ class LinearModel(pl.LightningModule):
             features_dim = self.backbone.num_features
 
         # classifier
-        self.classifier = nn.Linear(features_dim, cfg.data.num_classes)  # type: ignore
+        self.num_classes = cfg.data.num_classes
+        self.classifier = nn.Linear(features_dim, self.num_classes)  # type: ignore
 
         # mixup/cutmix function
         self.mixup_func: Callable = mixup_func
@@ -321,8 +322,15 @@ class LinearModel(pl.LightningModule):
             out = self(X)["logits"]
             loss = F.cross_entropy(out, target)
             acc1, acc5 = accuracy_at_k(out, target, top_k=(1, 5))
-            metrics.update({"loss": loss, "acc1": acc1, "acc5": acc5})
+            perclass_acc1 = perclass_accuracy_at_k(out, target, num_classes=self.num_classes)
 
+            metrics.update({"loss": loss, 
+                        "acc1": acc1,
+                        "acc5": acc5,
+                        "pc_acc1_avg": torch.mean(perclass_acc1),
+                        "pc_acc1_var": torch.std(perclass_acc1),
+                        "pc_acc1_med": torch.median(perclass_acc1)})
+            
         return metrics
 
     def training_step(self, batch: torch.Tensor, batch_idx: int) -> torch.Tensor:
@@ -344,7 +352,11 @@ class LinearModel(pl.LightningModule):
 
         log = {"train_loss": out["loss"]}
         if self.mixup_func is None:
-            log.update({"train_acc1": out["acc1"], "train_acc5": out["acc5"]})
+            log.update({"train_acc1": out["acc1"],
+                        "train_acc5": out["acc5"],
+                        "train_pc_acc1_avg": out["pc_acc1_avg"],
+                        "train_pc_acc1_std": out["pc_acc1_std"],
+                        "train_pc_acc1_med": out["pc_acc1_med"]})
 
         self.log_dict(log, on_epoch=True, sync_dist=True)
         return out["loss"]
@@ -369,6 +381,10 @@ class LinearModel(pl.LightningModule):
             "val_loss": out["loss"],
             "val_acc1": out["acc1"],
             "val_acc5": out["acc5"],
+            "val_pc_acc1_avg": out["pc_acc1_avg"],
+            "val_pc_acc1_std": out["pc_acc1_std"],
+            "val_pc_acc1_med": out["pc_acc1_med"],
+            
         }
         return results
 
@@ -384,6 +400,16 @@ class LinearModel(pl.LightningModule):
         val_loss = weighted_mean(outs, "val_loss", "batch_size")
         val_acc1 = weighted_mean(outs, "val_acc1", "batch_size")
         val_acc5 = weighted_mean(outs, "val_acc5", "batch_size")
+        val_pc_acc1_avg = weighted_mean(outs, "val_pc_acc1_avg", "batch_size")
+        val_pc_acc1_std = weighted_mean(outs, "val_pc_acc1_std", "batch_size")
+        val_pc_acc1_med = weighted_mean(outs, "val_pc_acc1_med", "batch_size")
 
-        log = {"val_loss": val_loss, "val_acc1": val_acc1, "val_acc5": val_acc5}
+
+        log = {"val_loss": val_loss,
+               "val_acc1": val_acc1,
+               "val_acc5": val_acc5,
+               "val_pc_acc1_avg": val_pc_acc1_avg,
+               "val_pc_acc1_std": val_pc_acc1_std,
+               "val_pc_acc1_med": val_pc_acc1_med}
+        
         self.log_dict(log, sync_dist=True)

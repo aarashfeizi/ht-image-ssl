@@ -54,7 +54,7 @@ from solo.backbones import (
 )
 from solo.utils.knn import WeightedKNNClassifier
 from solo.utils.lars import LARS
-from solo.utils.metrics import accuracy_at_k, weighted_mean
+from solo.utils.metrics import accuracy_at_k, weighted_mean, perclass_accuracy_at_k
 from solo.utils.misc import omegaconf_select, remove_bias_and_norm_from_weight_decay
 from solo.utils.momentum import MomentumUpdater, initialize_momentum_params
 from torch.optim.lr_scheduler import MultiStepLR, ExponentialLR, LambdaLR
@@ -500,8 +500,14 @@ class BaseMethod(pl.LightningModule):
         # handle when the number of classes is smaller than 5
         top_k_max = min(5, logits.size(1))
         acc1, acc5 = accuracy_at_k(logits, targets, top_k=(1, top_k_max))
+        perclass_acc1 = perclass_accuracy_at_k(logits, targets, num_classes=self.num_classes)
 
-        out.update({"loss": loss, "acc1": acc1, "acc5": acc5})
+        out.update({"loss": loss, 
+                    "acc1": acc1,
+                    "acc5": acc5,
+                    "pc_acc1_avg": torch.mean(perclass_acc1),
+                    "pc_acc1_var": torch.std(perclass_acc1),
+                    "pc_acc1_med": torch.median(perclass_acc1)})
         return out
 
     def base_training_step(self, X: torch.Tensor, targets: torch.Tensor) -> Dict:
@@ -562,11 +568,18 @@ class BaseMethod(pl.LightningModule):
         outs["loss"] = sum(outs["loss"]) / self.num_large_crops
         outs["acc1"] = sum(outs["acc1"]) / self.num_large_crops
         outs["acc5"] = sum(outs["acc5"]) / self.num_large_crops
+        outs["pc_acc1_avg"] = sum(outs["pc_acc1_avg"]) / self.num_large_crops
+        outs["pc_acc1_std"] = sum(outs["pc_acc1_std"]) / self.num_large_crops
+        outs["pc_acc1_med"] = sum(outs["pc_acc1_med"]) / self.num_large_crops
+                    
 
         metrics = {
             "train_class_loss": outs["loss"],
             "train_acc1": outs["acc1"],
             "train_acc5": outs["acc5"],
+            "train_pc_acc1_avg": outs["pc_acc1_avg"],
+            "train_pc_acc1_std": outs["pc_acc1_std"],
+            "train_pc_acc1_med": outs["pc_acc1_med"],
         }
 
         self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
@@ -618,12 +631,15 @@ class BaseMethod(pl.LightningModule):
 
         if self.knn_eval and not self.trainer.sanity_checking:
             self.knn(test_features=out.pop("feats").detach(), test_targets=targets.detach())
-
+        
         metrics = {
             "batch_size": batch_size,
             "val_loss": out["loss"],
             "val_acc1": out["acc1"],
             "val_acc5": out["acc5"],
+            "val_pc_acc1_avg": out["pc_acc1_avg"],
+            "val_pc_acc1_std": out["pc_acc1_std"],
+            "val_pc_acc1_med": out["pc_acc1_med"],
         }
         if self.new_metric is not None:
             metrics[self.new_metric] = out["acc1"]
@@ -642,10 +658,19 @@ class BaseMethod(pl.LightningModule):
         val_loss = weighted_mean(outs, "val_loss", "batch_size")
         val_acc1 = weighted_mean(outs, "val_acc1", "batch_size")
         val_acc5 = weighted_mean(outs, "val_acc5", "batch_size")
+        val_pc_acc1_avg = weighted_mean(outs, "val_pc_acc1_avg", "batch_size")
+        val_pc_acc1_std = weighted_mean(outs, "val_pc_acc1_std", "batch_size")
+        val_pc_acc1_med = weighted_mean(outs, "val_pc_acc1_med", "batch_size")
         if self.new_metric is not None:
             hp_metric = weighted_mean(outs, self.new_metric, "batch_size")
 
-        log = {"val_loss": val_loss, "val_acc1": val_acc1, "val_acc5": val_acc5}
+        log = {"val_loss": val_loss,
+               "val_acc1": val_acc1,
+               "val_acc5": val_acc5,
+               "val_pc_acc1_avg": val_pc_acc1_avg,
+               "val_pc_acc1_std": val_pc_acc1_std,
+               "val_pc_acc1_med": val_pc_acc1_med,
+               }
 
         if self.new_metric is not None:
             log[self.new_metric] = hp_metric 
@@ -795,7 +820,14 @@ class BaseMomentumMethod(BaseMethod):
 
             loss = F.cross_entropy(logits, targets, ignore_index=-1)
             acc1, acc5 = accuracy_at_k(logits, targets, top_k=(1, 5))
-            out.update({"logits": logits, "loss": loss, "acc1": acc1, "acc5": acc5})
+            perclass_acc1 = perclass_accuracy_at_k(logits, targets, num_classes=self.num_classes)
+
+            out.update({"loss": loss, 
+                    "acc1": acc1,
+                    "acc5": acc5,
+                    "pc_acc1_avg": torch.mean(perclass_acc1),
+                    "pc_acc1_var": torch.std(perclass_acc1),
+                    "pc_acc1_med": torch.median(perclass_acc1)})
 
         return out
 
@@ -838,11 +870,23 @@ class BaseMomentumMethod(BaseMethod):
             momentum_outs["momentum_acc5"] = (
                 sum(momentum_outs["momentum_acc5"]) / self.num_large_crops
             )
+            momentum_outs["momentum_pc_acc1_avg"] = (
+                sum(momentum_outs["momentum_pc_acc1_avg"]) / self.num_large_crops
+            )
+            momentum_outs["momentum_pc_acc1_std"] = (
+                sum(momentum_outs["momentum_pc_acc1_std"]) / self.num_large_crops
+            )
+            momentum_outs["momentum_pc_acc1_med"] = (
+                sum(momentum_outs["momentum_pc_acc1_med"]) / self.num_large_crops
+            )
 
             metrics = {
                 "train_momentum_class_loss": momentum_outs["momentum_loss"],
                 "train_momentum_acc1": momentum_outs["momentum_acc1"],
                 "train_momentum_acc5": momentum_outs["momentum_acc5"],
+                "train_momentum_pc_acc1_avg": momentum_outs["momentum_pc_acc1_avg"],
+                "train_momentum_pc_acc1_std": momentum_outs["momentum_pc_acc1_std"],
+                "train_momentum_pc_acc1_med": momentum_outs["momentum_pc_acc1_med"],
             }
             self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
 
@@ -906,8 +950,11 @@ class BaseMomentumMethod(BaseMethod):
                 "momentum_val_loss": out["loss"],
                 "momentum_val_acc1": out["acc1"],
                 "momentum_val_acc5": out["acc5"],
+                "momentum_val_pc_acc1_avg": out["pc_acc1_avg"],
+                "momentum_val_pc_acc1_std": out["pc_acc1_std"],
+                "momentum_val_pc_acc1_med": out["pc_acc1_med"],
             }
-
+        
             if self.new_metric is not None:
                 metrics[f'momentum_{self.new_metric}'] = out["acc1"]
 
@@ -931,6 +978,9 @@ class BaseMomentumMethod(BaseMethod):
             val_loss = weighted_mean(momentum_outs, "momentum_val_loss", "batch_size")
             val_acc1 = weighted_mean(momentum_outs, "momentum_val_acc1", "batch_size")
             val_acc5 = weighted_mean(momentum_outs, "momentum_val_acc5", "batch_size")
+            val_pc_acc1_avg = weighted_mean(momentum_outs, "momentum_val_pc_acc1_avg", "batch_size")
+            val_pc_acc1_std = weighted_mean(momentum_outs, "momentum_val_pc_acc1_std", "batch_size")
+            val_pc_acc1_med = weighted_mean(momentum_outs, "momentum_val_pc_acc1_med", "batch_size")
             if self.new_metric is not None:
                 hp_metric = weighted_mean(momentum_outs, f'momentum_{self.new_metric}', "batch_size")
 
@@ -939,6 +989,9 @@ class BaseMomentumMethod(BaseMethod):
                 "momentum_val_loss": val_loss,
                 "momentum_val_acc1": val_acc1,
                 "momentum_val_acc5": val_acc5,
+                "momentum_val_pc_acc1_avg": val_pc_acc1_avg,
+                "momentum_val_pc_acc1_std": val_pc_acc1_std,
+                "momentum_val_pc_acc1_med": val_pc_acc1_med,
             }
             
             if self.new_metric is not None:

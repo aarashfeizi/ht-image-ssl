@@ -18,6 +18,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 from typing import Dict, List, Sequence
+from torchmetrics.classification import MulticlassConfusionMatrix
 
 import torch
 
@@ -50,6 +51,38 @@ def accuracy_at_k(
             correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
+
+def perclass_accuracy_at_k(
+    outputs: torch.Tensor, targets: torch.Tensor, num_classes: int
+) -> Sequence[int]:
+    """Computes the per-class accuracy over the k top predictions for the specified values of k.
+
+    Args:
+        outputs (torch.Tensor): output of a classifier (logits or probabilities).
+        targets (torch.Tensor): ground truth labels.
+        top_k (Sequence[int], optional): sequence of top k values to compute the accuracy over.
+            Defaults to (1, 5).
+
+    Returns:
+        Sequence[int]:  accuracies at the desired k.
+    """
+    cm_metric = MulticlassConfusionMatrix(num_classes=num_classes)
+    cm_metric.to(targets.device)
+    with torch.no_grad():
+        _, pred = outputs.topk(1, 1, True, True)
+        pred = pred.t().flatten()
+        targets = targets.flatten()
+        
+        matrix = cm_metric(pred, targets)
+
+        per_class_accs = matrix.diagonal() / matrix.sum(axis=0)
+        per_class_accs[per_class_accs != per_class_accs] = 0.0
+
+        cm_metric.cpu()
+        
+        return per_class_accs
+
 
 
 def weighted_mean(outputs: List[Dict], key: str, batch_size_key: str) -> float:
