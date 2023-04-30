@@ -27,7 +27,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist
+from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
 
@@ -132,6 +132,26 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         ),
     }
 
+    aircrafts_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(256),  # resize shorter
+                transforms.CenterCrop((224, 224)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
+
+
     inat_pipeline = {
         "T_train": transforms.Compose(
             [
@@ -233,6 +253,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         "cifar100": cifar_pipeline,
         "stl10": stl_pipeline,
         "svhn": svhn_pipeline,
+        "aircrafts": aircrafts_pipeline,
         "inat": inat_pipeline,
         "pets": pets_pipeline,
         "dtd": dtd_pipeline,
@@ -261,6 +282,7 @@ def prepare_datasets(
     data_format: Optional[str] = "image_folder",
     download: bool = True,
     data_fraction: float = -1.0,
+    test=False
 ) -> Tuple[Dataset, Dataset]:
     """Prepares train and val datasets.
 
@@ -289,7 +311,7 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "inat", "pets", "dtd", "eurosat", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "aircrafts", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -335,6 +357,34 @@ def prepare_datasets(
             transform=T_val,
         )
     
+    elif dataset == 'aircrafts':
+        if test:
+            train_dataset = FGVCAircraft(
+                train_data_path,
+                split="trainval",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = FGVCAircraft(
+                val_data_path,
+                split="test",
+                download=download,
+                transform=T_val,
+            )
+        else:
+            train_dataset = FGVCAircraft(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = FGVCAircraft(
+                val_data_path,
+                split="val",
+                download=download,
+                transform=T_val,
+            )
+
     elif dataset == 'inat':
         train_dataset = INaturalist(
             train_data_path,
@@ -452,6 +502,7 @@ def prepare_data(
     data_fraction: float = -1.0,
     auto_augment: bool = False,
     subsample_by:int = 1,
+    test=False,
 ) -> Tuple[DataLoader, DataLoader]:
     """Prepares transformations, creates dataset objects and wraps them in dataloaders.
 
@@ -498,6 +549,7 @@ def prepare_data(
         data_format=data_format,
         download=download,
         data_fraction=data_fraction,
+        test=test,
     )
 
     if subsample_by > 1:

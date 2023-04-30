@@ -26,6 +26,7 @@ RESNETS = {'resnet18': resnet18,
 DATASETS = {'cifar100': datasets.CIFAR100,
             'cifar10': datasets.CIFAR10,
             'svhn': datasets.SVHN,
+            'aircrafts': datasets.FGVCAircraft,
             'inat': datasets.INaturalist}
 
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)

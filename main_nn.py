@@ -135,6 +135,7 @@ def main(cfg: DictConfig):
             data_format=cfg.data.format,
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
+            test=cfg.test
         )    
         
         train_dataset = misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
@@ -251,6 +252,10 @@ def main(cfg: DictConfig):
         else:
             additional_str += '_transformed'
             emb_model_transform = build_transform_pipeline(cfg.data.dataset, cfg.augmentations[0])
+        
+        if cfg.data.dataset == 'aircrafts':
+            if cfg.test:
+                additional_str += '_TestMode'
 
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
         
@@ -261,6 +266,7 @@ def main(cfg: DictConfig):
             data_format=cfg.data.format,
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
+            test=cfg.test
         )
 
         emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
@@ -449,6 +455,7 @@ def main(cfg: DictConfig):
             batch_size=cfg.optimizer.batch_size,
             num_workers=cfg.data.num_workers,
             subsample_by=subsample_by,
+            test=cfg.test,
         )
 
     datamodule = BaseDataModule(model=model,

@@ -20,6 +20,7 @@ _N_CLASSES_PER_DATASET = {
     "cifar100": 100,
     "stl10": 10,
     "svhn": 10,
+    "aircrafts": 100,
     "cub": 100,
     "inat": 10000,
     "pets": 37,
@@ -36,6 +37,7 @@ _SUPPORTED_DATASETS = [
     "cifar100",
     "stl10",
     "svhn",
+    "aircrafts",
     "cub",
     "inat",
     "pets",
@@ -207,6 +209,9 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
+
+    # by default, set TEST mode to False for datasets such as Aircrafts
+    cfg.test = omegaconf_select(cfg, "test", False)
 
     # make sure method_kwargs has normalize_projector set to False as default (this is only used in SimClr and BYOL)
     cfg.method_kwargs.normalize_projector = omegaconf_select(cfg, "method_kwargs.normalize_projector", 'false')

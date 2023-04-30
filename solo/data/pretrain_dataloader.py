@@ -29,7 +29,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD
+from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -210,6 +210,7 @@ def build_transform_pipeline(dataset, cfg):
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -284,6 +285,7 @@ def build_no_transform(dataset, cfg):
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -341,6 +343,7 @@ def prepare_datasets(
     no_labels: Optional[Union[str, Path]] = False,
     download: bool = True,
     data_fraction: float = -1.0,
+    test=False,
 ) -> Dataset:
     """Prepares the desired dataset.
 
@@ -377,7 +380,23 @@ def prepare_datasets(
             download=download,
             transform=transform,
         )
-    
+
+    elif dataset == "aircrafts":
+        if test:
+            train_dataset = dataset_with_index(FGVCAircraft)(
+                train_data_path,
+                split="trainval",
+                download=download,
+                transform=transform,
+            )
+        else:
+            train_dataset = dataset_with_index(FGVCAircraft)(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=transform,
+            )
+
     elif dataset == "svhn":
         train_dataset = dataset_with_index(SVHN)(
             train_data_path,
