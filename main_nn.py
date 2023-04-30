@@ -303,6 +303,8 @@ def main(cfg: DictConfig):
                 dataset_data = emb_train_loader.dataset._images
             elif cfg.data.dataset == 'dtd':
                 dataset_data = emb_train_loader.dataset._image_files
+            elif cfg.data.dataset == 'aircrafts':
+                dataset_data = emb_train_loader.dataset._image_files
             elif cfg.data.dataset == 'inat':
                 dataset_data = []
                 for cat_id, fname in emb_train_loader.dataset.index:
