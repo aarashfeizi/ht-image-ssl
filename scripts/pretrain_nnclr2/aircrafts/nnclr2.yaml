@@ -29,7 +29,7 @@ data:
   train_path: "/home/mila/f/feiziaar/scratch/aircrafts/"
   val_path: "/home/mila/f/feiziaar/scratch/aircrafts/"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
   num_nns: 1
   num_nns_choice: 1
   filter_sim_matrix: False
