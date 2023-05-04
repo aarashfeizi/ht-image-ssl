@@ -83,6 +83,12 @@ def main(cfg: DictConfig):
     else:
         subsample_by = 1
 
+
+    if cfg.nn_augmentations is None:
+        cfg.nn_augmentations = cfg.augmentations
+
+    nn_augmentation = cfg.nn_augmentations[0]
+
     # pretrain dataloader
     if cfg.data.format == "dali":
         assert (
@@ -248,10 +254,10 @@ def main(cfg: DictConfig):
             additional_str += f'_SSB{cfg.data.subsample_by}'
 
         if cfg.emb_model.transform == 'noTransform':
-            emb_model_transform = build_no_transform(cfg.data.dataset, cfg.augmentations[0])
+            emb_model_transform = build_no_transform(cfg.data.dataset, nn_augmentation)
         else:
-            additional_str += '_transformed'
-            emb_model_transform = build_transform_pipeline(cfg.data.dataset, cfg.augmentations[0])
+            additional_str += f'_{nn_augmentation.name}_seed{cfg.seed}'
+            emb_model_transform = build_transform_pipeline(cfg.data.dataset, nn_augmentation)
         
         if cfg.data.dataset == 'aircrafts':
             if cfg.test:
@@ -527,5 +533,3 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
-
-
