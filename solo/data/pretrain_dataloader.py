@@ -409,7 +409,7 @@ def prepare_datasets(
         train_dataset = dataset_with_index(INaturalist)(
             train_data_path,
             version="2021_train_mini",
-            download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini.tgz')),
+            download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini')),
             transform=transform,
         )
 
