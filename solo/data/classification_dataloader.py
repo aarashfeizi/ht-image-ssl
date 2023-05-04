@@ -389,13 +389,13 @@ def prepare_datasets(
         train_dataset = INaturalist(
             train_data_path,
             version="2021_train_mini",
-            download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini')),
+            download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini.tgz')),
             transform=T_train,
         )
         val_dataset = INaturalist(
             val_data_path,
             version="2021_valid",
-            download=not os.path.exists(os.path.join(val_data_path, '2021_valid')),
+            download=not os.path.exists(os.path.join(val_data_path, '2021_valid.tgz')),
             transform=T_val,
         )
     
