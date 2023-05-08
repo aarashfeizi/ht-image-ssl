@@ -65,9 +65,9 @@ class ResNet(nn.Module):
 
     def _add_to_out(self, out, new_output):
         if out is None:
-            return [new_output.detach().cpu()]
+            return [torch.flatten(new_output.detach().cpu(), 1)]
         else:
-            return out.append(torch.flatten(new_output.detach().cpu(), 1).squeeze())
+            return out.append(torch.flatten(new_output.detach().cpu(), 1))
         
     def forward(self, x):
         x = self.conv1(x)
