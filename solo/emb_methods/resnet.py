@@ -65,7 +65,7 @@ class ResNet(nn.Module):
 
     def _add_to_out(self, out, new_output):
         if out is None:
-            return [new_output.detach().cpu().numpy()]
+            return [new_output.detach().cpu()]
         else:
             return out.append(torch.flatten(new_output.detach().cpu(), 1).squeeze())
         
@@ -93,7 +93,7 @@ class ResNet(nn.Module):
         x = torch.flatten(x, 1)
         out = self.fc(x)
         feat_out = torch.cat(feat_out, 1)
-        
+
         if self.get_extended_features:
             return out, feat_out
         else:
