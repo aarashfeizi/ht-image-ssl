@@ -67,7 +67,7 @@ class ResNet(nn.Module):
         if out is None:
             return [new_output.detach().cpu().numpy()]
         else:
-            return out.append(torch.flatten(new_output.detach().cpu().numpy(), 1))
+            return out.append(torch.flatten(new_output.detach().cpu(), 1).squeeze())
         
     def forward(self, x):
         x = self.conv1(x)
@@ -92,6 +92,7 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         out = self.fc(x)
+        feat_out = torch.cat(feat_out, 1)
         
         if self.get_extended_features:
             return out, feat_out

@@ -565,6 +565,8 @@ def get_embeddings(model, dataloader, index=0, key='feats'):
             batch_emb = model(X)
             if type(batch_emb) == dict:
                 batch_emb = batch_emb[key]
+            elif type(batch_emb) == tuple:
+                complete_batch_emb, batch_emb = batch_emb
             embs.append(batch_emb.detach().cpu().numpy())
             glb_idxes.append(img_idx.numpy())
             returning_targets.append(targets.numpy())
