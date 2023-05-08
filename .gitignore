@@ -174,3 +174,5 @@ dmypy.json
 # End of https://www.gitignore.io/api/python,visualstudiocode
 get_embeddings.py
 
+scripts.txt
+

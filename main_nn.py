@@ -263,6 +263,10 @@ def main(cfg: DictConfig):
             if cfg.test:
                 additional_str += '_TestMode'
 
+        if cfg.emb_model.get_extended_features:
+            output_string = ''.join((sorted(list(set(cfg.emb_model.outputs)))))
+            additional_str += f'_outputs{output_string}'
+
         embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
         
         emb_train_dataset = prepare_datasets(
