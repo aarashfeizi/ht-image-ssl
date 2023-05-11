@@ -201,7 +201,7 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     cfg = add_and_assert_dataset_cfg(cfg)
     
     # augmentations for calculating the nearest neighbors
-    cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", None)
+    cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", 'no_transform')
     
     cfg = add_and_assert_nnclr2_cfg(cfg)
 

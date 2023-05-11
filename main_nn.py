@@ -256,7 +256,8 @@ def main(cfg: DictConfig):
         if cfg.emb_model.transform == 'noTransform':
             emb_model_transform = build_no_transform(cfg.data.dataset, nn_augmentation)
         else:
-            additional_str += f'_{nn_augmentation.name}_seed{cfg.seed}'
+            if nn_augmentation.name != 'no_transform':
+                additional_str += f'_{nn_augmentation.name}_seed{cfg.seed}'
             emb_model_transform = build_transform_pipeline(cfg.data.dataset, nn_augmentation)
         
         if cfg.data.dataset == 'aircrafts':
