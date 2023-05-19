@@ -1052,3 +1052,14 @@ class ClassNNPecentageCallback_NNCLR(Callback):
         #                         'nn_threshold': nn_threshold}
             
             logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+
+
+def get_clip_embeddings(model, dataloader, device):
+    embeddings = []
+    dl_pb = tqdm(dataloader)
+    for idx, batch in enumerate(dl_pb):
+        x, y = batch
+        x = x.to(device)
+        out = model.encode_image(x)
+        embeddings.append(out.detach().cpu().numpy())    
+    return np.concatenate(embeddings)
