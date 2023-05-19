@@ -334,7 +334,8 @@ def main(cfg: DictConfig):
             assert os.path.exists(os.path.join(cache_path, cfg.data.emb_path + '.npy'))
             embeddings_path = os.path.join(cache_path, cfg.data.emb_path + '.npy')
             print(f'Fetching {cfg.data.emb_path}')
-            embeddings = misc.load_npy(embeddings_path)
+            embeddings = misc.load_npy(embeddings_path).astype(np.float32)
+            
 
         print('Getting emb sim_matrix:')
         emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
