@@ -448,8 +448,8 @@ def main(cfg: DictConfig):
                                                              key='z')
             callbacks.append(plot_embeddings_cb)
 
-        class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR(dataset_name=cfg.data.dataset, save_path=plot_save_path)
-        callbacks.append(class_percentage_cb)
+        # class_percentage_cb = misc.ClassNNPecentageCallback_NNCLR(dataset_name=cfg.data.dataset, save_path=plot_save_path)
+        # callbacks.append(class_percentage_cb)
     
     model = METHODS[cfg.method](cfg)
     misc.make_contiguous(model)
