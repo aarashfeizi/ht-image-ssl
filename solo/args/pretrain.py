@@ -214,6 +214,13 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
 
+    # if backbone is vit, input size must be 224 
+    if cfg.backbone.name.startswith('vit'):
+        for aug in cfg.augmentations:
+            if aug.crop_size != 224:
+                print(f'setting augmentation crop size from {aug.crop_size} to 224')
+                aug.crop_size = 224
+
     # by default, set TEST mode to False for datasets such as Aircrafts
     cfg.test = omegaconf_select(cfg, "test", False)
 
