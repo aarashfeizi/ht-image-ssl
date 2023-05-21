@@ -69,7 +69,7 @@ def build_custom_pipeline():
     return pipeline
 
 
-def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
+def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module]:
     """Prepares pre-defined train and test transformation pipelines for some datasets.
 
     Args:
@@ -79,10 +79,14 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         Tuple[nn.Module, nn.Module]: training and validation transformation pipelines.
     """
 
+    if is_vit:
+        small_input_size = 224
+    else:
+        small_input_size = 32
     cifar_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=small_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
@@ -90,6 +94,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         ),
         "T_val": transforms.Compose(
             [
+                transforms.Resize((small_input_size, small_input_size)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ]
@@ -117,7 +122,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
     svhn_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=small_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -125,7 +130,7 @@ def prepare_transforms(dataset: str) -> Tuple[nn.Module, nn.Module]:
         ),
         "T_val": transforms.Compose(
             [
-                # transforms.Resize((96, 96)),
+                transforms.Resize((small_input_size, small_input_size)),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
@@ -503,6 +508,7 @@ def prepare_data(
     auto_augment: bool = False,
     subsample_by:int = 1,
     test=False,
+    is_vit=False,
 ) -> Tuple[DataLoader, DataLoader]:
     """Prepares transformations, creates dataset objects and wraps them in dataloaders.
 
@@ -525,7 +531,7 @@ def prepare_data(
         Tuple[DataLoader, DataLoader]: prepared training and validation dataloader.
     """
 
-    T_train, T_val = prepare_transforms(dataset)
+    T_train, T_val = prepare_transforms(dataset, is_vit)
     if auto_augment:
         T_train = create_transform(
             input_size=224,
