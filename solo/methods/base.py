@@ -508,10 +508,6 @@ class BaseMethod(pl.LightningModule):
                     "pc_acc1_avg": torch.mean(perclass_acc1),
                     "pc_acc1_std": torch.std(perclass_acc1),
                     "pc_acc1_med": torch.median(perclass_acc1)})
-        
-        if loss != loss:
-            print('Loss became nan... exiting!')
-            exit()
 
         return out
 
@@ -588,6 +584,11 @@ class BaseMethod(pl.LightningModule):
         }
 
         self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
+
+        
+        if outs["loss"] != outs["loss"]:
+            print('Loss became nan... exiting!')
+            exit()
 
         if self.knn_eval: # does not support nnclr2
             targets = targets.repeat(self.num_large_crops)
@@ -834,10 +835,6 @@ class BaseMomentumMethod(BaseMethod):
                     "pc_acc1_std": torch.std(perclass_acc1),
                     "pc_acc1_med": torch.median(perclass_acc1)})
 
-            if loss != loss:
-                print('Momentum Loss became nan... exiting!')
-                exit()
-
         return out
 
 
@@ -898,6 +895,11 @@ class BaseMomentumMethod(BaseMethod):
                 "train_momentum_pc_acc1_med": momentum_outs["momentum_pc_acc1_med"],
             }
             self.log_dict(metrics, on_epoch=True, sync_dist=True, on_step=False)
+
+            if momentum_outs["momentum_loss"] != momentum_outs["momentum_loss"]:
+                print('Momentum Loss became nan... exiting!')
+                exit()
+
 
             # adds the momentum classifier loss together with the general loss
             outs["loss"] += momentum_outs["momentum_loss"]
