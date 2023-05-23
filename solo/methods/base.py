@@ -508,6 +508,11 @@ class BaseMethod(pl.LightningModule):
                     "pc_acc1_avg": torch.mean(perclass_acc1),
                     "pc_acc1_std": torch.std(perclass_acc1),
                     "pc_acc1_med": torch.median(perclass_acc1)})
+        
+        if loss != loss:
+            print('Loss became nan... exiting!')
+            exit()
+
         return out
 
     def base_training_step(self, X: torch.Tensor, targets: torch.Tensor) -> Dict:
@@ -828,6 +833,10 @@ class BaseMomentumMethod(BaseMethod):
                     "pc_acc1_avg": torch.mean(perclass_acc1),
                     "pc_acc1_std": torch.std(perclass_acc1),
                     "pc_acc1_med": torch.median(perclass_acc1)})
+
+            if loss != loss:
+                print('Momentum Loss became nan... exiting!')
+                exit()
 
         return out
 
