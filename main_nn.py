@@ -325,8 +325,7 @@ def main(cfg: DictConfig):
                                                         fname))
                 elif cfg.data.dataset.startswith('hotel'):
                     imgs_lbls = emb_train_loader.dataset.imgs
-                    list(zip(*imgs_lbls))[0]
-                    dataset_data = list(zip(imgs_lbls))
+                    dataset_data = list(list(zip(*imgs_lbls))[0])
                 else:
                     dataset_data = emb_train_loader.dataset.data
 
