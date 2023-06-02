@@ -1,6 +1,7 @@
 defaults:
   - _self_
-  - augmentations: symmetric.yaml
+  - augmentations: reconstruction.yaml
+  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -11,12 +12,16 @@ hydra:
   run:
     dir: .
 
-name: "simclr-hotelid-val" # change here for cifar10
-method: "simclr"
+name: "simclr-E-hotelidV-nnclr2" # change here for cifar10
+method: "nnclr2"
+nnclr2: True
+nn_key: 'feats'
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
-  name: "resnet50"
+  name: "resnet18"
 method_kwargs:
   proj_hidden_dim: 2048
+  pred_hidden_dim: 4096
   proj_output_dim: 256
   temperature: 0.2
 data:
@@ -24,7 +29,11 @@ data:
   train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/train"
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/val1"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
+  reload_freq: 0
+  num_nns: 1
+  num_nns_choice: 1
+  filter_sim_matrix: False
 optimizer:
   name: "lars"
   batch_size: 256
@@ -38,14 +47,14 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint:
-  enabled: True
-  dir: "trained_models"
+  enabled: False
+  dir: "../../scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
-max_epochs: 100
+max_epochs: 200
 devices: [0]
 sync_batchnorm: True
 accelerator: "gpu"
