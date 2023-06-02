@@ -323,6 +323,10 @@ def main(cfg: DictConfig):
                         dataset_data.append(os.path.join(emb_train_loader.dataset.root,
                                                         emb_train_loader.dataset.all_categories[cat_id],
                                                         fname))
+                elif cfg.data.dataset.startswith('hotel'):
+                    imgs_lbls = emb_train_loader.dataset.imgs
+                    list(zip(*imgs_lbls))[0]
+                    dataset_data = list(zip(imgs_lbls))
                 else:
                     dataset_data = emb_train_loader.dataset.data
 
