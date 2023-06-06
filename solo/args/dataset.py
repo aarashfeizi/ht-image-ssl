@@ -37,6 +37,8 @@ def dataset_args(parser: ArgumentParser):
         "imagenet",
         "imagenet100",
         "custom",
+        "hotelid-val",
+        "hotelid-test",
     ]
 
     parser.add_argument("--dataset", choices=SUPPORTED_DATASETS, type=str, required=True)
@@ -48,7 +50,7 @@ def dataset_args(parser: ArgumentParser):
         "--data_format", default="image_folder", choices=["image_folder", "dali", "h5"]
     )
 
-    # percentage of data used from training, leave -1.0 to use all data available
+    # percentage of data used from training, leave 1.0 to use all data available
     parser.add_argument("--data_fraction", default=-1.0, type=float)
 
 
