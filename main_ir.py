@@ -27,7 +27,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from solo.args.knn import parse_args_knn
+from solo.args.ir import parse_args_ir
 from solo.data.classification_dataloader import (
     prepare_dataloaders,
     prepare_datasets,
@@ -112,7 +112,7 @@ def run_ir(
 
 
 def main():
-    args = parse_args_knn()
+    args = parse_args_ir()
 
     # build paths
     ckpt_dir = Path(args.pretrained_checkpoint_dir)

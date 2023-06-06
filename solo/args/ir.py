@@ -3,8 +3,8 @@ import argparse
 from solo.args.dataset import custom_dataset_args, dataset_args
 
 
-def parse_args_knn() -> argparse.Namespace:
-    """Parses arguments for offline K-NN.
+def parse_args_ir() -> argparse.Namespace:
+    """Parses arguments for offline Image Retrieval
 
     Returns:
         argparse.Namespace: a namespace containing all args needed for pretraining.
