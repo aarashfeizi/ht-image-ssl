@@ -34,7 +34,7 @@ from solo.data.classification_dataloader import (
     prepare_transforms,
 )
 from solo.methods import METHODS
-from solo.utils.knn import WeightedKNNClassifier
+from solo.utils.ir import ImageRetrieval
 
 
 @torch.no_grad()
@@ -66,9 +66,7 @@ def extract_features(loader: DataLoader, model: nn.Module) -> Tuple[torch.Tensor
 
 
 @torch.no_grad()
-def run_knn(
-    train_features: torch.Tensor,
-    train_targets: torch.Tensor,
+def run_ir(
     test_features: torch.Tensor,
     test_targets: torch.Tensor,
     k: int,
@@ -92,25 +90,23 @@ def run_knn(
     """
 
     # build knn
-    knn = WeightedKNNClassifier(
+    ir = ImageRetrieval(
         k=k,
         T=T,
         distance_fx=distance_fx,
     )
 
     # add features
-    knn(
-        train_features=train_features,
-        train_targets=train_targets,
+    ir(
         test_features=test_features,
         test_targets=test_targets,
     )
 
     # compute
-    acc1, acc5 = knn.compute()
+    acc1, acc5 = ir.compute()
 
     # free up memory
-    del knn
+    del ir
 
     return acc1, acc5
 
@@ -143,18 +139,20 @@ def main():
         train_data_path=args.train_data_path,
         val_data_path=args.val_data_path,
         data_format=args.data_format,
+        data_fraction=args.data.fraction,
+        test=args.test,
     )
 
-    train_loader, val_loader = prepare_dataloaders(
+    _, val_loader = prepare_dataloaders(
         train_dataset,
         val_dataset,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
     )
 
-    # extract train features
-    train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
-    train_features = {"backbone": train_features_bb, "projector": train_features_proj}
+    # # extract train features
+    # train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
+    # train_features = {"backbone": train_features_bb, "projector": train_features_proj}
 
     # extract test features
     test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
@@ -169,9 +167,7 @@ def main():
                 for T in temperatures:
                     print("---")
                     print(f"Running k-NN with params: distance_fx={distance_fx}, k={k}, T={T}...")
-                    acc1, acc5 = run_knn(
-                        train_features=train_features[feat_type],
-                        train_targets=train_targets,
+                    acc1, acc5 = run_ir(
                         test_features=test_features[feat_type],
                         test_targets=test_targets,
                         k=k,

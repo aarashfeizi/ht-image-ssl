@@ -25,16 +25,18 @@ from solo.utils import (
     misc,
     momentum,
     sinkhorn_knopp,
+    ir,
 )
 
 __all__ = [
     "checkpointer",
     "knn",
+    "ir",
     "misc",
     "lars",
     "metrics",
     "momentum",
-    "sinkhorn_knopp",
+    "sinkhorn_knopp"
 ]
 
 
