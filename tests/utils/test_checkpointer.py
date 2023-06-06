@@ -85,11 +85,11 @@ def test_checkpointer():
     assert all(k in ckpt_keys for k in expected_keys)
 
     # check arguments
-    assert not OmegaConf.is_missing(cfg, "checkpoint")
-    assert not OmegaConf.is_missing(cfg, "checkpoint.enabled")
-    assert not OmegaConf.is_missing(cfg, "checkpoint.dir")
-    assert not OmegaConf.is_missing(cfg, "checkpoint.frequency")
-    assert not OmegaConf.is_missing(cfg, "checkpoint.keep_prev")
+    assert not OmegaConf.is_missing(cfg, "checkpoint_config")
+    assert not OmegaConf.is_missing(cfg, "checkpoint_config.enabled")
+    assert not OmegaConf.is_missing(cfg, "checkpoint_config.dir")
+    assert not OmegaConf.is_missing(cfg, "checkpoint_config.frequency")
+    assert not OmegaConf.is_missing(cfg, "checkpoint_config.keep_prev")
 
     # clean stuff
     shutil.rmtree(ckpt_callback.logdir)

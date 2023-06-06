@@ -36,7 +36,7 @@ optimizer:
   weight_decay: 1e-5
 scheduler:
   name: "warmup_cosine"
-checkpoint:
+checkpoint_config:
   enabled: False
   dir: "../../scratch/ht-image-ssl/trained_models"
   frequency: 1

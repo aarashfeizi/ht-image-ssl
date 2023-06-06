@@ -62,7 +62,7 @@ def gen_base_cfg(
             "kwargs": {"momentum": 0.9},
         },
         "scheduler": {"name": "warmup_cosine"},
-        "checkpoint": {"enabled": False},
+        "checkpoint_config": {"enabled": False},
         "auto_resume": {"enabled": False},
         "max_epochs": 5,
         "devices": 1,

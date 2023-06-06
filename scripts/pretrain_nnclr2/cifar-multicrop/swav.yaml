@@ -42,7 +42,7 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
   min_lr: 0.0006
-checkpoint:
+checkpoint_config:
   enabled: True
   dir: "trained_models"
   frequency: 1

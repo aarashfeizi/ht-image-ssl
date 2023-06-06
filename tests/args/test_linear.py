@@ -41,7 +41,7 @@ def test_linear_parse_cfg():
             "weight_decay": 1e-5,
         },
         "scheduler": {"name": "warmup_cosine"},
-        "checkpoint": {"enabled": False},
+        "checkpoint_config": {"enabled": False},
         "auto_resume": {"enabled": False},
         "max_epochs": 5,
         "devices": [0],

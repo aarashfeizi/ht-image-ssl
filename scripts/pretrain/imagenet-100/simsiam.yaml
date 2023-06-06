@@ -34,7 +34,7 @@ optimizer:
   weight_decay: 1e-5
 scheduler:
   name: "warmup_cosine"
-checkpoint:
+checkpoint_config:
   enabled: True
   dir: "trained_models"
   frequency: 1

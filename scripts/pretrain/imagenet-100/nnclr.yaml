@@ -39,7 +39,7 @@ optimizer:
     exclude_bias_n_norm: True
 scheduler:
   name: "warmup_cosine"
-checkpoint:
+checkpoint_config:
   enabled: True
   dir: "trained_models"
   frequency: 1

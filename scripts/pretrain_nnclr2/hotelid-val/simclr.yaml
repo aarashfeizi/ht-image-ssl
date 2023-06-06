@@ -41,7 +41,7 @@ optimizer:
     exclude_bias_n_norm: True
 scheduler:
   name: "warmup_cosine"
-checkpoint:
+checkpoint_config:
   enabled: False
   dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1

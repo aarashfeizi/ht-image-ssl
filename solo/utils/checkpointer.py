@@ -68,11 +68,11 @@ class Checkpointer(Callback):
             omegaconf.DictConfig: same as the argument, used to avoid errors.
         """
 
-        cfg.checkpoint = omegaconf_select(cfg, "checkpoint", default={})
-        cfg.checkpoint.enabled = omegaconf_select(cfg, "checkpoint.enabled", default=False)
-        cfg.checkpoint.dir = omegaconf_select(cfg, "checkpoint.dir", default="trained_models")
-        cfg.checkpoint.frequency = omegaconf_select(cfg, "checkpoint.frequency", default=1)
-        cfg.checkpoint.keep_prev = omegaconf_select(cfg, "checkpoint.keep_prev", default=False)
+        cfg.checkpoint_config = omegaconf_select(cfg, "checkpoint_config", default={})
+        cfg.checkpoint_config.enabled = omegaconf_select(cfg, "checkpoint_config.enabled", default=False)
+        cfg.checkpoint_config.dir = omegaconf_select(cfg, "checkpoint_config.dir", default="trained_models")
+        cfg.checkpoint_config.frequency = omegaconf_select(cfg, "checkpoint_config.frequency", default=1)
+        cfg.checkpoint_config.keep_prev = omegaconf_select(cfg, "checkpoint_config.keep_prev", default=False)
 
         return cfg
 

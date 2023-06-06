@@ -255,8 +255,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
         assert cfg.data.dataset in ["imagenet100", "imagenet", "custom"]
 
     # make sure checkpoint dir and wandb dir exists:
-    if not os.path.exists(cfg.checkpoint.dir):
-        os.makedirs(cfg.checkpoint.dir)
+    if not os.path.exists(cfg.checkpoint_config.dir):
+        os.makedirs(cfg.checkpoint_config.dir)
 
     if not os.path.exists(cfg.wandb.save_dir):
         os.makedirs(cfg.wandb.save_dir)

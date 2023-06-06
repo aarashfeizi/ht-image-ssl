@@ -29,7 +29,7 @@ optimizer:
 scheduler:
   name: "step"
   lr_decay_steps: [60, 80]
-checkpoint:
+checkpoint_config:
   enabled: True
   dir: "trained_models"
   frequency: 1

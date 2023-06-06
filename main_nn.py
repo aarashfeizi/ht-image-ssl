@@ -155,7 +155,7 @@ def main(cfg: DictConfig):
     ckpt_path, wandb_run_id = None, None
     if cfg.auto_resume.enabled and cfg.resume_from_checkpoint is None:
         auto_resumer = AutoResumer(
-            checkpoint_dir=os.path.join(cfg.checkpoint.dir, cfg.method),
+            checkpoint_dir=os.path.join(cfg.checkpoint_config.dir, cfg.method),
             max_hours=cfg.auto_resume.max_hours,
         )
         resume_from_checkpoint, wandb_run_id = auto_resumer.find_checkpoint(cfg)
@@ -171,13 +171,13 @@ def main(cfg: DictConfig):
 
     callbacks = []
 
-    if cfg.checkpoint.enabled:
+    if cfg.checkpoint_config.enabled:
         # save checkpoint on last epoch only
         ckpt = Checkpointer(
             cfg,
-            logdir=os.path.join(cfg.checkpoint.dir, cfg.method),
-            frequency=cfg.checkpoint.frequency,
-            keep_prev=cfg.checkpoint.keep_prev,
+            logdir=os.path.join(cfg.checkpoint_config.dir, cfg.method),
+            frequency=cfg.checkpoint_config.frequency,
+            keep_prev=cfg.checkpoint_config.keep_prev,
         )
         callbacks.append(ckpt)
 

@@ -31,7 +31,7 @@ optimizer:
   layer_decay: 0.75
 scheduler:
   name: "warmup_cosine"
-checkpoint:
+checkpoint_config:
   enabled: True
   dir: "trained_models"
   frequency: 1
