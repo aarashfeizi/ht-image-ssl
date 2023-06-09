@@ -26,7 +26,7 @@ method_kwargs:
   proj_output_dim: 256
   temperature: 0.2
 data:
-  dataset: hotelid-val
+  dataset: hotelid-test
   train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/trainval"
   val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/test1"
   val2_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/test2"
