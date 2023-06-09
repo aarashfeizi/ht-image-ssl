@@ -218,6 +218,7 @@ def build_transform_pipeline(dataset, cfg):
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
+        "hotelid-test": (HOTELID_MEAN, HOTELID_STD),
     }
 
     mean, std = MEANS_N_STD.get(
@@ -293,6 +294,7 @@ def build_no_transform(dataset, cfg):
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
+        "hotelid-test": (HOTELID_MEAN, HOTELID_STD),
     }
 
     mean, std = MEANS_N_STD.get(
