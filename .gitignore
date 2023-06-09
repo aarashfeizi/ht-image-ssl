@@ -176,3 +176,6 @@ get_embeddings.py
 
 scripts.txt
 
+run_sweep_*.sh
+run_job_*.sh
+config_*.yaml
