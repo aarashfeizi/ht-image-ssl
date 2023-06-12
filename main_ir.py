@@ -123,7 +123,7 @@ def main():
     # load arguments
     with open(args_path) as f:
         method_args = json.load(f)
-        cfg = omegaconf.OmegaConf(method_args)
+        cfg = omegaconf.OmegaConf.create(method_args)
 
 
     # build the model
