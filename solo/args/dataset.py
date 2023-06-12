@@ -52,6 +52,7 @@ def dataset_args(parser: ArgumentParser):
 
     # percentage of data used from training, leave 1.0 to use all data available
     parser.add_argument("--data_fraction", default=-1.0, type=float)
+    parser.add_argument("--test", action='store_true')
 
 
 def augmentations_args(parser: ArgumentParser):

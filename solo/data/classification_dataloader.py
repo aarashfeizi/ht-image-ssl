@@ -299,7 +299,7 @@ def prepare_datasets(
             training data is located. Defaults to None.
         val_data_path (Optional[Union[str, Path]], optional): path where the
             validation data is located. Defaults to None.
-        data_format (Optional[str]): format of the data. Defaults to "image_folder".
+        data_format (Optional[str]): format of the data. Defaults to "image_folder". 
             Possible values are "image_folder" and "h5".
         data_fraction (Optional[float]): percentage of data to use. Use all data when set to -1.0.
             Defaults to -1.0.

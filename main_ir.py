@@ -133,7 +133,7 @@ def main():
     model.cuda()
 
     # prepare data
-    _, T = prepare_transforms(args.dataset, is_vit=args.backbone.name.startswith('vit'))
+    _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
 
     train_dataset, val_dataset = prepare_datasets(
         args.dataset,
@@ -142,7 +142,7 @@ def main():
         train_data_path=args.train_data_path,
         val_data_path=args.val_data_path,
         data_format=args.data_format,
-        data_fraction=args.data.fraction,
+        data_fraction=args.data_fraction,
         test=args.test,
     )
 
