@@ -144,6 +144,7 @@ def main():
         data_format=args.data_format,
         data_fraction=args.data_fraction,
         test=args.test,
+        is_classification=False
     )
 
     _, val_loader = prepare_dataloaders(

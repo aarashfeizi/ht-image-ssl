@@ -287,7 +287,8 @@ def prepare_datasets(
     data_format: Optional[str] = "image_folder",
     download: bool = True,
     data_fraction: float = -1.0,
-    test=False
+    test=False,
+    is_classification=True
 ) -> Tuple[Dataset, Dataset]:
     """Prepares train and val datasets.
 
@@ -443,7 +444,7 @@ def prepare_datasets(
             train_dataset = ImageFolder(train_data_path, T_train)
             val_dataset = ImageFolder(val_data_path, T_val)
 
-        if dataset in ['hotelid-val', 'hotelid-test']:
+        if dataset in ['hotelid-val', 'hotelid-test'] and is_classification:
             val_dataset = ImageFolderMissingClasses(val_data_path, T_val,
                                                     classes=train_dataset.classes,
                                                     class_to_idx=train_dataset.class_to_idx)
