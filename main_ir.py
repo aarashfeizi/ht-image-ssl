@@ -21,6 +21,7 @@ import json
 import os
 from pathlib import Path
 from typing import Tuple
+import omegaconf
 
 import torch
 import torch.nn as nn
@@ -122,11 +123,13 @@ def main():
     # load arguments
     with open(args_path) as f:
         method_args = json.load(f)
+        cfg = omegaconf.OmegaConf(method_args)
+
 
     # build the model
-    model = METHODS[method_args["method"]].load_from_checkpoint(
-        ckpt_path, strict=False, **method_args
-    )
+    model = METHODS[method_args["method"]](cfg)
+    model.load_state_dict(torch.load(ckpt_path)['state_dict'])
+    model.eval()
     model.cuda()
 
     # prepare data
