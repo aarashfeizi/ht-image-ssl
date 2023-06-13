@@ -167,12 +167,12 @@ def main():
             # extract test features
             test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
             
-            print(f'Caching to {bb_path}, {proj_path}, and {targets_path}')
+            print(f'Caching to {path}')
             np.save(bb_path, test_features_bb.cpu().numpy())
             np.save(proj_path, test_features_proj.cpu().numpy())
             np.save(targets_path, test_targets.cpu().numpy())
         else:
-            print(f'Loading from {bb_path}, {proj_path}, and {targets_path}')
+            print(f'Loading from {path}')
             test_features_bb = torch.tensor(np.load(bb_path))
             test_features_proj = torch.tensor(np.load(proj_path))
             test_targets = torch.tensor(np.load(targets_path))
