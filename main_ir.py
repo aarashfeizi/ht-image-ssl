@@ -71,7 +71,6 @@ def run_ir(
     test_features: torch.Tensor,
     test_targets: torch.Tensor,
     k: int,
-    T: float,
     distance_fx: str,
 ) -> Tuple[float]:
     """Runs offline knn on a train and a test dataset.
@@ -82,8 +81,6 @@ def run_ir(
         test_features (torch.Tensor, optional): test features.
         test_targets (torch.Tensor, optional): test targets.
         k (int): number of neighbors.
-        T (float): temperature for the exponential. Only used with cosine
-            distance.
         distance_fx (str): distance function.
 
     Returns:
@@ -93,7 +90,6 @@ def run_ir(
     # build knn
     ir = ImageRetrieval(
         k=k,
-        T=T,
         distance_fx=distance_fx,
     )
 
@@ -165,20 +161,16 @@ def main():
     # run k-nn for all possible combinations of parameters
     for feat_type in args.feature_type:
         print(f"\n### {feat_type.upper()} ###")
-        for k in args.k:
-            for distance_fx in args.distance_function:
-                temperatures = args.temperature if distance_fx == "cosine" else [None]
-                for T in temperatures:
-                    print("---")
-                    print(f"Running Image Retrieval with params: distance_fx={distance_fx}, k={k}, T={T}...")
-                    acc1, acc5 = run_ir(
-                        test_features=test_features[feat_type],
-                        test_targets=test_targets,
-                        k=k,
-                        T=T,
-                        distance_fx=distance_fx,
-                    )
-                    print(f"Result: acc@1 = {acc1}, acc@5 = {acc5}")
+        for distance_fx in args.distance_function:
+            print("---")
+            print(f"Running Image Retrieval with params: distance_fx={distance_fx}...")
+            acc1, acc5 = run_ir(
+                test_features=test_features[feat_type],
+                test_targets=test_targets,
+                k=20,
+                distance_fx=distance_fx,
+            )
+            print(f"Result: acc@1 = {acc1}, acc@5 = {acc5}")
 
 
 if __name__ == "__main__":

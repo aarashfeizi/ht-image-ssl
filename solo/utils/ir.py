@@ -9,7 +9,6 @@ class ImageRetrieval(Metric):
     def __init__(
         self,
         k: int = 20,
-        T: float = 0.07,
         max_distance_matrix_size: int = int(5e6),
         distance_fx: str = "cosine",
         epsilon: float = 0.00001,
@@ -19,8 +18,6 @@ class ImageRetrieval(Metric):
 
         Args:
             k (int, optional): number of neighbors. Defaults to 20.
-            T (float, optional): temperature for the exponential. Only used with cosine
-                distance. Defaults to 0.07.
             max_distance_matrix_size (int, optional): maximum number of elements in the
                 distance matrix. Defaults to 5e6.
             distance_fx (str, optional): Distance function. Accepted arguments: "cosine" or
@@ -34,7 +31,6 @@ class ImageRetrieval(Metric):
         super().__init__(dist_sync_on_step=dist_sync_on_step, compute_on_step=False)
 
         self.k = k
-        self.T = T
         self.max_distance_matrix_size = max_distance_matrix_size
         self.distance_fx = distance_fx
         self.epsilon = epsilon
