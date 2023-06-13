@@ -167,9 +167,9 @@ def main():
             test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
             
             print(f'Caching to {bb_path}, {proj_path}, and {targets_path}')
-            np.save(test_features_bb.cpu().numpy(), bb_path)
-            np.save(test_features_proj.cpu().numpy(), proj_path)
-            np.save(test_targets.cpu().numpy(), targets_path)
+            np.save(bb_path, test_features_bb.cpu().numpy())
+            np.save(proj_path, test_features_proj.cpu().numpy())
+            np.save(targets_path, test_targets.cpu().numpy())
         else:
             print(f'Loading from {bb_path}, {proj_path}, and {targets_path}')
             test_features_bb = torch.tensor(np.load(bb_path)).cuda()
