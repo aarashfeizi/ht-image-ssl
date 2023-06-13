@@ -130,47 +130,49 @@ def main():
 
     # prepare data
     _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
+    train_data_path = os.path.join(args.data_path, args.train_name)
+    for val in args.vals:
+        val_data_path = os.path.join(args.data_path, val)
+        train_dataset, val_dataset = prepare_datasets(
+            args.dataset,
+            T_train=T,
+            T_val=T,
+            train_data_path=train_data_path,
+            val_data_path=val_data_path,
+            data_format=args.data_format,
+            data_fraction=args.data_fraction,
+            test=args.test,
+            is_classification=False
+        )
 
-    train_dataset, val_dataset = prepare_datasets(
-        args.dataset,
-        T_train=T,
-        T_val=T,
-        train_data_path=args.train_data_path,
-        val_data_path=args.val_data_path,
-        data_format=args.data_format,
-        data_fraction=args.data_fraction,
-        test=args.test,
-        is_classification=False
-    )
+        _, val_loader = prepare_dataloaders(
+            train_dataset,
+            val_dataset,
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+        )
 
-    _, val_loader = prepare_dataloaders(
-        train_dataset,
-        val_dataset,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-    )
+        # # extract train features
+        # train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
+        # train_features = {"backbone": train_features_bb, "projector": train_features_proj}
 
-    # # extract train features
-    # train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
-    # train_features = {"backbone": train_features_bb, "projector": train_features_proj}
+        # extract test features
+        test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
+        test_features = {"backbone": test_features_bb, "projector": test_features_proj}
 
-    # extract test features
-    test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
-    test_features = {"backbone": test_features_bb, "projector": test_features_proj}
-
-    # run k-nn for all possible combinations of parameters
-    for feat_type in args.feature_type:
-        print(f"\n### {feat_type.upper()} ###")
-        for distance_fx in args.distance_function:
-            print("---")
-            print(f"Running Image Retrieval with params: distance_fx={distance_fx}...")
-            acc1, acc5 = run_ir(
-                test_features=test_features[feat_type],
-                test_targets=test_targets,
-                k=20,
-                distance_fx=distance_fx,
-            )
-            print(f"Result: acc@1 = {acc1}, acc@5 = {acc5}")
+        # run k-nn for all possible combinations of parameters
+        for feat_type in args.feature_type:
+            print(f"\n### {feat_type.upper()} ###")
+            for distance_fx in args.distance_function:
+                print("---")
+                print(f"Running Image Retrieval with params: distance_fx={distance_fx}...")
+                acc1, acc5 = run_ir(
+                    test_features=test_features[feat_type],
+                    test_targets=test_targets,
+                    k=20,
+                    distance_fx=distance_fx,
+                )
+                print(f"Result on {val}: acc@1 = {acc1}, acc@5 = {acc5}")
 
 
 if __name__ == "__main__":
