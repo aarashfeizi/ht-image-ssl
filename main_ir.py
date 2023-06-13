@@ -102,7 +102,7 @@ def run_ir(
         test_features=test_features,
         test_targets=test_targets,
     )
-    
+
     # compute
     acc1, acc5 = ir.compute()
 
@@ -170,7 +170,7 @@ def main():
                 temperatures = args.temperature if distance_fx == "cosine" else [None]
                 for T in temperatures:
                     print("---")
-                    print(f"Running k-NN with params: distance_fx={distance_fx}, k={k}, T={T}...")
+                    print(f"Running Image Retrieval with params: distance_fx={distance_fx}, k={k}, T={T}...")
                     acc1, acc5 = run_ir(
                         test_features=test_features[feat_type],
                         test_targets=test_targets,
@@ -178,7 +178,7 @@ def main():
                         T=T,
                         distance_fx=distance_fx,
                     )
-                    print(f"Result: acc@1={acc1}, acc@5={acc5}")
+                    print(f"Result: acc@1 = {acc1}, acc@5 = {acc5}")
 
 
 if __name__ == "__main__":
