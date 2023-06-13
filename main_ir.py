@@ -133,9 +133,10 @@ def main():
     _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
     train_data_path = os.path.join(args.data_path, args.train_name)
     for val in args.vals:
-        proj_path = os.path.join(ckpt_path, f'{val}_projector.npy')
-        bb_path = os.path.join(ckpt_path, f'{val}_backbone.npy')
-        targets_path = os.path.join(ckpt_path, f'{val}_targets.npy')
+        path = os.path.split(ckpt_path)[0]
+        proj_path = os.path.join(path, f'{val}_projector.npy')
+        bb_path = os.path.join(path, f'{val}_backbone.npy')
+        targets_path = os.path.join(path, f'{val}_targets.npy')
         if not os.path.exists(proj_path) or \
             not os.path.exists(bb_path) or \
             not os.path.exists(targets_path):
