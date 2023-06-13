@@ -32,7 +32,7 @@ def parse_args_ir() -> argparse.Namespace:
     ]
 
     parser.add_argument("--dataset", choices=SUPPORTED_DATASETS, type=str, required=True)
-    parser.add_argument("--data_path", type=str, nargs="+", help="dataset path")
+    parser.add_argument("--data_path", type=str, help="dataset path")
     parser.add_argument("--vals", type=str, nargs="+", help="Different val dir names")
     parser.add_argument("--train_name", type=str, default='trainval', help="Not going to be used, but should be given")
     parser.add_argument(
