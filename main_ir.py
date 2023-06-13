@@ -173,8 +173,8 @@ def main():
             np.save(targets_path, test_targets.cpu().numpy())
         else:
             print(f'Loading from {bb_path}, {proj_path}, and {targets_path}')
-            test_features_bb = torch.tensor(np.load(bb_path)).cuda()
-            test_features_proj = torch.tensor(np.load(proj_path)).cuda()
+            test_features_bb = torch.tensor(np.load(bb_path))
+            test_features_proj = torch.tensor(np.load(proj_path))
             test_targets = torch.tensor(np.load(targets_path))
             
         test_features = {"backbone": test_features_bb, "projector": test_features_proj}
