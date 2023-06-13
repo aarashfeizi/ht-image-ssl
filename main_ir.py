@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Tuple
 import omegaconf
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -132,32 +133,49 @@ def main():
     _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
     train_data_path = os.path.join(args.data_path, args.train_name)
     for val in args.vals:
-        val_data_path = os.path.join(args.data_path, val)
-        train_dataset, val_dataset = prepare_datasets(
-            args.dataset,
-            T_train=T,
-            T_val=T,
-            train_data_path=train_data_path,
-            val_data_path=val_data_path,
-            data_format=args.data_format,
-            data_fraction=args.data_fraction,
-            test=args.test,
-            is_classification=False
-        )
+        proj_path = os.path.join(ckpt_path, f'{val}_projector.npy')
+        bb_path = os.path.join(ckpt_path, f'{val}_backbone.npy')
+        targets_path = os.path.join(ckpt_path, f'{val}_targets.npy')
+        if not os.path.exists(proj_path) or \
+            not os.path.exists(bb_path) or \
+            not os.path.exists(targets_path):
+            val_data_path = os.path.join(args.data_path, val)
+            train_dataset, val_dataset = prepare_datasets(
+                args.dataset,
+                T_train=T,
+                T_val=T,
+                train_data_path=train_data_path,
+                val_data_path=val_data_path,
+                data_format=args.data_format,
+                data_fraction=args.data_fraction,
+                test=args.test,
+                is_classification=False
+            )
 
-        _, val_loader = prepare_dataloaders(
-            train_dataset,
-            val_dataset,
-            batch_size=args.batch_size,
-            num_workers=args.num_workers,
-        )
+            _, val_loader = prepare_dataloaders(
+                train_dataset,
+                val_dataset,
+                batch_size=args.batch_size,
+                num_workers=args.num_workers,
+            )
 
-        # # extract train features
-        # train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
-        # train_features = {"backbone": train_features_bb, "projector": train_features_proj}
+            # # extract train features
+            # train_features_bb, train_features_proj, train_targets = extract_features(train_loader, model)
+            # train_features = {"backbone": train_features_bb, "projector": train_features_proj}
 
-        # extract test features
-        test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
+            # extract test features
+            test_features_bb, test_features_proj, test_targets = extract_features(val_loader, model)
+            
+            print(f'Caching to {bb_path}, {proj_path}, and {targets_path}')
+            np.save(test_features_bb.cpu().numpy(), bb_path)
+            np.save(test_features_proj.cpu().numpy(), proj_path)
+            np.save(test_targets.cpu().numpy(), targets_path)
+        else:
+            print(f'Loading from {bb_path}, {proj_path}, and {targets_path}')
+            test_features_bb = torch.tensor(np.load(bb_path)).cuda()
+            test_features_proj = torch.tensor(np.load(proj_path)).cuda()
+            test_targets = torch.tensor(np.load(targets_path))
+            
         test_features = {"backbone": test_features_bb, "projector": test_features_proj}
 
         # run k-nn for all possible combinations of parameters
