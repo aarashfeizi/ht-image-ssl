@@ -113,30 +113,15 @@ class ImageRetrieval(Metric):
             indices = indices[:, 1:]
             candidates = test_targets.view(1, -1).expand(batch_size, -1)
             retrieved_neighbors = torch.gather(candidates, 1, indices)
-
-            retrieval_one_hot.resize_(batch_size * k, num_classes).zero_()
-            retrieval_one_hot.scatter_(1, retrieved_neighbors.view(-1, 1), 1)
-
-            if self.distance_fx == "cosine":
-                similarities = similarities.clone().div_(self.T).exp_()
-
-            probs = torch.sum(
-                torch.mul(
-                    retrieval_one_hot.view(batch_size, -1, num_classes),
-                    similarities.view(batch_size, -1, 1),
-                ),
-                1,
-            )
-            _, predictions = probs.sort(1, True)
-
-            # find the predictions that match the target
-            correct = predictions.eq(targets.data.view(-1, 1))
-            top1 = top1 + correct.narrow(1, 0, 1).sum().item()
-            top5 = (
-                top5 + correct.narrow(1, 0, min(5, k, correct.size(-1))).sum().item()
-            )  # top5 does not make sense if k < 5
+            
+            for i in range(len(targets)):
+                t = targets[i]
+                if t in retrieved_neighbors[i, :1]:
+                    top1 += 1
+                if t in retrieved_neighbors[i, :5]:
+                    top5 += 1
             total += targets.size(0)
-
+            
         top1 = top1 * 100.0 / total
         top5 = top5 * 100.0 / total
 

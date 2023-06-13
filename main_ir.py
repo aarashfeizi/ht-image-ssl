@@ -102,7 +102,7 @@ def run_ir(
         test_features=test_features,
         test_targets=test_targets,
     )
-
+    
     # compute
     acc1, acc5 = ir.compute()
 
