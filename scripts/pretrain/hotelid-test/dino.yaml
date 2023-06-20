@@ -12,30 +12,29 @@ hydra:
   run:
     dir: .
 
-name: "byol-hotelid-val" # change here for cifar10
-method: "byol"
-log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
+name: "dino-hotelid-test" # change here for cifar100
+method: "dino"
 backbone:
   name: "resnet18"
 method_kwargs:
-  proj_hidden_dim: 4096
+  proj_hidden_dim: 2048
   proj_output_dim: 256
-  pred_hidden_dim: 4096
+  num_prototypes: 4096
 momentum:
-  base_tau: 0.99
+  base_tau: 0.9995
   final_tau: 1.0
 data:
-  dataset: hotelid-val
-  train_path: "../hotelid-2021_maxEdge500_restructured/train"
-  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
+  dataset: hotelid-test
+  train_path: "../hotelid-2021_maxEdge500_restructured/trainval"
+  val_path: "../hotelid-2021_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
 optimizer:
   name: "lars"
   batch_size: 256
-  lr: 1.0
+  lr: 0.3
   classifier_lr: 0.1
-  weight_decay: 1e-5
+  weight_decay: 1e-6
   kwargs:
     clip_lr: True
     eta: 0.02
@@ -43,7 +42,7 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint_config:
-  enabled: False
+  enabled: True
   dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:

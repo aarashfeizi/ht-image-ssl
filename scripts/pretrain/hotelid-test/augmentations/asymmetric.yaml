@@ -1,4 +1,4 @@
-- name: asymmetric_1
+- name: asymmetric
   rrc:
     enabled: True
     crop_min_scale: 0.08
@@ -22,7 +22,7 @@
   crop_size: 224
   num_crops: 1
 
-- name: asymmetric_1
+- name: asymmetric
   rrc:
     enabled: True
     crop_min_scale: 0.08

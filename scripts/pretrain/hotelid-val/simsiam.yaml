@@ -13,8 +13,9 @@ hydra:
 
 name: "simsiam-hotelid-val" # change here for cifar10
 method: "simsiam"
+log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
-  name: "resnet50"
+  name: "resnet18"
 method_kwargs:
   proj_hidden_dim: 2048
   proj_output_dim: 2048
@@ -22,8 +23,8 @@ method_kwargs:
   temperature: 0.2
 data:
   dataset: hotelid-val
-  train_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/train"
-  val_path: "/home/mila/f/feiziaar/scratch/hotelid-2021_maxEdge500_restructured/val1"
+  train_path: "../hotelid-2021_maxEdge500_restructured/train"
+  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
   format: "image_folder"
   num_workers: 10
 optimizer:
@@ -35,8 +36,8 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint_config:
-  enabled: True
-  dir: "trained_models"
+  enabled: False
+  dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: True

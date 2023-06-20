@@ -1,8 +1,9 @@
 defaults:
   - _self_
-  - augmentations: asymmetric.yaml
+  - augmentations: symmetric_weak.yaml
   - nn_augmentations: reconstruction.yaml
   - wandb: private.yaml
+  - emb_model: resnet50.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
@@ -12,38 +13,33 @@ hydra:
   run:
     dir: .
 
-name: "byol-hotelid-val" # change here for cifar10
-method: "byol"
-log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
+name: "simsiam-hotelid-test" # change here for cifar10
+method: "simsiam"
+nnclr2: False
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
-  proj_hidden_dim: 4096
-  proj_output_dim: 256
-  pred_hidden_dim: 4096
-momentum:
-  base_tau: 0.99
-  final_tau: 1.0
+  proj_hidden_dim: 2048
+  proj_output_dim: 2048
+  pred_hidden_dim: 512
+  temperature: 0.2
 data:
-  dataset: hotelid-val
-  train_path: "../hotelid-2021_maxEdge500_restructured/train"
-  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
+  dataset: hotelid-test
+  train_path: "../hotelid-2021_maxEdge500_restructured/trainval"
+  val_path: "../hotelid-2021_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
 optimizer:
-  name: "lars"
+  name: "sgd"
   batch_size: 256
-  lr: 1.0
+  lr: 0.5
   classifier_lr: 0.1
   weight_decay: 1e-5
-  kwargs:
-    clip_lr: True
-    eta: 0.02
-    exclude_bias_n_norm: True
 scheduler:
   name: "warmup_cosine"
 checkpoint_config:
-  enabled: False
+  enabled: True
   dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:

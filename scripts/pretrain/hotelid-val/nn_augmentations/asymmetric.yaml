@@ -12,7 +12,7 @@
   grayscale:
     prob: 0.2
   gaussian_blur:
-    prob: 1.0
+    prob: 0.0
   solarization:
     prob: 0.0
   equalization:
@@ -22,7 +22,7 @@
   crop_size: 224
   num_crops: 1
 
-- name: asymmetric_1
+- name: asymmetric_2
   rrc:
     enabled: True
     crop_min_scale: 0.08
@@ -36,7 +36,7 @@
   grayscale:
     prob: 0.2
   gaussian_blur:
-    prob: 0.1
+    prob: 0.0
   solarization:
     prob: 0.2
   equalization:

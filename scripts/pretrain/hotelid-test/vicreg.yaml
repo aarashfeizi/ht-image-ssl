@@ -10,9 +10,8 @@ hydra:
   run:
     dir: .
 
-name: "vicreg-hotelid-val" # change here for cifar10
+name: "vicreg-hotelid-test" # change here for cifar10
 method: "vicreg"
-log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -22,9 +21,9 @@ method_kwargs:
   var_loss_weight: 25.0
   cov_loss_weight: 1.0
 data:
-  dataset: hotelid-val
-  train_path: "../hotelid-2021_maxEdge500_restructured/train"
-  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
+  dataset: hotelid-test
+  train_path: "../hotelid-2021_maxEdge500_restructured/trainval"
+  val_path: "../hotelid-2021_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
 augmentations:
@@ -69,7 +68,7 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint_config:
-  enabled: False
+  enabled: True
   dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:

@@ -2,6 +2,7 @@ defaults:
   - _self_
   - augmentations: asymmetric.yaml
   - nn_augmentations: reconstruction.yaml
+  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -12,28 +13,28 @@ hydra:
   run:
     dir: .
 
-name: "byol-hotelid-val" # change here for cifar10
-method: "byol"
-log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
+name: "nnclr-hotelidT-nnclr2" # change here for inat
+method: "nnclr"
+nnclr2: False
+log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
-  proj_hidden_dim: 4096
-  proj_output_dim: 256
+  temperature: 0.2
+  proj_hidden_dim: 2048
   pred_hidden_dim: 4096
-momentum:
-  base_tau: 0.99
-  final_tau: 1.0
+  proj_output_dim: 256
+  queue_size: 65536
 data:
-  dataset: hotelid-val
-  train_path: "../hotelid-2021_maxEdge500_restructured/train"
-  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
+  dataset: hotelid-test
+  train_path: "../hotelid-2021_maxEdge500_restructured/trainval"
+  val_path: "../hotelid-2021_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
 optimizer:
   name: "lars"
   batch_size: 256
-  lr: 1.0
+  lr: 0.4
   classifier_lr: 0.1
   weight_decay: 1e-5
   kwargs:
@@ -44,10 +45,10 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
+  dir: "../../scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
 max_epochs: 100

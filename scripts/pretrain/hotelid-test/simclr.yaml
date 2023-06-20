@@ -1,8 +1,9 @@
 defaults:
   - _self_
-  - augmentations: asymmetric.yaml
+  - augmentations: reconstruction.yaml
   - nn_augmentations: reconstruction.yaml
   - wandb: private.yaml
+  - emb_model: resnet50.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
@@ -12,30 +13,29 @@ hydra:
   run:
     dir: .
 
-name: "byol-hotelid-val" # change here for cifar10
-method: "byol"
+name: "simclr-hotelid-test" # change here for cifar10
+method: "simclr"
+nnclr2: False
 log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
-  proj_hidden_dim: 4096
+  proj_hidden_dim: 2048
   proj_output_dim: 256
-  pred_hidden_dim: 4096
-momentum:
-  base_tau: 0.99
-  final_tau: 1.0
+  temperature: 0.2
 data:
-  dataset: hotelid-val
-  train_path: "../hotelid-2021_maxEdge500_restructured/train"
-  val_path: "../hotelid-2021_maxEdge500_restructured/val1"
+  dataset: hotelid-test
+  train_path: "../hotelid-2021_maxEdge500_restructured/trainval"
+  val_path: "../hotelid-2021_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
+  num_nns_choice: 1
 optimizer:
   name: "lars"
   batch_size: 256
-  lr: 1.0
+  lr: 0.4
   classifier_lr: 0.1
-  weight_decay: 1e-5
+  weight_decay: 1e-4
   kwargs:
     clip_lr: True
     eta: 0.02
@@ -47,10 +47,10 @@ checkpoint_config:
   dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
-  enabled: True
+  enabled: False
 
 # overwrite PL stuff
-max_epochs: 100
+max_epochs: 30
 devices: [0]
 sync_batchnorm: True
 accelerator: "gpu"
