@@ -2,7 +2,6 @@ defaults:
   - _self_
   - augmentations: asymmetric.yaml
   - nn_augmentations: reconstruction.yaml
-  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -15,7 +14,6 @@ hydra:
 
 name: "nnclr-hotelidV-nnclr2" # change here for inat
 method: "nnclr"
-nnclr2: False
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
