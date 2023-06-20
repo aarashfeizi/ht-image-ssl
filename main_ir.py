@@ -126,9 +126,11 @@ def main():
 
     # build the model
     model = METHODS[method_args["method"]](cfg)
-    model.load_state_dict(torch.load(ckpt_path)['state_dict'])
+    model.load_state_dict(torch.load(ckpt_path, map_location=torch.device('cpu'))['state_dict'])
+    if torch.cuda.is_available():
+        model.cuda()
+        
     model.eval()
-    model.cuda()
 
     # prepare data
     _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
