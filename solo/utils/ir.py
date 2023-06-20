@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torchmetrics.metric import Metric
 import numpy as np
-
+import copy
 
 class ImageRetrieval(Metric):
     def __init__(
@@ -177,21 +177,28 @@ class ImageRetrieval(Metric):
                 challenging_negatives = bce_row - row
                 challenging_neg_idx = torch.where(challenging_negatives == 1)[0]
 
-            ys.extend(get_samples(neg_idx, k))
+            ys.extend(self.get_samples(neg_idx, k))
 
             if challenging_neg_idx is None or \
                     len(challenging_neg_idx) == 0:
                 # if len(challenging_neg_idx) == 0:
                     # print('couldnt do challenging, 0!!')
-                ys.extend(get_samples(neg_idx, k))
+                ys.extend(self.get_samples(neg_idx, k))
             else:
-                ys.extend(get_samples(challenging_neg_idx, k))
+                ys.extend(self.get_samples(challenging_neg_idx, k))
 
-            ys.extend(get_samples(pos_idx, 2 * k))
-            xs.extend(get_samples([i], 4 * k))
+            ys.extend(self.get_samples(pos_idx, 2 * k))
+            xs.extend(self.get_samples([i], 4 * k))
 
         return xs, ys
 
+
+    def get_samples(self, l, k):
+        if len(l) < k:
+            to_ret = np.random.choice(l, k, replace=True)
+        else:
+            to_ret = np.random.choice(l, k, replace=False)
+        return to_ret
 
     def get_hard_xs_ys(self, bce_labels, a2n, k):
         """
@@ -211,8 +218,8 @@ class ImageRetrieval(Metric):
             pos_idx = torch.where(row == 1)[0]
 
             ys.extend(neg_idx_chosen)
-            ys.extend(get_samples(pos_idx, k))
-            xs.extend(get_samples([i], 2 * k))
+            ys.extend(self.get_samples(pos_idx, k))
+            xs.extend(self.get_samples([i], 2 * k))
 
         return xs, ys
 

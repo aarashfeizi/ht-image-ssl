@@ -102,11 +102,12 @@ def run_ir(
 
     # compute
     acc1, acc5 = ir.compute()
+    auc_score, pred_true_dict = ir.compute_auroc(k=1)
 
     # free up memory
     del ir
 
-    return acc1, acc5
+    return acc1, acc5, auc_score
 
 
 def main():
@@ -185,13 +186,13 @@ def main():
             for distance_fx in args.distance_function:
                 print("---")
                 print(f"Running Image Retrieval with params: distance_fx={distance_fx}...")
-                acc1, acc5 = run_ir(
+                acc1, acc5, auroc = run_ir(
                     test_features=test_features[feat_type],
                     test_targets=test_targets,
                     k=20,
                     distance_fx=distance_fx,
                 )
-                print(f"Result on {val}: acc@1 = {acc1}, acc@5 = {acc5}")
+                print(f"Result on {val}: acc@1 = {acc1}, acc@5 = {acc5}, auroc = {auroc}")
 
 
 if __name__ == "__main__":
