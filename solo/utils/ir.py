@@ -122,8 +122,6 @@ class ImageRetrieval(Metric):
         top1 = top1 * 100.0 / total
         top5 = top5 * 100.0 / total
 
-        self.reset()
-
         return top1, top5
 
 

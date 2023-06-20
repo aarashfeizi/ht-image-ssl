@@ -103,6 +103,7 @@ def run_ir(
     # compute
     acc1, acc5 = ir.compute()
     auc_score, pred_true_dict = ir.compute_auroc(k=1)
+    ir.reset()
 
     # free up memory
     del ir
@@ -129,7 +130,7 @@ def main():
     model.load_state_dict(torch.load(ckpt_path, map_location=torch.device('cpu'))['state_dict'])
     if torch.cuda.is_available():
         model.cuda()
-        
+
     model.eval()
 
     # prepare data
