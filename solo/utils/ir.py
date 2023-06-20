@@ -3,6 +3,7 @@ from typing import Tuple
 import torch
 import torch.nn.functional as F
 from torchmetrics.metric import Metric
+import numpy as np
 
 
 class ImageRetrieval(Metric):
@@ -125,5 +126,132 @@ class ImageRetrieval(Metric):
 
         return top1, top5
 
+
+    def make_batch_bce_labels(self, labels, diagonal_fill=None):
+        """
+        :param labels: e.g. tensor of size (N,1)
+        :return: binary matrix of labels of size (N, N)
+        """
+
+        l_ = labels.repeat(len(labels)).reshape(-1, len(labels))
+        l__ = labels.repeat_interleave(len(labels)).reshape(-1, len(labels))
+
+        final_bce_labels = (l_ == l__).type(torch.float32)
+
+        if diagonal_fill:
+            final_bce_labels.fill_diagonal_(diagonal_fill)
+
+        return final_bce_labels
+
+
+    def get_xs_ys(self, target_labels, k=1, bce_labels=None, pairwise_hard_neg=True):
+        """
+
+        :param target_labels: tensor of (N, N) with 0s and 1s
+        :param k: number of pos and neg samples per anch
+        :param bce_labels: tensor of (N, N) with 0s and 1s (without considering pairwise labels)
+        :return: an equal number of positive and negative pairs chosen randomly
+
+        """
+        xs = []
+        ys = []
+        target_labels_copy = copy.deepcopy(target_labels)
+        target_labels_copy.fill_diagonal_(-1)
+        bce_labels_copy = None
+        if bce_labels is not None:
+            bce_labels_copy = copy.deepcopy(bce_labels)
+            bce_labels_copy.fill_diagonal_(-1)
+        for i, row in enumerate(target_labels_copy):
+
+            neg_idx = torch.where(row == 0)[0]
+            pos_idx = torch.where(row == 1)[0]
+
+            if len(pos_idx) == 0:
+                print(f'skipping {i}... not enough positive samples')
+                continue
+
+
+            challenging_neg_idx = None
+            if bce_labels_copy is not None and pairwise_hard_neg:
+                bce_row = bce_labels_copy[i, :]
+                challenging_negatives = bce_row - row
+                challenging_neg_idx = torch.where(challenging_negatives == 1)[0]
+
+            ys.extend(get_samples(neg_idx, k))
+
+            if challenging_neg_idx is None or \
+                    len(challenging_neg_idx) == 0:
+                # if len(challenging_neg_idx) == 0:
+                    # print('couldnt do challenging, 0!!')
+                ys.extend(get_samples(neg_idx, k))
+            else:
+                ys.extend(get_samples(challenging_neg_idx, k))
+
+            ys.extend(get_samples(pos_idx, 2 * k))
+            xs.extend(get_samples([i], 4 * k))
+
+        return xs, ys
+
+
+    def get_hard_xs_ys(self, bce_labels, a2n, k):
+        """
+
+        :param bce_labels: tensor of (N, N) with 0s and 1s
+        :param a2n: dict, mapping every anchor idx to hard neg idxs
+        :param k: number of pos and neg samples per anch
+        :return:
+
+        """
+        xs = []
+        ys = []
+        bce_labels_copy = copy.deepcopy(bce_labels)
+        bce_labels_copy.fill_diagonal_(-1)
+        for i, row in enumerate(bce_labels_copy):
+            neg_idx_chosen = a2n[i][:k]
+            pos_idx = torch.where(row == 1)[0]
+
+            ys.extend(neg_idx_chosen)
+            ys.extend(get_samples(pos_idx, k))
+            xs.extend(get_samples([i], 2 * k))
+
+        return xs, ys
+
+
+    def compute_auroc(self, k=1, pairwise_labels=None, pairwise_hard_neg=True):
+        """
+
+        :param pairwise_labels: a (N, N) binary matrix with pairwise labels
+        :return: the AUROC score, where random would score 1/(k + 1)
+        """
+        from sklearn.metrics import roc_auc_score
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        test_features = torch.cat(self.test_features)
+        test_targets = torch.cat(self.test_targets)
+
+        bce_labels = self.make_batch_bce_labels(test_targets)
+
+        if pairwise_labels is None:
+            pairwise = False
+            target_labels = bce_labels
+        else:
+            pairwise = True
+            target_labels = pairwise_labels
+
+        if target_labels.dtype != torch.float32:
+            target_labels = target_labels.type(torch.float32)
+
+        similarities = cosine_similarity(test_features)
+        
+        if pairwise:
+            xs, ys = self.get_xs_ys(target_labels, k=k, bce_labels=bce_labels, pairwise_hard_neg=pairwise_hard_neg)
+        else:
+            xs, ys = self.get_xs_ys(target_labels, k=k, bce_labels=None)
+
+        true_labels = target_labels[xs, ys]
+        predicted_labels = similarities[xs, ys]
+
+        return roc_auc_score(true_labels, predicted_labels), {'true_labels': true_labels,
+                                                            'pred_labels': predicted_labels}
 
 
