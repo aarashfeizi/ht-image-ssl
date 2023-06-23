@@ -24,7 +24,7 @@ import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping
+from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
@@ -180,6 +180,24 @@ def main(cfg: DictConfig):
             keep_prev=cfg.checkpoint_config.keep_prev,
         )
         callbacks.append(ckpt)
+
+        file_name = f'{cfg.name}-' + '{epoch}-{val_acc1:.2f}'
+        logger_final_dir = wandb_logger.id if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
+        best_ckpt = ModelCheckpoint(
+            monitor='val_acc1',
+            verbose=True,
+            save_last=False,
+            save_top_k=1,
+            mode='max',
+            dirpath=os.path.join(cfg.checkpoint_config.dir, cfg.method, logger_final_dir),
+            filename=file_name,
+        )
+
+        callbacks.append(best_ckpt)
+        
+
+
+        
     print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
     early_stop_callback = EarlyStopping(monitor="val_acc1",
                                         min_delta=0.00,
