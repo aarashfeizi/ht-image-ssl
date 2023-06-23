@@ -24,7 +24,7 @@ import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
@@ -180,6 +180,12 @@ def main(cfg: DictConfig):
             keep_prev=cfg.checkpoint_config.keep_prev,
         )
         callbacks.append(ckpt)
+    print(f'Early stopping patience is {int(cfg.max_epochs // 20)} epochs!')
+    early_stop_callback = EarlyStopping(monitor="val_acc1",
+                                        min_delta=0.00,
+                                        patience=int(cfg.max_epochs // 20),
+                                        verbose=True, mode="max")
+    callbacks.append(early_stop_callback)
 
     if cfg.auto_umap.enabled:
         assert (
