@@ -180,10 +180,10 @@ def main(cfg: DictConfig):
             keep_prev=cfg.checkpoint_config.keep_prev,
         )
         callbacks.append(ckpt)
-    print(f'Early stopping patience is {int(cfg.max_epochs // 20)} epochs!')
+    print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
     early_stop_callback = EarlyStopping(monitor="val_acc1",
                                         min_delta=0.00,
-                                        patience=int(cfg.max_epochs // 20),
+                                        patience=int(cfg.max_epochs // 10),
                                         verbose=True, mode="max")
     callbacks.append(early_stop_callback)
 
