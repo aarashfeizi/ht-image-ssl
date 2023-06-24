@@ -541,7 +541,7 @@ def main(cfg: DictConfig):
         {
             "logger": wandb_logger if cfg.wandb.enabled else [csv_logger, tb_logger],
             "callbacks": callbacks,
-            "enable_checkpointing": False,
+            "enable_checkpointing": cfg.checkpoint_config.enabled,
             "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
             "log_every_n_steps": 500,
             #"progress_bar_refresh_rate": 0, # turn off progress bar
