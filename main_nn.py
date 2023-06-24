@@ -181,20 +181,6 @@ def main(cfg: DictConfig):
         )
         callbacks.append(ckpt)
 
-        file_name = f'{cfg.name}-' + '{epoch}-{val_acc1:.2f}'
-        logger_final_dir = wandb_logger.id if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
-        best_ckpt = ModelCheckpoint(
-            monitor='val_acc1',
-            verbose=True,
-            save_last=False,
-            save_top_k=1,
-            mode='max',
-            dirpath=os.path.join(cfg.checkpoint_config.dir, cfg.method, logger_final_dir),
-            filename=file_name,
-        )
-
-        callbacks.append(best_ckpt)
-        
 
 
         
@@ -254,6 +240,21 @@ def main(cfg: DictConfig):
         # lr logging
         lr_monitor = LearningRateMonitor(logging_interval="step")
         callbacks.append(lr_monitor)
+
+    if cfg.checkpoint_config.enabled: # defining AFTER wandb_logger is definded
+        file_name = f'{cfg.name}-' + '{epoch}-{val_acc1:.2f}'
+        logger_final_dir = wandb_logger.id if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
+        best_ckpt = ModelCheckpoint(
+            monitor='val_acc1',
+            verbose=True,
+            save_last=False,
+            save_top_k=1,
+            mode='max',
+            dirpath=os.path.join(cfg.checkpoint_config.dir, cfg.method, logger_final_dir),
+            filename=file_name,
+        )
+
+        callbacks.append(best_ckpt)
 
 
     cache_path = os.path.join(cfg.log_path, 'cache')
