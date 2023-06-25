@@ -21,8 +21,8 @@ method_kwargs:
   scale_loss: 0.1
 data:
   dataset: hotels50k-test
-  train_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/trainval"
-  val_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test1"
+  train_path: "../hotels50k_maxEdge500_restructured/trainval"
+  val_path: "../hotels50k_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
 optimizer:

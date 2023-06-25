@@ -24,8 +24,8 @@ method_kwargs:
   temperature: 0.2
 data:
   dataset: hotels50k-test
-  train_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/trainval"
-  val_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test1"
+  train_path: "../hotels50k_maxEdge500_restructured/trainval"
+  val_path: "../hotels50k_maxEdge500_restructured/test1"
   format: "image_folder"
   num_workers: 10
   num_nns_choice: 1

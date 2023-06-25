@@ -27,11 +27,11 @@ momentum:
   final_tau: 1.0
 data:
   dataset: hotels50k-test
-  train_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/trainval"
-  val_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test1"
-  val2_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test2"
-  val3_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test3"
-  val4_path: "/home/mila/f/feiziaar/scratch/hotels50k_maxEdge500_restructured/test4"
+  train_path: "../hotels50k_maxEdge500_restructured/trainval"
+  val_path: "../hotels50k_maxEdge500_restructured/test1"
+  val2_path: "../hotels50k_maxEdge500_restructured/test2"
+  val3_path: "../hotels50k_maxEdge500_restructured/test3"
+  val4_path: "../hotels50k_maxEdge500_restructured/test4"
   format: "image_folder"
   num_workers: 10
   num_nns_choice: 1
