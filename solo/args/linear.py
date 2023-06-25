@@ -29,7 +29,8 @@ _N_CLASSES_PER_DATASET = {
     "imagenet": 1000,
     "imagenet100": 100,
     "hotelid-val": 3150,
-    "hotelid-test": 4406
+    "hotelid-test": 4406,
+    "hotels50k-test": 18918
 }
 
 
@@ -47,6 +48,7 @@ _SUPPORTED_DATASETS = [
     "imagenet100",
     "hotelid-val",
     "hotelid-test", 
+    "hotels50k-test",
     "custom",
 ]
 

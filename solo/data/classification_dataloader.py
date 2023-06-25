@@ -266,6 +266,7 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
         "imagenet": imagenet_pipeline,
         "hotelid-val": hoteid_pipeline,
         "hotelid-test": hoteid_pipeline,
+        "hotels50k-test": hoteid_pipeline,
         "custom": custom_pipeline,
     }
 
@@ -317,7 +318,7 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "aircrafts", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "aircrafts", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -435,7 +436,7 @@ def prepare_datasets(
         )
     
 
-    elif dataset in ["imagenet", "imagenet100", "hotelid-val", "hotelid-test", "custom"]:
+    elif dataset in ["imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]:
         if data_format == "h5":
             assert _h5_available
             train_dataset = H5Dataset(dataset, train_data_path, T_train)
@@ -444,7 +445,7 @@ def prepare_datasets(
             train_dataset = ImageFolder(train_data_path, T_train)
             val_dataset = ImageFolder(val_data_path, T_val)
 
-        if dataset in ['hotelid-val', 'hotelid-test'] and is_classification:
+        if dataset in ['hotelid-val', 'hotelid-test', "hotels50k-test"] and is_classification:
             val_dataset = ImageFolderMissingClasses(val_data_path, T_val,
                                                     classes=train_dataset.classes,
                                                     class_to_idx=train_dataset.class_to_idx)

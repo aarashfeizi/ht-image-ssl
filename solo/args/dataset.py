@@ -39,6 +39,7 @@ def dataset_args(parser: ArgumentParser):
         "custom",
         "hotelid-val",
         "hotelid-test",
+        "hotels50k-test",
     ]
 
     parser.add_argument("--dataset", choices=SUPPORTED_DATASETS, type=str, required=True)

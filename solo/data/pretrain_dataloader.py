@@ -219,6 +219,7 @@ def build_transform_pipeline(dataset, cfg):
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
         "hotelid-test": (HOTELID_MEAN, HOTELID_STD),
+        "hotels50k-test": (HOTELID_MEAN, HOTELID_STD),
     }
 
     mean, std = MEANS_N_STD.get(
@@ -295,6 +296,7 @@ def build_no_transform(dataset, cfg):
         "imagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "hotelid-val": (HOTELID_MEAN, HOTELID_STD),
         "hotelid-test": (HOTELID_MEAN, HOTELID_STD),
+        "hotels50k-test": (HOTELID_MEAN, HOTELID_STD),
     }
 
     mean, std = MEANS_N_STD.get(
@@ -446,7 +448,7 @@ def prepare_datasets(
         else:
             train_dataset = dataset_with_index(ImageFolder)(train_data_path, transform)
     
-    elif dataset in ['hotelid-val', 'hotelid-test']:
+    elif dataset in ['hotelid-val', 'hotelid-test', "hotels50k-test"]:
         dataset_class = ImageFolder
         train_dataset = dataset_with_index(dataset_class)(train_data_path, transform)
 
