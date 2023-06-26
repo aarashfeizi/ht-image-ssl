@@ -183,13 +183,14 @@ def main(cfg: DictConfig):
 
 
 
-        
-    print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
-    early_stop_callback = EarlyStopping(monitor="val_acc1",
-                                        min_delta=0.00,
-                                        patience=int(cfg.max_epochs // 10),
-                                        verbose=True, mode="max")
-    callbacks.append(early_stop_callback)
+
+    if not cfg.checkpoint_config.enabled:
+        print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
+        early_stop_callback = EarlyStopping(monitor="val_acc1",
+                                            min_delta=0.00,
+                                            patience=int(cfg.max_epochs // 10),
+                                            verbose=True, mode="max")
+        callbacks.append(early_stop_callback)
 
     if cfg.auto_umap.enabled:
         assert (
