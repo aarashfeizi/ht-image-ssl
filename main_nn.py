@@ -184,11 +184,11 @@ def main(cfg: DictConfig):
 
 
 
-    if not cfg.test:
-        print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
+    if not cfg.test or cfg.es_factor <= 1:
+        print(f'Early stopping patience is {int(cfg.max_epochs // cfg.es_factor)} epochs!')
         early_stop_callback = EarlyStopping(monitor="val_acc1",
                                             min_delta=0.00,
-                                            patience=int(cfg.max_epochs // 10),
+                                            patience=int(cfg.max_epochs // cfg.es_factor),
                                             verbose=True, mode="max")
         callbacks.append(early_stop_callback)
 

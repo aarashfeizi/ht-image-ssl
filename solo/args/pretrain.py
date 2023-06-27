@@ -226,6 +226,9 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # by default, set TEST mode to False for datasets such as Aircrafts
     cfg.test = omegaconf_select(cfg, "test", False)
 
+    # by default, set Early Stopping Factor (i.e. max_epochs / es_factor will be es tolerance)
+    cfg.es_factor = omegaconf_select(cfg, "es_facotr", 10)
+
     # make sure method_kwargs has normalize_projector set to False as default (this is only used in SimClr and BYOL)
     cfg.method_kwargs.normalize_projector = omegaconf_select(cfg, "method_kwargs.normalize_projector", 'false')
     
