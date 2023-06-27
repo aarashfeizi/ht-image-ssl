@@ -184,7 +184,7 @@ def main(cfg: DictConfig):
 
 
 
-    if not cfg.checkpoint_config.enabled:
+    if not cfg.test:
         print(f'Early stopping patience is {int(cfg.max_epochs // 10)} epochs!')
         early_stop_callback = EarlyStopping(monitor="val_acc1",
                                             min_delta=0.00,
