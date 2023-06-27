@@ -191,6 +191,8 @@ def main(cfg: DictConfig):
                                             patience=int(cfg.max_epochs // cfg.es_factor),
                                             verbose=True, mode="max")
         callbacks.append(early_stop_callback)
+    else:
+        print(f'No Early Stopping!')
 
     if cfg.auto_umap.enabled:
         assert (
