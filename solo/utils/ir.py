@@ -304,8 +304,8 @@ class ImageRetrieval(Metric):
         from sklearn.metrics import roc_auc_score
         from sklearn.metrics.pairwise import cosine_similarity
 
-        test_features = torch.cat(self.test_features)
-        test_targets = torch.cat(self.test_targets)
+        test_features = torch.cat(self.test_features).cpu()
+        test_targets = torch.cat(self.test_targets).cpu()
 
         bce_labels = self.make_batch_bce_labels(test_targets)
 
