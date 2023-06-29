@@ -14,6 +14,7 @@ class ImageRetrieval(Metric):
         distance_fx: str = "cosine",
         epsilon: float = 0.00001,
         dist_sync_on_step: bool = False,
+        ratios=[0.5],
     ):
         """Implements the weighted k-NN classifier used for evaluation.
 
@@ -35,6 +36,7 @@ class ImageRetrieval(Metric):
         self.max_distance_matrix_size = max_distance_matrix_size
         self.distance_fx = distance_fx
         self.epsilon = epsilon
+        self.ratios = ratios
 
         self.add_state("test_features", default=[], persistent=False)
         self.add_state("test_targets", default=[], persistent=False)
@@ -123,6 +125,77 @@ class ImageRetrieval(Metric):
         top5 = top5 * 100.0 / total
 
         return top1, top5
+
+    @torch.no_grad()
+    def compute_ur(self) -> Tuple[float]:
+        """Computes weighted underrepresented accuracy @1 and @5. If cosine distance is selected,
+        the weight is computed using the exponential of the temperature scaled cosine
+        distance of the samples. If euclidean distance is selected, the weight corresponds
+        to the inverse of the euclidean distance.
+
+        Returns:
+            Tuple[float]: k-NN accuracy @1 and @5.
+        """
+
+        all_test_features = torch.cat(self.test_features)
+        all_test_targets = torch.cat(self.test_targets)
+        output = {}
+
+        for ratio in self.ratios:
+            percentile = np.percentile(all_test_targets, ratio * 100)
+            test_features = all_test_features[all_test_targets < percentile]
+            test_targets = all_test_targets[all_test_targets < percentile]
+            if self.distance_fx == "cosine":
+                test_features = F.normalize(test_features)
+
+            num_classes = torch.unique(test_targets).numel()
+            num_test_images = test_targets.size(0)
+            
+            # chunk_size = min(
+            #     max(1, self.max_distance_matrix_size // num_train_images),
+            #         num_test_images)
+            
+            chunk_size = num_test_images
+            
+            # k = min(self.k, num_train_images)
+            k = min(self.k + 1, num_test_images)
+
+            top1, top5, total = 0.0, 0.0, 0
+            retrieval_one_hot = torch.zeros(k, num_classes).to(test_features.device)
+            for idx in range(0, num_test_images, chunk_size):
+                # get the features for test images
+                features = test_features[idx : min((idx + chunk_size), num_test_images), :]
+                targets = test_targets[idx : min((idx + chunk_size), num_test_images)]
+                batch_size = targets.size(0)
+
+                # calculate the dot product and compute top-k neighbors
+                if self.distance_fx == "cosine":
+                    similarities = torch.mm(features, test_features.t())
+                elif self.distance_fx == "euclidean":
+                    similarities = 1 / (torch.cdist(features, test_features) + self.epsilon)
+                else:
+                    raise NotImplementedError
+                
+                similarities, indices = similarities.topk(k + 1, largest=True, sorted=True)
+                similarities = similarities[:, 1:]
+                indices = indices[:, 1:]
+                candidates = test_targets.view(1, -1).expand(batch_size, -1)
+                retrieved_neighbors = torch.gather(candidates, 1, indices)
+                
+                for i in range(len(targets)):
+                    t = targets[i]
+                    if t in retrieved_neighbors[i, :1]:
+                        top1 += 1
+                    if t in retrieved_neighbors[i, :5]:
+                        top5 += 1
+                total += targets.size(0)
+                
+            top1 = top1 * 100.0 / total
+            top5 = top5 * 100.0 / total
+
+            output[ratio] = {'top1': top1, 'top5': top5}
+
+        return output
 
 
     def make_batch_bce_labels(self, labels, diagonal_fill=None):

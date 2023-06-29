@@ -17,6 +17,7 @@ def parse_args_ir() -> argparse.Namespace:
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--num_workers", type=int, default=10)
     parser.add_argument("--distance_function", type=str, nargs="+", help="`cosine` or `euclidean`")
+    parser.add_argument("--ratios", type=float, nargs="+", help="ratios to calculate between 0 and 1 ")
     parser.add_argument("--feature_type", type=str, nargs="+", help="`backbone` or `projector`")
 
     # dataset

@@ -73,6 +73,7 @@ def run_ir(
     test_targets: torch.Tensor,
     k: int,
     distance_fx: str,
+    ratios
 ) -> Tuple[float]:
     """Runs offline knn on a train and a test dataset.
 
@@ -92,6 +93,7 @@ def run_ir(
     ir = ImageRetrieval(
         k=k,
         distance_fx=distance_fx,
+        ratios=ratios,
     )
 
     # add features
@@ -102,13 +104,16 @@ def run_ir(
 
     # compute
     acc1, acc5 = ir.compute()
+    ur_output = None
+    if ratios is not None:
+        ur_output = ir.compute_ur()
     auc_score, pred_true_dict = ir.compute_auroc(k=1)
     ir.reset()
 
     # free up memory
     del ir
 
-    return acc1, acc5, auc_score
+    return acc1, acc5, auc_score, ur_output
 
 
 def main():
@@ -189,13 +194,14 @@ def main():
             for distance_fx in args.distance_function:
                 print("---")
                 print(f"Running Image Retrieval with params: distance_fx={distance_fx}...")
-                acc1, acc5, auroc = run_ir(
+                acc1, acc5, auroc, ur_output = run_ir(
                     test_features=test_features[feat_type],
                     test_targets=test_targets,
                     k=20,
                     distance_fx=distance_fx,
+                    ratios=args.ratios
                 )
-                print(f"Result on {val}: acc@1 = {acc1}, acc@5 = {acc5}, auroc = {auroc}")
+                print(f"Result on {val}: acc@1 = {acc1}, acc@5 = {acc5}, auroc = {auroc}, under_rep_output = {ur_output}")
 
 
 if __name__ == "__main__":
