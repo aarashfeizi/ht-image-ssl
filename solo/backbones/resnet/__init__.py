@@ -19,9 +19,12 @@
 
 from .resnet import resnet18 as default_resnet18
 from .resnet import resnet50 as default_resnet50
+from .resnet import resnet101 as default_resnet101
+from .resnet import resnet152 as default_resnet152
 from .resnet import pre_trained_resnet18 as pt_resnet18
 from .resnet import pre_trained_resnet50 as pt_resnet50
-
+from .resnet import pre_trained_resnet101 as pt_resnet101
+from .resnet import pre_trained_resnet152 as pt_resnet152
 
 
 def resnet18(method, *args, **kwargs):
@@ -30,14 +33,24 @@ def resnet18(method, *args, **kwargs):
 def resnet50(method, *args, **kwargs):
     return default_resnet50(*args, **kwargs)
 
+def resnet101(method, *args, **kwargs):
+    return default_resnet101(*args, **kwargs)
+
+def resnet152(method, *args, **kwargs):
+    return default_resnet152(*args, **kwargs)
+
 def pre_trained_resnet18(method, *args, **kwargs):
     return pt_resnet18(*args, **kwargs)
-
 
 def pre_trained_resnet50(method, *args, **kwargs):
     return pt_resnet50(*args, **kwargs)
 
-    
+
+def pre_trained_resnet101(method, *args, **kwargs):
+    return pt_resnet101(*args, **kwargs)
+
+def pre_trained_resnet152(method, *args, **kwargs):
+    return pt_resnet152(*args, **kwargs)
 
 
-__all__ = ["resnet18", "resnet50", "pre_trained_resnet50", "pre_trained_resnet18"]
+__all__ = ["resnet18", "resnet50", "resnet101", "resnet152", "pre_trained_resnet50", "pre_trained_resnet18", "pre_trained_resnet101", "pre_trained_resnet152"]
