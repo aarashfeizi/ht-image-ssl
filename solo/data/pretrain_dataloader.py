@@ -30,6 +30,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
+from medmnist import PathMNIST, TissueMNIST
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -211,6 +212,8 @@ def build_transform_pipeline(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "pathmnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "tissuemnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -288,6 +291,8 @@ def build_no_transform(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "tissuemnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "pathmnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -400,6 +405,22 @@ def prepare_datasets(
                 download=download,
                 transform=transform,
             )
+    elif dataset == "pathmnist":
+        # if test: # for both settings the trainset is 'train'
+        train_dataset = dataset_with_index(PathMNIST)(
+            train_data_path,
+            split="train",
+            download=download,
+            transform=transform,
+        )
+    elif dataset == "tissuemnist":
+        # if test: # for both settings the trainset is 'train'
+        train_dataset = dataset_with_index(TissueMNIST)(
+            train_data_path,
+            split="train",
+            download=download,
+            transform=transform,
+        )
 
     elif dataset == "svhn":
         train_dataset = dataset_with_index(SVHN)(

@@ -30,6 +30,7 @@ from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
+from medmnist import PathMNIST, TissueMNIST
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -155,6 +156,42 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
             ]
         ),
     }
+    pathmnist_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=28, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(28),  # resize shorter
+                transforms.CenterCrop((28, 28)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
+    tissuemnist_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=28, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(28),  # resize shorter
+                transforms.CenterCrop((28, 28)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
 
 
     inat_pipeline = {
@@ -259,6 +296,8 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
         "stl10": stl_pipeline,
         "svhn": svhn_pipeline,
         "aircrafts": aircrafts_pipeline,
+        "pathmnist": pathmnist_pipeline,
+        "tissuemnist": tissuemnist_pipeline,
         "inat": inat_pipeline,
         "pets": pets_pipeline,
         "dtd": dtd_pipeline,
@@ -318,7 +357,7 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "aircrafts", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "pathmnist", "tissuemnist", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -386,6 +425,60 @@ def prepare_datasets(
                 transform=T_train,
             )
             val_dataset = FGVCAircraft(
+                val_data_path,
+                split="val",
+                download=download,
+                transform=T_val,
+            )
+    elif dataset == 'pathmnist':
+        if test:
+            train_dataset = PathMNIST(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = PathMNIST(
+                val_data_path,
+                split="test",
+                download=download,
+                transform=T_val,
+            )
+        else:
+            train_dataset = PathMNIST(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = PathMNIST(
+                val_data_path,
+                split="val",
+                download=download,
+                transform=T_val,
+            )
+    elif dataset == 'tissuemnist':
+        if test:
+            train_dataset = TissueMNIST(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = TissueMNIST(
+                val_data_path,
+                split="test",
+                download=download,
+                transform=T_val,
+            )
+        else:
+            train_dataset = TissueMNIST(
+                train_data_path,
+                split="train",
+                download=download,
+                transform=T_train,
+            )
+            val_dataset = TissueMNIST(
                 val_data_path,
                 split="val",
                 download=download,
