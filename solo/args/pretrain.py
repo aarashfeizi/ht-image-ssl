@@ -211,12 +211,12 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", 'no_transform')
 
 
-    # set default input channel to 3
+    # set default one_dim to False
     for pipeline in cfg.nn_augmentations:
-        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", 3)
+        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", False)
     
     for pipeline in cfg.augmentations:
-        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", 3)
+        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", False)
 
     
     
