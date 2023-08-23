@@ -739,11 +739,25 @@ class BaseMomentumMethod(BaseMethod):
             # remove fc layer
             self.momentum_backbone.fc = nn.Identity()
             cifar = cfg.data.dataset in ["cifar10", "cifar100"]
-            if cifar:
+            medmnist = cfg.data.dataset in ["pathmnist", "tissuemnist"]
+            one_dim_input = cfg.data.dataset in ["tissuemnist"]
+            if cifar or medmnist:
+                # default resnet -> inplanes = 64
+                # default resnet -> conv1 = nn.Conv2d(
+                    # 3, inplanes, kernel_size=7, stride=2, padding=3, bias=False
+                    # )
+                #                   bn1 = norm_layer(inplanes)
+                #                   relu = nn.ReLU(inplace=True)
+                #                   maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
                 self.momentum_backbone.conv1 = nn.Conv2d(
                     3, 64, kernel_size=3, stride=1, padding=2, bias=False
                 )
                 self.momentum_backbone.maxpool = nn.Identity()
+
+                if one_dim_input:
+                    self.momentum_backbone.conv1 = nn.Conv2d(
+                        1, 64, kernel_size=3, stride=1, padding=2, bias=False
+                    )
 
         initialize_momentum_params(self.backbone, self.momentum_backbone)
 
