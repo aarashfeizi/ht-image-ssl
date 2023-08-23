@@ -1,4 +1,5 @@
 - name: symmetric
+  one_dim: True
   rrc:
     enabled: True
     crop_min_scale: 0.08
@@ -19,5 +20,5 @@
     prob: 0.0
   horizontal_flip:
     prob: 0.5
-  crop_size: 224
+  crop_size: 28
   num_crops: 1

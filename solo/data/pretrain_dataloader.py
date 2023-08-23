@@ -275,6 +275,12 @@ def build_transform_pipeline(dataset, cfg):
 
     if cfg.horizontal_flip.prob:
         augmentations.append(transforms.RandomHorizontalFlip(p=cfg.horizontal_flip.prob))
+    
+    if cfg.one_dim:
+        print("IT'S SET TO ONE-DIMENTIONAL ##########################################################################")
+        import numpy as np
+        mean = np.mean(mean)
+        std = np.mean(std)
 
     augmentations.append(transforms.ToTensor())
     augmentations.append(transforms.Normalize(mean=mean, std=std))
