@@ -408,7 +408,7 @@ def prepare_datasets(
     elif dataset == "pathmnist":
         # if test: # for both settings the trainset is 'train'
         train_dataset = dataset_with_index(PathMNIST)(
-            train_data_path,
+            root=train_data_path,
             split="train",
             download=download,
             transform=transform,
@@ -416,7 +416,7 @@ def prepare_datasets(
     elif dataset == "tissuemnist":
         # if test: # for both settings the trainset is 'train'
         train_dataset = dataset_with_index(TissueMNIST)(
-            train_data_path,
+            root=train_data_path,
             split="train",
             download=download,
             transform=transform,
