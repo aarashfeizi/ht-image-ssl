@@ -562,6 +562,10 @@ def get_embeddings(model, dataloader, index=0, key='feats'):
             if type(X) == list:
                 X = X[index]
             X = X.cuda()
+            # print('X shape:', X.shape)
+            if X.shape[1] == 1:
+                X = X.repeat(1, 3, 1, 1)
+                # print('new X shape:', X.shape)
             batch_emb = model(X)
             if type(batch_emb) == dict:
                 batch_emb = batch_emb[key]
