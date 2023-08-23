@@ -433,26 +433,26 @@ def prepare_datasets(
     elif dataset == 'pathmnist':
         if test:
             train_dataset = PathMNIST(
-                train_data_path,
+                root=train_data_path,
                 split="train",
                 download=download,
                 transform=T_train,
             )
             val_dataset = PathMNIST(
-                val_data_path,
+                root=val_data_path,
                 split="test",
                 download=download,
                 transform=T_val,
             )
         else:
             train_dataset = PathMNIST(
-                train_data_path,
+                root=train_data_path,
                 split="train",
                 download=download,
                 transform=T_train,
             )
             val_dataset = PathMNIST(
-                val_data_path,
+                root=val_data_path,
                 split="val",
                 download=download,
                 transform=T_val,
@@ -460,26 +460,26 @@ def prepare_datasets(
     elif dataset == 'tissuemnist':
         if test:
             train_dataset = TissueMNIST(
-                train_data_path,
+                root=train_data_path,
                 split="train",
                 download=download,
                 transform=T_train,
             )
             val_dataset = TissueMNIST(
-                val_data_path,
+                root=val_data_path,
                 split="test",
                 download=download,
                 transform=T_val,
             )
         else:
             train_dataset = TissueMNIST(
-                train_data_path,
+                root=train_data_path,
                 split="train",
                 download=download,
                 transform=T_train,
             )
             val_dataset = TissueMNIST(
-                val_data_path,
+                root=val_data_path,
                 split="val",
                 download=download,
                 transform=T_val,
