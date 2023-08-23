@@ -30,7 +30,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
-from medmnist import PathMNIST, TissueMNIST
+from solo.data.medmnist import PathMNIST, TissueMNIST
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -283,7 +283,7 @@ def build_transform_pipeline(dataset, cfg):
         import numpy as np
         mean = np.mean(mean)
         std = np.mean(std)
-        
+
     augmentations.append(transforms.Normalize(mean=mean, std=std))
 
     augmentations = transforms.Compose(augmentations)

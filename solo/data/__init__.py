@@ -24,6 +24,7 @@ __all__ = [
     "classification_dataloader",
     "h5_dataset",
     "pretrain_dataloader",
+    "medmnist"
 ]
 
 

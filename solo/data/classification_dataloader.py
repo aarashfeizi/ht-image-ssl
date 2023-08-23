@@ -30,7 +30,7 @@ from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
-from medmnist import PathMNIST, TissueMNIST
+from solo.data.medmnist import PathMNIST, TissueMNIST
 
 try:
     from solo.data.h5_dataset import H5Dataset
