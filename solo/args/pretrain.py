@@ -209,6 +209,17 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     
     # augmentations for calculating the nearest neighbors
     cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", 'no_transform')
+
+
+    # set default input channel to 3
+    for pipeline in cfg.nn_augmentations:
+        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", 3)
+    
+    for pipeline in cfg.augmentations:
+        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", 3)
+
+    
+    
     
     cfg = add_and_assert_nnclr2_cfg(cfg)
 
