@@ -81,7 +81,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             # end TODO
         else:
             from tqdm import tqdm
-            with tqdm(total=self.sim_matrix, desc='Getting nn metrics') as t:
+            with tqdm(total=len(self.sim_matrix), desc='Getting nn metrics') as t:
                 for idx in range(len(self.sim_matrix)):
                     sim_row = self.sim_matrix[idx]
                     all_lbls_sim_matrix = self.labels[sim_row]
