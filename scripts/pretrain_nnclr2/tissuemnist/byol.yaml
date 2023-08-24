@@ -16,6 +16,7 @@ hydra:
 name: "byol-tissuemnist-nnclr2" # change here for tissuemnist
 method: "byol"
 nnclr2: True
+nn_key: 'feats'
 log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
@@ -33,6 +34,7 @@ data:
   format: "image_folder"
   num_workers: 10
   num_nns_choice: 1
+  num_nns: 1
   filter_sim_matrix: False
   reload_freq: 0
 optimizer:
