@@ -90,7 +90,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
                     total_lengths.append(len(sim_row))
                     t.update()
 
-        correct_lbls = np.array(correct_lbls, dtype=np.float32)
+        correct_lbls = np.array(correct_lbls, dtype=np.float32).flatten()
         total_lengths = np.array(total_lengths, dtype=np.float32)
         avg = correct_lbls.sum() / total_lengths.sum()
         all_percentages = correct_lbls / total_lengths
