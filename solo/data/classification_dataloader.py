@@ -31,6 +31,7 @@ from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, I
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
 from solo.data.medmnist import PathMNIST, TissueMNIST
+import numpy as np
 
 try:
     from solo.data.h5_dataset import H5Dataset
@@ -180,7 +181,7 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
                 transforms.RandomResizedCrop(size=28, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
             ]
         ),
         "T_val": transforms.Compose(
@@ -188,7 +189,7 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
                 transforms.Resize(28),  # resize shorter
                 transforms.CenterCrop((28, 28)),  # take center crop
                 transforms.ToTensor(),
-                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+                transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
             ]
         ),
     }
