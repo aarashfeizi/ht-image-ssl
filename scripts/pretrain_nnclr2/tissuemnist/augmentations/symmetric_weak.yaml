@@ -1,4 +1,5 @@
 - name: symmetric_weak
+  one_dim: True
   rrc:
     enabled: True
     crop_min_scale: 0.08

@@ -1,5 +1,6 @@
 - name: asymmetric_1
   one_dim: True
+  one_dim: True
   rrc:
     enabled: True
     crop_min_scale: 0.08
@@ -24,6 +25,7 @@
   num_crops: 1
 
 - name: asymmetric_2
+  one_dim: True
   one_dim: True
   rrc:
     enabled: True
