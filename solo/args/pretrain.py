@@ -207,13 +207,16 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # assert dataset parameters
     cfg = add_and_assert_dataset_cfg(cfg)
     
-    # augmentations for calculating the nearest neighbors
-    cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", 'no_transform')
 
+    if OmegaConf.select(cfg, "nn_augmentations", default="None") is not None:
+        # augmentations for calculating the nearest neighbors
+        cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", 'no_transform')
 
-    # set default one_dim to False
-    for pipeline in cfg.nn_augmentations:
-        pipeline.one_dim = omegaconf_select(pipeline, "one_dim", False)
+        # set default one_dim to False
+        for pipeline in cfg.nn_augmentations:
+            pipeline.one_dim = omegaconf_select(pipeline, "one_dim", False)
+    else:
+        print("NO NN-AUGMENTATION WAS ASSIGNED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     
     for pipeline in cfg.augmentations:
         pipeline.one_dim = omegaconf_select(pipeline, "one_dim", False)
