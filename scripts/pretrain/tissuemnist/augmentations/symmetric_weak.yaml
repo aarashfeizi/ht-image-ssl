@@ -1,4 +1,5 @@
-- one_dim: True
+- name: not_named_aug
+  one_dim: True
   rrc:
     enabled: True
     crop_min_scale: 0.08

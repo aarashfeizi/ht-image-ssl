@@ -1,4 +1,6 @@
-- rrc:
+- name: reconstruction_nc2
+  one_dim: False
+  rrc:
     enabled: False
     crop_min_scale: 0.08
     crop_max_scale: 1.0

@@ -1,4 +1,5 @@
-- one_dim: True
+- name: reconstruction
+  one_dim: True
   rrc:
     enabled: False
     crop_min_scale: 0.08

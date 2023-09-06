@@ -1,4 +1,5 @@
 - name: weak_color
+  one_dim: False
   rrc:
     enabled: False
     crop_min_scale: 0.08

@@ -1,4 +1,6 @@
-- rrc:
+- name: asymmetric
+  one_dim: False
+  rrc:
     enabled: True
     crop_min_scale: 0.08
     crop_max_scale: 1.0
@@ -23,7 +25,9 @@
   crop_size: 224
   num_crops: 1
 
-- rrc:
+- name: asymmetric
+  one_dim: False
+  rrc:
     enabled: True
     crop_min_scale: 0.08
     crop_max_scale: 1.0
@@ -48,7 +52,9 @@
   crop_size: 224
   num_crops: 1
 
-- rrc:
+- name: asymmetric
+  one_dim: False
+  rrc:
     enabled: True
     crop_min_scale: 0.08
     crop_max_scale: 1.0

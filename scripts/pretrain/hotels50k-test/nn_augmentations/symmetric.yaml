@@ -1,4 +1,5 @@
 - name: symmetric
+  one_dim: False
   rrc:
     enabled: True
     crop_min_scale: 0.08
