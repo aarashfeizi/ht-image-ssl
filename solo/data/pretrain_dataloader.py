@@ -204,6 +204,8 @@ def build_transform_pipeline(dataset, cfg):
             prob: float
         horizontal_flip:
             prob: float
+        vertical_flip:
+            prob: float
     """
 
     MEANS_N_STD = {
@@ -275,6 +277,9 @@ def build_transform_pipeline(dataset, cfg):
 
     if cfg.horizontal_flip.prob:
         augmentations.append(transforms.RandomHorizontalFlip(p=cfg.horizontal_flip.prob))
+    
+    if cfg.vertical_flip.prob:
+        augmentations.append(transforms.RandomVerticalFlip(p=cfg.vertical_flip.prob))
     
     augmentations.append(transforms.ToTensor())
     
