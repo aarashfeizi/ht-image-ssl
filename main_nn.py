@@ -266,58 +266,58 @@ def main(cfg: DictConfig):
     emb_train_loader = None
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
+
+        additional_str = ''
+        if cfg.emb_model.train:
+            additional_str += f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_loss-{cfg.emb_model.loss}'
+
+        if cfg.emb_model.pretrained == 'false':
+            additional_str += f'_randomInit_seed{cfg.seed}'
+        
+        if cfg.emb_model.pretrained != 'true':
+            additional_str += f'_{cfg.emb_model.pretrained}'
+        else:
+            additional_str += f'_imagenet'
+        
+        if cfg.data.subsample_by > 1 and cfg.data.dataset == 'inat':
+            additional_str += f'_SSB{cfg.data.subsample_by}'
+
+        if cfg.emb_model.transform == 'noTransform':
+            emb_model_transform = build_no_transform(cfg.data.dataset, nn_augmentation)
+        else:
+            if nn_augmentation.name != 'no_transform':
+                additional_str += f'_{nn_augmentation.name}_seed{cfg.seed}'
+            emb_model_transform = build_transform_pipeline(cfg.data.dataset, nn_augmentation)
+        
+        if cfg.data.dataset == 'aircrafts':
+            if cfg.test:
+                additional_str += '_TestMode'
+
+        if cfg.emb_model.get_extended_features:
+            output_string = ''.join(([str(i) for i in sorted(list(set(cfg.emb_model.outputs)))]))
+            additional_str += f'_outputs{output_string}'
+
+        embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
+        
+        emb_train_dataset = prepare_datasets(
+            cfg.data.dataset,
+            emb_model_transform,
+            train_data_path=cfg.data.train_path,
+            data_format=cfg.data.format,
+            no_labels=cfg.data.no_labels,
+            data_fraction=cfg.data.fraction,
+            test=cfg.test
+        )
+
+        emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
+        
+        emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                                        batch_size=cfg.optimizer.batch_size,
+                                                        num_workers=cfg.data.num_workers,
+                                                        shuffle=False,
+                                                        drop_last=False)
+
         if cfg.data.emb_path is None:
-            additional_str = ''
-            if cfg.emb_model.train:
-                additional_str += f'_ep{cfg.emb_model.epochs}_lr{cfg.emb_model.lr}_loss-{cfg.emb_model.loss}'
-
-            if cfg.emb_model.pretrained == 'false':
-                additional_str += f'_randomInit_seed{cfg.seed}'
-            
-            if cfg.emb_model.pretrained != 'true':
-                additional_str += f'_{cfg.emb_model.pretrained}'
-            else:
-                additional_str += f'_imagenet'
-            
-            if cfg.data.subsample_by > 1 and cfg.data.dataset == 'inat':
-                additional_str += f'_SSB{cfg.data.subsample_by}'
-
-            if cfg.emb_model.transform == 'noTransform':
-                emb_model_transform = build_no_transform(cfg.data.dataset, nn_augmentation)
-            else:
-                if nn_augmentation.name != 'no_transform':
-                    additional_str += f'_{nn_augmentation.name}_seed{cfg.seed}'
-                emb_model_transform = build_transform_pipeline(cfg.data.dataset, nn_augmentation)
-            
-            if cfg.data.dataset == 'aircrafts':
-                if cfg.test:
-                    additional_str += '_TestMode'
-
-            if cfg.emb_model.get_extended_features:
-                output_string = ''.join(([str(i) for i in sorted(list(set(cfg.emb_model.outputs)))]))
-                additional_str += f'_outputs{output_string}'
-
-            embeddings_path = os.path.join(cache_path, f"{cfg.data.dataset}_{cfg.emb_model.name}{additional_str}_emb.npy")
-            
-            emb_train_dataset = prepare_datasets(
-                cfg.data.dataset,
-                emb_model_transform,
-                train_data_path=cfg.data.train_path,
-                data_format=cfg.data.format,
-                no_labels=cfg.data.no_labels,
-                data_fraction=cfg.data.fraction,
-                test=cfg.test
-            )
-
-            emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
-            
-            emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                                            batch_size=cfg.optimizer.batch_size,
-                                                            num_workers=cfg.data.num_workers,
-                                                            shuffle=False,
-                                                            drop_last=False)
-
-
             if not os.path.exists(embeddings_path):
                 print(f'Creating {embeddings_path}')
                 if cfg.emb_model.name.startswith('autoencoder'):
