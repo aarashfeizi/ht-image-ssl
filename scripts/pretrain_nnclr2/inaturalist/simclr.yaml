@@ -1,6 +1,7 @@
 defaults:
   - _self_
   - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
   - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
@@ -15,6 +16,7 @@ hydra:
 name: "simclr-inat-nnclr2" # change here for inat
 method: "simclr"
 nnclr2: True
+nn_key: 'feats'
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
@@ -28,10 +30,10 @@ data:
   val_path: "/home/mila/f/feiziaar/scratch/inaturalist/"
   format: "image_folder"
   num_workers: 4
-  filter_sim_matrix: False
   num_nns_choice: 1
   num_nns: 1
   reload_freq: 0
+  filter_sim_matrix: False
   subsample_by: 1
 optimizer:
   name: "lars"

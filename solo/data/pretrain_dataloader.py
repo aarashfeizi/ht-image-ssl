@@ -30,6 +30,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
+from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.medmnist import PathMNIST, TissueMNIST
 
 try:
@@ -218,6 +219,7 @@ def build_transform_pipeline(dataset, cfg):
         "tissuemnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "inat18": (INAT18_MEAN, INAT18_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "dtd": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -307,6 +309,7 @@ def build_no_transform(dataset, cfg):
         "pathmnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "inat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "inat18": (INAT18_MEAN, INAT18_STD),
         "pets": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "dtd": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "imagenet100": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -372,6 +375,7 @@ def prepare_datasets(
     download: bool = True,
     data_fraction: float = -1.0,
     test=False,
+    data_path=None,
 ) -> Dataset:
     """Prepares the desired dataset.
 
@@ -455,6 +459,14 @@ def prepare_datasets(
             version="2021_train_mini",
             download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini')),
             transform=transform,
+        )
+
+    elif dataset == "inat18":
+        train_dataset = dataset_with_index(INAT18)(
+            root=data_path,
+            ann_file=train_data_path,
+            transform=transform,
+            train=True
         )
 
     elif dataset == "pets":

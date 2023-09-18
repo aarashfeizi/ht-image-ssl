@@ -26,6 +26,7 @@ _N_CLASSES_PER_DATASET = {
     "pathmnist": 9,
     'tissuemnist': 8,
     "inat": 10000,
+    "inat18": 8142,
     "pets": 37,
     "dtd": 47,
     "imagenet": 1000,

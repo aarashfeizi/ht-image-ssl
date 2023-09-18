@@ -28,6 +28,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft
+from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
 from solo.data.medmnist import PathMNIST, TissueMNIST
@@ -214,6 +215,26 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
         ),
     }
 
+    inat18_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=INAT18_MEAN, std=INAT18_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(256),  # resize shorter
+                transforms.CenterCrop((224, 224)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=INAT18_MEAN, std=INAT18_STD),
+            ]
+        ),
+    }
+
+
     pets_pipeline = {
         "T_train": transforms.Compose(
             [
@@ -300,6 +321,7 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
         "pathmnist": pathmnist_pipeline,
         "tissuemnist": tissuemnist_pipeline,
         "inat": inat_pipeline,
+        "inat18": inat18_pipeline,
         "pets": pets_pipeline,
         "dtd": dtd_pipeline,
         "imagenet100": imagenet_pipeline,
@@ -329,7 +351,8 @@ def prepare_datasets(
     download: bool = True,
     data_fraction: float = -1.0,
     test=False,
-    is_classification=True
+    is_classification=True,
+    data_path=None
 ) -> Tuple[Dataset, Dataset]:
     """Prepares train and val datasets.
 
@@ -358,7 +381,7 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "pathmnist", "tissuemnist", "inat", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -500,6 +523,21 @@ def prepare_datasets(
             transform=T_val,
         )
     
+    elif dataset == 'inat18':
+        train_dataset = INAT18(
+            root=data_path,
+            ann_file=train_data_path,
+            download=not os.path.exists(os.path.join(train_data_path, '2021_train_mini')),
+            transform=T_train,
+            is_train=True
+        )
+        val_dataset = INAT18(
+            root=data_path,
+            ann_file=val_data_path,
+            transform=T_val,
+            is_train=False
+        )
+    
     
     elif dataset == 'pets':
         train_dataset = OxfordIIITPet(
@@ -605,6 +643,7 @@ def prepare_data(
     subsample_by:int = 1,
     test=False,
     is_vit=False,
+    data_path=None
 ) -> Tuple[DataLoader, DataLoader]:
     """Prepares transformations, creates dataset objects and wraps them in dataloaders.
 
@@ -652,6 +691,7 @@ def prepare_data(
         download=download,
         data_fraction=data_fraction,
         test=test,
+        data_path=data_path
     )
 
     if subsample_by > 1:

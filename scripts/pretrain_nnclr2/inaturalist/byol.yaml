@@ -1,6 +1,7 @@
 defaults:
   - _self_
   - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
   - emb_model: resnet50.yaml
   - wandb: private.yaml 
   - override hydra/hydra_logging: disabled
@@ -15,6 +16,7 @@ hydra:
 name: "byol-inat-nnclr2" # change here for inat
 method: "byol"
 nnclr2: True
+nn_key: 'feats'
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"

@@ -25,6 +25,7 @@ _N_CLASSES_PER_DATASET = {
     'tissuemnist': 8,
     "cub": 100,
     "inat": 10000,
+    "inat18": 8142,
     "pets": 37,
     "dtd": 47,
     "imagenet": 1000,
@@ -45,6 +46,7 @@ _SUPPORTED_DATASETS = [
     'tissuemnist',
     "cub",
     "inat",
+    "inat18",
     "pets",
     "dtd",
     "imagenet",
@@ -75,6 +77,7 @@ def add_and_assert_dataset_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfi
     cfg.data.val_path = omegaconf_select(cfg, "data.val_path", None)
     cfg.data.format = omegaconf_select(cfg, "data.format", "image_folder")
     cfg.data.no_labels = omegaconf_select(cfg, "data.no_labels", False)
+    cfg.data.data_path = omegaconf_select(cfg, "data.data_path", None)
     cfg.data.fraction = omegaconf_select(cfg, "data.fraction", -1)
     cfg.data.reload_freq = omegaconf_select(cfg, "data.reload_freq", 0)
     cfg.data.emb_path = omegaconf_select(cfg, "data.emb_path", None)

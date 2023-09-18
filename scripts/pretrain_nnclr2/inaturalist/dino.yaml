@@ -15,6 +15,7 @@ hydra:
 name: "dino-inat" # change here for inat
 method: "dino"
 nnclr2: True
+nn_key: 'feats'
 log_path: "../../scratch/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"

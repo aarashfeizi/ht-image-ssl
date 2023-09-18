@@ -78,7 +78,7 @@ def main(cfg: DictConfig):
 
     assert cfg.method in METHODS, f"Choose from {METHODS.keys()}"
 
-    if cfg.data.dataset == 'inat':
+    if cfg.data.dataset.startswith('inat'):
         subsample_by = cfg.data.subsample_by
     else:
         subsample_by = 1
@@ -141,7 +141,8 @@ def main(cfg: DictConfig):
             data_format=cfg.data.format,
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
-            test=cfg.test
+            test=cfg.test,
+            data_path=cfg.data.data_path
         )    
         
         train_dataset = misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
@@ -279,7 +280,7 @@ def main(cfg: DictConfig):
         else:
             additional_str += f'_imagenet'
         
-        if cfg.data.subsample_by > 1 and cfg.data.dataset == 'inat':
+        if cfg.data.subsample_by > 1 and cfg.data.dataset.startswith('inat'):
             additional_str += f'_SSB{cfg.data.subsample_by}'
 
         if cfg.emb_model.transform == 'noTransform':
@@ -306,7 +307,8 @@ def main(cfg: DictConfig):
             data_format=cfg.data.format,
             no_labels=cfg.data.no_labels,
             data_fraction=cfg.data.fraction,
-            test=cfg.test
+            test=cfg.test,
+            data_path=cfg.data.data_path
         )
 
         emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
@@ -352,6 +354,11 @@ def main(cfg: DictConfig):
                     for cat_id, fname in emb_train_loader.dataset.index:
                         dataset_data.append(os.path.join(emb_train_loader.dataset.root,
                                                         emb_train_loader.dataset.all_categories[cat_id],
+                                                        fname))
+                elif cfg.data.dataset == 'inat18':
+                    dataset_data = []
+                    for fname in emb_train_loader.dataset.imgs:
+                        dataset_data.append(os.path.join(emb_train_loader.dataset.root,
                                                         fname))
                 elif cfg.data.dataset.startswith('hotel'):
                     imgs_lbls = emb_train_loader.dataset.imgs
@@ -510,7 +517,8 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
             subsample_by=subsample_by,
             test=cfg.test,
-            is_vit= cfg.backbone.name.startswith('vit')
+            is_vit= cfg.backbone.name.startswith('vit'),
+            data_path=cfg.data.data_path
         )
 
     datamodule = BaseDataModule(model=model,
