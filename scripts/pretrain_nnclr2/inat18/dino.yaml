@@ -16,7 +16,7 @@ name: "dino-inat" # change here for inat
 method: "dino"
 nnclr2: True
 nn_key: 'feats'
-log_path: "../../scratch/ht-image-ssl/logs/"
+log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs"
 backbone:
   name: "resnet18"
 method_kwargs:

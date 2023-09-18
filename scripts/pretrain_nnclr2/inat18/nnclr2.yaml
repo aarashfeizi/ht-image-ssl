@@ -17,7 +17,7 @@ name: "simclr-E-svhn-nnclr2" # change here for cifar10
 method: "nnclr2"
 nnclr2: True
 nn_key: 'feats'
-log_path: "../../scratch/ht-image-ssl/logs/"
+log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs"
 backbone:
   name: "resnet18"
 method_kwargs:
