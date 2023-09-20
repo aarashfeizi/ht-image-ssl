@@ -17,7 +17,7 @@ name: "simsiam-inat18-nnclr2" # change here for inat
 method: "simsiam"
 nnclr2: True
 nn_key: 'feats'
-log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs"
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -27,9 +27,9 @@ method_kwargs:
   temperature: 0.2
 data:
   dataset: inat18 # change here for inat
-  data_path: "/home/mila/f/feiziaar/scratch/inat18/"
-  train_path: "/home/mila/f/feiziaar/scratch/inat18/train2018.json"
-  val_path: "/home/mila/f/feiziaar/scratch/inat18/val2018.json"
+  data_path: "/network/scratch/f/feiziaar/inat18/"
+  train_path: "/network/scratch/f/feiziaar/inat18/train2018.json"
+  val_path: "/network/scratch/f/feiziaar/inat18/val2018.json"
   format: "image_folder"
   filter_sim_matrix: False
   num_workers: 4
@@ -43,7 +43,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "../../scratch/ht-image-ssl/trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
