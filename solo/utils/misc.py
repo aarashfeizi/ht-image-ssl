@@ -1093,3 +1093,22 @@ def save_pretrained_embs(model, dataloader, name, path='', device='cuda'):
     embs = get_pretrained_model_embeddings(model, dataloader, device)
     full_path = os.path.join(path, name)
     np.save(full_path, embs)
+
+# save_pretrained_embs(model=model, dataloader=dl_cifar100, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='cifar100_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_air, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_pathmnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='pathmnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_tissuemnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='tissuemnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_airfull, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_TRAINVAL_mae_vitB.npy')
+# import matplotlib.pyplot as plt
+# def plot_idxs(idxs, name):
+#     idxs = idxs.flatten()
+#     idx_u, idx_c = np.unique(idxs, return_counts=True)
+#     sorted_pairs = sorted(list(zip(idx_c, idx_u)), reverse=True)
+#     plt.hist(idxs, bins=300)
+#     plt.title(name)
+#     plt.savefig(f'{name}_hist_of_hist.pdf')
+#     plt.show()
+#     plt.clf()
+#     x = [i for i in range(len(idx_u))]
+#     plt.plot(x, np.array(list(zip(*sorted_pairs))[0]))
+#     plt.title(name)
+#     plt.savefig(f'{name}_hist_of_idx.pdf')
+#     plt.show()
+#     plt.clf()
+    

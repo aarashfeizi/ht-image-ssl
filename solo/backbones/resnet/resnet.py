@@ -34,7 +34,7 @@ def pre_trained_resnet50(*args, **kwargs):
 
 def clip_pre_trained_resnet50(*args, **kwargs):
     model, _ = clip.load("RN50", device='cpu')
-    return model
+    return model.visual
     # return resnet50(weights=ResNet50_Weights.IMAGENET1K_V2, *args, **kwargs)
 
 def pre_trained_resnet101(*args, **kwargs):
