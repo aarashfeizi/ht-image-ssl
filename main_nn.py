@@ -319,7 +319,7 @@ def main(cfg: DictConfig):
                                                         shuffle=False,
                                                         drop_last=False)
 
-        if cfg.data.emb_path is None:
+        if cfg.data.emb_path is None or cfg.data.emb_path == '':
             if not os.path.exists(embeddings_path):
                 print(f'Creating {embeddings_path}')
                 if cfg.emb_model.name.startswith('autoencoder'):
@@ -370,7 +370,7 @@ def main(cfg: DictConfig):
             else:
                 print(f'Fetching {embeddings_path}')
                 embeddings = misc.load_npy(embeddings_path)
-        else: # cfg.data.emb_path is NOT None
+        else: # cfg.data.emb_path is NOT None and NOT '' (empty)
             assert os.path.exists(os.path.join(cache_path, cfg.data.emb_path + '.npy'))
             embeddings_path = os.path.join(cache_path, cfg.data.emb_path + '.npy')
             print(f'Fetching {cfg.data.emb_path}')
