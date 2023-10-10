@@ -206,31 +206,71 @@ class BaseMethod(pl.LightningModule):
         kwargs = self.backbone_args.copy()
 
         method: str = cfg.method
+        is_torchvision_version = False
+        is_clip_version = False
         self.backbone: nn.Module = self.base_model(method, **kwargs)
         if self.backbone_name.startswith("resnet"):
-            self.features_dim: int = self.backbone.inplanes
-            # remove fc layer
-            self.backbone.fc = nn.Identity()
+            if hasattr(self.backbone, 'inplanes'): # in the case of torchvision models
+                self.features_dim: int = self.backbone.inplanes
+                # remove fc layer
+                self.backbone.fc = nn.Identity()
+                is_torchvision_version = True
+
+            elif hasattr(self.backbone, 'output_dim'): # in the case of CLIP's visual encoder
+                self.features_dim: int = self.backbone.output_dim
+                is_clip_version = True
+
+            else:
+                raise Exception("Couldn't find attribute for number of dimensions!")
+
             cifar = cfg.data.dataset in ["cifar10", "cifar100"]
             medmnist = cfg.data.dataset in ["pathmnist", "tissuemnist"]
             one_dim_input = cfg.data.dataset in ["tissuemnist"]
             if cifar or medmnist:
-                # default resnet -> inplanes = 64
-                # default resnet -> conv1 = nn.Conv2d(
-                    # 3, inplanes, kernel_size=7, stride=2, padding=3, bias=False
-                    # )
-                #                   bn1 = norm_layer(inplanes)
-                #                   relu = nn.ReLU(inplace=True)
-                #                   maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-                self.backbone.conv1 = nn.Conv2d(
-                    3, 64, kernel_size=3, stride=1, padding=2, bias=False
-                )
-                self.backbone.maxpool = nn.Identity()
 
-                if one_dim_input:
+                if is_torchvision_version:
+                    # default resnet -> inplanes = 64
+                    # default resnet -> conv1 = nn.Conv2d(
+                        # 3, inplanes, kernel_size=7, stride=2, padding=3, bias=False
+                        # )
+                    #                   bn1 = norm_layer(inplanes)
+                    #                   relu = nn.ReLU(inplace=True)
+                    #                   maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+                    
                     self.backbone.conv1 = nn.Conv2d(
-                        1, 64, kernel_size=3, stride=1, padding=2, bias=False
+                        3, 64, kernel_size=3, stride=1, padding=2, bias=False
+                    )    
+                    self.backbone.maxpool = nn.Identity()
+
+                    if one_dim_input:
+                        self.backbone.conv1 = nn.Conv2d(
+                            1, 64, kernel_size=3, stride=1, padding=2, bias=False
+                        )
+                
+                if is_clip_version:
+                    ## the 3-layer stem
+                    # self.conv1 = nn.Conv2d(3, width // 2, kernel_size=3, stride=2, padding=1, bias=False)
+                    # self.bn1 = nn.BatchNorm2d(width // 2)
+                    # self.relu1 = nn.ReLU(inplace=True)
+                    # self.conv2 = nn.Conv2d(width // 2, width // 2, kernel_size=3, padding=1, bias=False)
+                    # self.bn2 = nn.BatchNorm2d(width // 2)
+                    # self.relu2 = nn.ReLU(inplace=True)
+                    # self.conv3 = nn.Conv2d(width // 2, width, kernel_size=3, padding=1, bias=False)
+                    # self.bn3 = nn.BatchNorm2d(width)
+                    # self.relu3 = nn.ReLU(inplace=True)
+                    # self.avgpool = nn.AvgPool2d(2)
+
+                    self.backbone.conv1 = nn.Conv2d(
+                        3, 32, kernel_size=3, stride=1, padding=2, bias=False
                     )
+                    self.backbone.bn1 = nn.BatchNorm2d(32)
+                    self.backbone.avgpool = nn.Identity()
+
+                    if one_dim_input:
+                        self.backbone.conv1 = nn.Conv2d(
+                            1, 32, kernel_size=3, stride=1, padding=2, bias=False
+                        )
+                
 
         else:
             self.features_dim: int = self.backbone.num_features
