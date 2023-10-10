@@ -72,7 +72,7 @@ def build_custom_pipeline():
     return pipeline
 
 
-def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module]:
+def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn.Module]:
     """Prepares pre-defined train and test transformation pipelines for some datasets.
 
     Args:
@@ -82,7 +82,7 @@ def prepare_transforms(dataset: str, is_vit=False) -> Tuple[nn.Module, nn.Module
         Tuple[nn.Module, nn.Module]: training and validation transformation pipelines.
     """
 
-    if is_vit:
+    if min_scale_224:
         small_input_size = 224
     else:
         small_input_size = 32
@@ -642,7 +642,7 @@ def prepare_data(
     auto_augment: bool = False,
     subsample_by:int = 1,
     test=False,
-    is_vit=False,
+    min_scale_224=False,
     data_path=None
 ) -> Tuple[DataLoader, DataLoader]:
     """Prepares transformations, creates dataset objects and wraps them in dataloaders.
@@ -666,7 +666,7 @@ def prepare_data(
         Tuple[DataLoader, DataLoader]: prepared training and validation dataloader.
     """
 
-    T_train, T_val = prepare_transforms(dataset, is_vit)
+    T_train, T_val = prepare_transforms(dataset, min_scale_224)
     if auto_augment:
         T_train = create_transform(
             input_size=224,

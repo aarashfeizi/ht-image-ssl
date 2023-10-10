@@ -139,7 +139,7 @@ def main():
     model.eval()
 
     # prepare data
-    _, T = prepare_transforms(args.dataset, is_vit=cfg.backbone.name.startswith('vit'))
+    _, T = prepare_transforms(args.dataset, min_scale_224=(cfg.backbone.name.startswith('vit')) or ('_clip_' in cfg.backbone.name))
     train_data_path = os.path.join(args.data_path, args.train_name)
     for val in args.vals:
         path = os.path.split(ckpt_path)[0]

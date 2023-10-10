@@ -134,7 +134,7 @@ def main():
     model.cuda()
 
     # prepare data
-    _, T = prepare_transforms(args.dataset, is_vit=args.backbone.name.startswith('vit'))
+    _, T = prepare_transforms(args.dataset, min_scale_224=(args.backbone.name.startswith('vit')) or ('_clip_' in args.backbone.name))
 
     train_dataset, val_dataset = prepare_datasets(
         args.dataset,

@@ -517,7 +517,7 @@ def main(cfg: DictConfig):
             num_workers=cfg.data.num_workers,
             subsample_by=subsample_by,
             test=cfg.test,
-            is_vit= cfg.backbone.name.startswith('vit'),
+            min_scale_224=(cfg.backbone.name.startswith('vit')) or ('_clip_' in cfg.backbone.name),
             data_path=cfg.data.data_path
         )
 
