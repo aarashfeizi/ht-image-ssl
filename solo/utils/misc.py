@@ -586,7 +586,6 @@ def get_sim_matrix(embeddings, k=2048, gpu=True):
         try:
             cpu_index = faiss.IndexFlatL2(d)
             final_index = faiss.index_cpu_to_all_gpus(cpu_index)
-
             final_index.add(embeddings)
             print('Using GPU for NN!! Thanks FAISS! :)')
             print(final_index.ntotal)
@@ -600,9 +599,7 @@ def get_sim_matrix(embeddings, k=2048, gpu=True):
         print('No gpus for faiss! :( ')
         final_index = cpu_index
         final_index.add(embeddings)
-
     D, I = final_index.search(embeddings, k) # actual search
-    
     return D, I
 
 def get_clusters(embeddings, k=100, gpu=True):
@@ -1067,3 +1064,32 @@ def get_clip_embeddings(model, dataloader, device):
         out = model.encode_image(x)
         embeddings.append(out.detach().cpu().numpy())    
     return np.concatenate(embeddings)
+
+def get_vae_embeddings(model, dataloader, device):
+    "https://github.com/Horizon2333/imagenet-autoencoder/blob/main/models/resnet.py"
+    embeddings = []
+    dl_pb = tqdm(dataloader)
+    avp = nn.AdaptiveAvgPool2d((1,1))
+    for idx, batch in enumerate(dl_pb):
+        x, y = batch
+        x = x.to(device)
+        out = model.encoder(x)
+        out = avp(out)
+        out = torch.flatten(out, 1)
+        embeddings.append(out.detach().cpu().numpy())    
+    return np.concatenate(embeddings)
+
+def get_pretrained_model_embeddings(model, dataloader, device):
+    embeddings = []
+    dl_pb = tqdm(dataloader)
+    for idx, batch in enumerate(dl_pb):
+        x, y = batch
+        x = x.to(device)
+        out = model(x)
+        embeddings.append(out.detach().cpu().numpy())    
+    return np.concatenate(embeddings)
+
+def save_pretrained_embs(model, dataloader, name, path='', device='cuda'):
+    embs = get_pretrained_model_embeddings(model, dataloader, device)
+    full_path = os.path.join(path, name)
+    np.save(full_path, embs)

@@ -22,14 +22,20 @@ from torchvision.models import resnet50
 from torchvision.models import resnet101
 from torchvision.models import resnet152
 from torchvision.models import ResNet50_Weights, ResNet18_Weights, ResNet101_Weights, ResNet152_Weights
+import clip
 
-__all__ = ["resnet18", "resnet50", "resnet101", "resnet152", "pre_trained_resnet18", "pre_trained_resnet50",  "pre_trained_resnet101", "pre_trained_resnet152"]
+__all__ = ["resnet18", "resnet50", "resnet101", "resnet152", "pre_trained_resnet18", "pre_trained_resnet50", "clip_pre_trained_resnet50",  "pre_trained_resnet101", "pre_trained_resnet152"]
 
 def pre_trained_resnet18(*args, **kwargs):
     return resnet18(weights=ResNet18_Weights.IMAGENET1K_V1, *args, **kwargs)
 
 def pre_trained_resnet50(*args, **kwargs):
     return resnet50(weights=ResNet50_Weights.IMAGENET1K_V2, *args, **kwargs)
+
+def clip_pre_trained_resnet50(*args, **kwargs):
+    model, _ = clip.load("RN50", device='cpu')
+    return model
+    # return resnet50(weights=ResNet50_Weights.IMAGENET1K_V2, *args, **kwargs)
 
 def pre_trained_resnet101(*args, **kwargs):
     return resnet101(weights=ResNet101_Weights.IMAGENET1K_V2, *args, **kwargs)
