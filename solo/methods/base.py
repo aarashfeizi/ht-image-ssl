@@ -247,29 +247,31 @@ class BaseMethod(pl.LightningModule):
                             1, 64, kernel_size=3, stride=1, padding=2, bias=False
                         )
                 
-                if is_clip_version:
-                    ## the 3-layer stem
-                    # self.conv1 = nn.Conv2d(3, width // 2, kernel_size=3, stride=2, padding=1, bias=False)
-                    # self.bn1 = nn.BatchNorm2d(width // 2)
-                    # self.relu1 = nn.ReLU(inplace=True)
-                    # self.conv2 = nn.Conv2d(width // 2, width // 2, kernel_size=3, padding=1, bias=False)
-                    # self.bn2 = nn.BatchNorm2d(width // 2)
-                    # self.relu2 = nn.ReLU(inplace=True)
-                    # self.conv3 = nn.Conv2d(width // 2, width, kernel_size=3, padding=1, bias=False)
-                    # self.bn3 = nn.BatchNorm2d(width)
-                    # self.relu3 = nn.ReLU(inplace=True)
-                    # self.avgpool = nn.AvgPool2d(2)
+                # *** CHANGING Augmentatoin size to 224 for CLIP based models *** #
+                
+                # if is_clip_version: 
+                #     ## the 3-layer stem
+                #     # self.conv1 = nn.Conv2d(3, width // 2, kernel_size=3, stride=2, padding=1, bias=False)
+                #     # self.bn1 = nn.BatchNorm2d(width // 2)
+                #     # self.relu1 = nn.ReLU(inplace=True)
+                #     # self.conv2 = nn.Conv2d(width // 2, width // 2, kernel_size=3, padding=1, bias=False)
+                #     # self.bn2 = nn.BatchNorm2d(width // 2)
+                #     # self.relu2 = nn.ReLU(inplace=True)
+                #     # self.conv3 = nn.Conv2d(width // 2, width, kernel_size=3, padding=1, bias=False)
+                #     # self.bn3 = nn.BatchNorm2d(width)
+                #     # self.relu3 = nn.ReLU(inplace=True)
+                #     # self.avgpool = nn.AvgPool2d(2)
 
-                    self.backbone.conv1 = nn.Conv2d(
-                        3, 32, kernel_size=3, stride=1, padding=2, bias=False
-                    )
-                    self.backbone.bn1 = nn.BatchNorm2d(32)
-                    self.backbone.avgpool = nn.Identity()
+                #     self.backbone.conv1 = nn.Conv2d(
+                #         3, 32, kernel_size=3, stride=1, padding=2, bias=False
+                #     )
+                #     self.backbone.bn1 = nn.BatchNorm2d(32)
+                #     self.backbone.avgpool = nn.Identity()
 
-                    if one_dim_input:
-                        self.backbone.conv1 = nn.Conv2d(
-                            1, 32, kernel_size=3, stride=1, padding=2, bias=False
-                        )
+                #     if one_dim_input:
+                #         self.backbone.conv1 = nn.Conv2d(
+                #             1, 32, kernel_size=3, stride=1, padding=2, bias=False
+                #         )
                 
 
         else:

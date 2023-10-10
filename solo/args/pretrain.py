@@ -232,8 +232,8 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     # default values for pytorch lightning stuff
     cfg = add_and_assert_lightning_cfg(cfg)
 
-    # if backbone is vit, input size must be 224 
-    if cfg.backbone.name.startswith('vit'):
+    # if backbone is vit or clip-based, input size must be 224 
+    if (cfg.backbone.name.startswith('vit')) or ('_clip_' in cfg.backbone.name):
         for aug in cfg.augmentations:
             if aug.crop_size != 224:
                 print(f'setting augmentation crop size from {aug.crop_size} to 224')
