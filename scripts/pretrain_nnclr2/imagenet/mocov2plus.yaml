@@ -1,6 +1,9 @@
 defaults:
   - _self_
   - augmentations: symmetric_weak.yaml
+  - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
+  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -13,6 +16,9 @@ hydra:
 
 name: "mocov2plus-imagenet"
 method: "mocov2plus"
+nnclr2: True
+nn_key: "feats"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "resnet50"
 method_kwargs:
@@ -25,13 +31,18 @@ momentum:
   final_tau: 0.999
 data:
   dataset: imagenet
-  train_path: "./datasets/imagenet/train"
-  val_path: "./datasets/imagenet/val"
-  format: "dali"
-  num_workers: 4
+  train_path: "/network/datasets/imagenet.var/imagenet_torchvision/train"
+  val_path: "/network/datasets/imagenet.var/imagenet_torchvision/val"
+  format: "image_folder"
+  num_workers: 10
+  num_nns_choice: 1
+  num_nns: 1
+  filter_sim_matrix: False
+  reload_freq: 0
+  emb_path: ''
 optimizer:
   name: "sgd"
-  batch_size: 64
+  batch_size: 512
   lr: 0.3
   classifier_lr: 0.4
   weight_decay: 3e-5
@@ -39,7 +50,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: True
-  dir: "trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: True
@@ -51,3 +62,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True

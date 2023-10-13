@@ -1,4 +1,4 @@
-- name: symmetric
+- name: not_named_aug
   one_dim: False
   rrc:
     enabled: True
@@ -6,10 +6,10 @@
     crop_max_scale: 1.0
   color_jitter:
     prob: 0.8
-    brightness: 0.8
-    contrast: 0.8
-    saturation: 0.8
-    hue: 0.2
+    brightness: 0.4
+    contrast: 0.4
+    saturation: 0.4
+    hue: 0.1
   grayscale:
     prob: 0.2
   gaussian_blur:
@@ -23,4 +23,4 @@
   vertical_flip:
     prob: 0.0
   crop_size: 224
-  num_crops: 1
+  num_crops: 2

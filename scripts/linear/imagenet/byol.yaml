@@ -17,9 +17,9 @@ backbone:
 pretrain_method: "byol"
 data:
   dataset: imagenet
-  train_path: "./datasets/imagenet/train"
-  val_path: "./datasets/imagenet/val"
-  format: "dali"
+  train_path: "/network/datasets/imagenet.var/imagenet_torchvision/train"
+  val_path: "/network/datasets/imagenet.var/imagenet_torchvision/val"
+  format: "image_folder"
   num_workers: 4
 optimizer:
   name: "sgd"
