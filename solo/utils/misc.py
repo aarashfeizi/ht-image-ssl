@@ -551,11 +551,12 @@ def train_emb_model(cfg, model, train_loader, val_loader=None, supervised=False)
     
     return model
         
-
+@ torch.no_grad()
 def get_embeddings(model, dataloader, index=0, key='feats'):
     embs = []
     glb_idxes = []
     returning_targets = []
+    
     with tqdm(total=len(dataloader), desc='Getting embeddings...') as t:
         for idx, batch in enumerate(dataloader):
             img_idx, X, targets = batch

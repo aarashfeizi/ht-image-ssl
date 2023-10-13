@@ -338,6 +338,8 @@ def main(cfg: DictConfig):
                     emb_model = misc.train_emb_model(cfg, emb_model, emb_train_loader, cfg.emb_model.supervised)
                                 
                 emb_model.eval()
+                if len(cfg.devices) > 1:
+                    emb_model = torch.nn.DataParallel(emb_model, gpu_ids = cfg.devices)
                 embeddings = misc.get_embeddings(emb_model, emb_train_loader)['embs']
                 print('saving embeddings:')
                 misc.save_npy(embeddings, embeddings_path)
