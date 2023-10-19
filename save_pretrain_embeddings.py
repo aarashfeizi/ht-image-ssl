@@ -18,19 +18,19 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 # save_path = input('Train Path:', )
 
 def main(args):
-    model = args.model
+    model_name = args.model
     image_size = args.image_size
     train_path = args.train_path
     save_path = args.save_path
 
     print('getting model...')
-    if model == 'sup':
+    if model_name == 'sup':
         model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         model.fc = torch.nn.Identity()
         t = transforms.Compose([transforms.Resize((image_size, image_size)),
                                 transforms.ToTensor(),
                                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
-    elif model == 'clip':
+    elif model_name == 'clip':
         model, t = clip.load('RN50', device='cpu')
 
     print('Loading Datasets...')
@@ -39,14 +39,15 @@ def main(args):
     model.eval()
     model.cuda()
 
+    full_path = os.path.join(save_path, f'imagenet_rn50_{model_name}.npy')
+    print('full_path to save:', full_path)
+
     print('Getting Embeddings...')
-    if model == 'clip':
+    if model_name == 'clip':
         embs = misc.get_clip_embeddings(model, dataloader=dl, device='cuda')
     else:
         embs = misc.get_pretrained_model_embeddings(model, dataloader=dl, device='cuda')
 
-
-    full_path = os.path.join(save_path, f'imagenet_rn50_{model}.npy')
     print('saving!')
     np.save(full_path, embs)
 
