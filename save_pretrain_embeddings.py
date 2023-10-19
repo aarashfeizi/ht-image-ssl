@@ -23,13 +23,7 @@ def main(args):
     train_path = args.train_path
     save_path = args.save_path
 
-    if train_path == '':
-        print("Printing train_path to '/network/datasets/imagenet.var/imagenet_torchvision/train/'")
-        train_path = '/network/datasets/imagenet.var/imagenet_torchvision/train/'
-
-    if save_path == '':
-        save_path = '/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/'
-
+    print('getting model...')
     if model == 'sup':
         model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         model.fc = torch.nn.Identity()
@@ -39,11 +33,13 @@ def main(args):
     elif model == 'clip':
         model, t = clip.load('RN50', device='cpu')
 
+    print('Loading Datasets...')
     ds = datasets.ImageFolder(train_path, transform=t)
     dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
     model.eval()
     model.cuda()
 
+    print('Getting Embeddings...')
     if model == 'clip':
         embs = misc.get_clip_embeddings(model, dataloader=dl, device='cuda')
     else:
@@ -58,7 +54,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='sup', choices=['sup', 'clip'])
-    parser.add_argument('--image_size', default='224', type=int)
+    parser.add_argument('--image_size', default=224, type=int)
     parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
 
