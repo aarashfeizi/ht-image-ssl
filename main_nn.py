@@ -250,7 +250,7 @@ def main(cfg: DictConfig):
         if wandb_logger.version is None:
             with open('.tmp.txt', 'r') as f:
                 print('reading from .tmp.txt')
-                logger_final_dir = f.read('logger_final_dir')
+                logger_final_dir = f.read()
         else:
             logger_final_dir = wandb_logger.version if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
             print('saving to .tmp.txt')
