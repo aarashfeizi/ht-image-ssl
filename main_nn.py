@@ -319,7 +319,8 @@ def main(cfg: DictConfig):
                                                         shuffle=False,
                                                         drop_last=False)
 
-        if cfg.data.emb_path is None or cfg.data.emb_path == '':
+        using_presaved_embs = False 
+        if cfg.data.emb_path is None or cfg.data.emb_path == '': # using_presaved_embs = False
             if not os.path.exists(embeddings_path):
                 print(f'Creating {embeddings_path}')
                 if cfg.emb_model.name.startswith('autoencoder'):
@@ -373,6 +374,7 @@ def main(cfg: DictConfig):
                 print(f'Fetching {embeddings_path}')
                 embeddings = misc.load_npy(embeddings_path)
         else: # cfg.data.emb_path is NOT None and NOT '' (empty)
+            using_presaved_embs = True
             assert os.path.exists(os.path.join(cache_path, cfg.data.emb_path + '.npy'))
             embeddings_path = os.path.join(cache_path, cfg.data.emb_path + '.npy')
             print(f'Fetching {cfg.data.emb_path}')
@@ -380,7 +382,20 @@ def main(cfg: DictConfig):
             
 
         print('Getting emb sim_matrix:')
-        emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+        if using_presaved_embs:
+            sim_matrix_path = os.path.join(cache_path, cfg.data.emb_path + '_sim_matrix.npy')
+            dist_matrix_path = os.path.join(cache_path, cfg.data.emb_path + '_dist_matrix.npy')
+            if not os.path.exists(sim_matrix_path) or not os.path.exists(dist_matrix_path):
+                emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
+                print(f'Caching sim_matrix and dist_matrix to {sim_matrix_path} and {dist_matrix_path}....')
+                np.save(sim_matrix_path, emb_sim_matrix)
+                np.save(dist_matrix_path, emb_dist_matrix)
+            else:
+                print(f'Using cached sim_matrix and dist_matrix from {sim_matrix_path} and {dist_matrix_path}!!! :)')
+                emb_sim_matrix = np.load(sim_matrix_path)
+                emb_dist_matrix = np.load(dist_matrix_path)
+        else:
+            emb_dist_matrix, emb_sim_matrix = misc.get_sim_matrix(embeddings, gpu=torch.cuda.is_available())
 
         print(f'num_nns: {cfg.data.num_nns}')
         print(f'num_nns_choice: {cfg.data.num_nns_choice}')
