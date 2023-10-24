@@ -247,7 +247,17 @@ def main(cfg: DictConfig):
 
     if cfg.checkpoint_config.enabled: # defining AFTER wandb_logger is definded
         file_name = f'{cfg.name}-' + '{epoch}-{val_acc1:.2f}'
-        logger_final_dir = wandb_logger.version if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
+        if wandb_logger.version is None:
+            with open('.tmp.txt', 'r') as f:
+                print('reading from .tmp.txt')
+                logger_final_dir = f.read('logger_final_dir')
+        else:
+            logger_final_dir = wandb_logger.version if cfg.wandb.enabled else datetime.now().strftime('%Y%m%d%H%M%S_%f')
+            print('saving to .tmp.txt')
+            with open('.tmp.txt', 'w') as f:
+                f.write(logger_final_dir)
+
+
         best_ckpt = ModelCheckpoint(
             monitor='val_acc1',
             verbose=True,
