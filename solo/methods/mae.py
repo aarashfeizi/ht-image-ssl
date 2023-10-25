@@ -257,6 +257,10 @@ class MAE(BaseMethod):
             )
         reconstruction_loss /= self.num_large_crops
 
+        if reconstruction_loss != reconstruction_loss:
+            print('\nReconstruction Loss became nan... exiting!')
+            exit()
+
         metrics = {
             "train_reconstruction_loss": reconstruction_loss,
         }
