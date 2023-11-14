@@ -23,16 +23,19 @@ from .vit import vit_tiny as default_vit_tiny
 from .vit import vit_small as default_vit_small
 from .vit import vit_base as default_vit_base
 from .vit import vit_large as default_vit_large
+from .vit import vit_huge as default_vit_huge
 
 from .vit_mocov3 import vit_tiny as mocov3_vit_tiny
 from .vit_mocov3 import vit_small as mocov3_vit_small
 from .vit_mocov3 import vit_base as mocov3_vit_base
 from .vit_mocov3 import vit_large as mocov3_vit_large
+from .vit_mocov3 import vit_huge as mocov3_vit_huge
 
 from .vit_mae import vit_tiny as mae_vit_tiny
 from .vit_mae import vit_small as mae_vit_small
 from .vit_mae import vit_base as mae_vit_base
 from .vit_mae import vit_large as mae_vit_large
+from .vit_mae import vit_huge as mae_vit_huge
 
 
 def get_constructor(method, options, default):
@@ -63,5 +66,9 @@ def vit_large(method, *args, **kwargs):
     custom_backbone_constructor = {"mocov3": mocov3_vit_large, "mae": mae_vit_large}
     return get_constructor(method, custom_backbone_constructor, default_vit_large)(*args, **kwargs)
 
+def vit_huge(method, *args, **kwargs):
+    custom_backbone_constructor = {"mocov3": mocov3_vit_huge, "mae": mae_vit_huge}
+    return get_constructor(method, custom_backbone_constructor, default_vit_huge)(*args, **kwargs)
 
-__all__ = ["vit_tiny", "vit_small", "vit_base", "vit_large"]
+
+__all__ = ["vit_tiny", "vit_small", "vit_base", "vit_large", "vit_huge"]

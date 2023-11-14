@@ -58,3 +58,12 @@ def vit_large(patch_size=16, **kwargs):
     )
     model = _create_vision_transformer("vit_large_patch16_224", pretrained=False, **model_kwargs)
     return model
+
+
+@register_model
+def vit_huge(patch_size=14, **kwargs):
+    model_kwargs = dict(
+        patch_size=patch_size, embed_dim=1280, depth=32, num_heads=16, num_classes=0, **kwargs
+    )
+    model = _create_vision_transformer("vit_huge_patch14_224", pretrained=False, **model_kwargs)
+    return model
