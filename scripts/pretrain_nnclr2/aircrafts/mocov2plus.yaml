@@ -1,6 +1,7 @@
 defaults:
   - _self_
-  - augmentations: symmetric_weak.yaml
+  - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
   - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
@@ -14,6 +15,9 @@ hydra:
 
 name: "mocov2plus-aircrafts" # change here for aircrafts0
 method: "mocov2plus"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
+nn_key: 'feats'
+nnclr2: True
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -26,10 +30,14 @@ momentum:
   final_tau: 0.999
 data:
   dataset: aircrafts # change here for aircrafts0
-  train_path: "./datasets"
-  val_path: "./datasets"
+  train_path: "/home/mila/f/feiziaar/scratch/aircrafts/"
+  val_path: "/home/mila/f/feiziaar/scratch/aircrafts/"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
+  num_nns: 1
+  num_nns_choice: 1
+  filter_sim_matrix: False
+  reload_freq: 0
 optimizer:
   name: "sgd"
   batch_size: 256
@@ -40,7 +48,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
@@ -52,3 +60,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True
