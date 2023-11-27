@@ -16,7 +16,7 @@ method: "mae"
 backbone:
   name: "vit_small"
   kwargs:
-    patch_size: 4
+    patch_size: 16
     img_size: 224
 method_kwargs:
   decoder_embed_dim: 512
