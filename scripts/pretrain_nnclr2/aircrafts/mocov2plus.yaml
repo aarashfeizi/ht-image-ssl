@@ -17,7 +17,7 @@ name: "mocov2plus-aircrafts" # change here for aircrafts0
 method: "mocov2plus"
 log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 nn_key: 'feats'
-nnclr2: True
+nnclr2: Trues
 backbone:
   name: "resnet18"
 method_kwargs:

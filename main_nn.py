@@ -615,3 +615,8 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
+
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression()
+lr.score()

@@ -1,6 +1,7 @@
 defaults:
   - _self_
   - augmentations: reconstruction.yaml
+  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -13,6 +14,9 @@ hydra:
 
 name: "mae-pathmnist" # change here for pathmnist
 method: "mae"
+nnclr2: False
+nn_key: 'feats'
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "vit_small"
   kwargs:
@@ -26,10 +30,10 @@ method_kwargs:
   norm_pix_loss: True
 data:
   dataset: pathmnist # change here for pathmnist
-  train_path: "./datasets"
-  val_path: "./datasets"
+  train_path: "/home/mila/f/feiziaar/scratch/pathmnist/"
+  val_path: "/home/mila/f/feiziaar/scratch/pathmnist/"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
 optimizer:
   name: "adamw"
   batch_size: 256
@@ -42,7 +46,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
@@ -54,3 +58,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True
