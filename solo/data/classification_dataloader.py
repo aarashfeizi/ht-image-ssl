@@ -83,13 +83,15 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
     """
 
     if min_scale_224:
-        small_input_size = 224
+        cifar_input_size = 224
+        pathmnist_input_size = 224
     else:
-        small_input_size = 32
+        cifar_input_size = 32
+        pathmnist_input_size = 28
     cifar_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=small_input_size, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=cifar_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
@@ -97,7 +99,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
         "T_val": transforms.Compose(
             [
-                transforms.Resize((small_input_size, small_input_size)),
+                transforms.Resize((cifar_input_size, cifar_input_size)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ]
@@ -125,7 +127,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
     svhn_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=small_input_size, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=cifar_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -133,7 +135,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
         "T_val": transforms.Compose(
             [
-                transforms.Resize((small_input_size, small_input_size)),
+                transforms.Resize((cifar_input_size, cifar_input_size)),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
@@ -161,7 +163,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
     pathmnist_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=28, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=pathmnist_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -169,8 +171,8 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
         "T_val": transforms.Compose(
             [
-                transforms.Resize(28),  # resize shorter
-                transforms.CenterCrop((28, 28)),  # take center crop
+                transforms.Resize(pathmnist_input_size),  # resize shorter
+                # transforms.CenterCrop((28, 28)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
@@ -179,7 +181,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
     tissuemnist_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=28, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=pathmnist_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
@@ -187,8 +189,8 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
         "T_val": transforms.Compose(
             [
-                transforms.Resize(28),  # resize shorter
-                transforms.CenterCrop((28, 28)),  # take center crop
+                transforms.Resize(pathmnist_input_size),  # resize shorter
+                # transforms.CenterCrop((28, 28)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
             ]
