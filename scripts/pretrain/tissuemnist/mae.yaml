@@ -12,7 +12,9 @@ hydra:
     dir: .
 
 name: "mae-tissuemnist" # change here for tissuemnist
-method: "mae"
+method: "nnclr"
+nnclr2: False
+log_path: "/home/mila/f/feiziaar/scratch/ht-image-ssl/logs/"
 backbone:
   name: "vit_small"
   kwargs:
@@ -26,10 +28,10 @@ method_kwargs:
   norm_pix_loss: True
 data:
   dataset: tissuemnist # change here for tissuemnist
-  train_path: "./datasets"
-  val_path: "./datasets"
+  train_path: "/home/mila/f/feiziaar/scratch/tissuemnist/"
+  val_path: "/home/mila/f/feiziaar/scratch/tissuemnist/"
   format: "image_folder"
-  num_workers: 4
+  num_workers: 10
 optimizer:
   name: "adamw"
   batch_size: 256
@@ -42,7 +44,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "trained_models"
+  dir: "/home/mila/f/feiziaar/scratch/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
@@ -54,3 +56,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True
