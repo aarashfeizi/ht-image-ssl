@@ -16,15 +16,22 @@ class AutoResumer:
     SHOULD_MATCH = [
         "name",
         "backbone",
+        "emb_model",
         "method",
+        "augmentations",
         "data.dataset",
         "max_epochs",
         "optimizer.name",
+        "data.num_nns",
+        "data.num_nns_choice",
+        "data.emb_path",
+        "reload_freq",
         "optimizer.batch_size",
         "optimizer.lr",
         "optimizer.weight_decay",
         "wandb.project",
         "wandb.entity",
+        "test",
         "pretrained_feature_extractor",
     ]
 
@@ -89,6 +96,12 @@ class AutoResumer:
                         checkpoint=checkpoint_file,
                     )
                     candidates.append(ck)
+        
+        def filter_out_empty_key(v, key='kwargs'):
+            if type(v) is dict:
+                if key in v.keys() and len(v[key]) == 0:
+                    v.pop(key)
+            return v
 
         if candidates:
             # sort by most recent
@@ -97,8 +110,8 @@ class AutoResumer:
             for candidate in candidates:
                 candidate_cfg = DictConfig(json.load(open(candidate.args)))
                 if all(
-                    omegaconf_select(candidate_cfg, param, None)
-                    == omegaconf_select(cfg, param, None)
+                    filter_out_empty_key(omegaconf_select(candidate_cfg, param, None))
+                    == filter_out_empty_key(omegaconf_select(cfg, param, None))
                     for param in AutoResumer.SHOULD_MATCH
                 ):
                     wandb_run_id = getattr(candidate_cfg, "wandb_run_id", None)
