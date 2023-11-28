@@ -98,7 +98,7 @@ class AutoResumer:
                     candidates.append(ck)
         
         def filter_out_empty_key(v, key='kwargs'):
-            if type(v) is dict:
+            if type(v) is DictConfig or type(v) is dict:
                 if key in v.keys() and len(v[key]) == 0:
                     v.pop(key)
             return v
