@@ -479,6 +479,9 @@ def main(cfg: DictConfig):
         if cfg.data.plot_distances_after_epoch:
             plot_embeddings_cb = misc.PlotEmbeddingsCallback(save_path=plot_save_path, dataset_name=cfg.data.dataset, data_loader=emb_train_loader)
             callbacks.append(plot_embeddings_cb)
+        
+        plot_embeddings_cb = misc.PlotEmbeddingsWandBCallback(freq=1, num_of_classes=5, data_loader=emb_train_loader, downsampe_embs=True, num_per_class=100)
+        callbacks.append(plot_embeddings_cb)
 
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)

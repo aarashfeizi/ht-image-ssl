@@ -1056,6 +1056,76 @@ class ClassNNPecentageCallback_NNCLR(Callback):
             logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
 
 
+class PlotEmbeddingsWandBCallback(Callback):
+    def __init__(self, 
+                 data_loader,
+                 key='feats',
+                 freq=50,
+                 num_of_classes=10,
+                 num_per_class=100,
+                 downsampe_embs=True):
+        super().__init__()
+        self.epoch = 0
+        self.data_loader = data_loader
+        self.key = key
+        self.freq = freq
+        self.num_of_classes = num_of_classes
+        self.labels_to_use = []
+        self.mask = None
+        self.num_per_class = num_per_class
+        self.downsampe_embs = downsampe_embs
+
+    def on_train_epoch_start(self, trainer, pl_module):
+        if self.epoch % self.freq == 0:
+            for logger in trainer.loggers:
+                output = get_embeddings(pl_module, self.data_loader)
+
+                embeddings = output['embs']
+                embedding_labels = output['targets']
+
+                def down_sample_embs(embs, dim):
+                    from sklearn.decomposition import PCA
+                    pca = PCA(dim)
+                    initial_dim = embs.shape[1]
+                    embs = pca.fit_transform(embs)
+                    print(f'downsampling from {initial_dim} to {dim} done!')
+                    return embs
+
+                if self.downsampe_embs:
+                    embeddings = down_sample_embs(embeddings, embeddings.shape[1] // 10)
+
+                if len(self.labels_to_use) == 0:
+                    unique_labels = np.unique(embedding_labels)
+                    self.labels_to_use = np.random.choice(unique_labels, self.num_of_classes, replace=False)
+                    print(f'Using labels: {self.labels_to_use}')
+
+                    self.mask = []
+                    for l in self.labels_to_use:
+                        all_lbls_idx = np.where(embedding_labels == l)[0]
+                        if len(all_lbls_idx) >= self.num_per_class:
+                            subset_lbls_idxs = np.random.choice(all_lbls_idx, self.num_per_class, replace=False)
+                        else:
+                            subset_lbls_idxs = all_lbls_idx
+                        self.mask.extend(subset_lbls_idxs)
+
+                assert self.mask is not None
+
+                embeddings = embeddings[self.mask]
+                embedding_labels = embedding_labels[self.mask]
+
+                import wandb
+                import pandas as pd
+                lbls_df = pd.DataFrame({'label': embedding_labels})
+                embedding_df = pd.DataFrame(embeddings)
+                d = embeddings.shape[1]
+                embedding_df.columns = [f'f{i}' for i in range(d)]
+                df = pd.concat([lbls_df, embedding_df], axis=1)
+                tbl = wandb.Table(dataframe=df)
+
+                logger.log_metrics({'tbl': tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                # logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+
+
 def get_clip_embeddings(model, dataloader, device):
     embeddings = []
     dl_pb = tqdm(dataloader)
