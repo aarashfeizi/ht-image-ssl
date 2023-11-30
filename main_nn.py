@@ -484,9 +484,16 @@ def main(cfg: DictConfig):
             freq = cfg.wandb.plot_embs_freq
             if freq == 0:
                 freq = cfg.max_epochs
-            print(f'Will plot embeddings of 5 classes every {freq} epochs! :) ')
-            plot_embeddings_cb = misc.PlotEmbeddingsWandBCallback(freq=freq, num_of_classes=5, data_loader=emb_train_loader, downsampe_embs=True, num_per_class=100)
-            callbacks.append(plot_embeddings_cb)
+            
+            num_of_classes = 10
+            print(f'** wandb ** plotting embeddings of {num_of_classes} classes every {freq} epochs! :) ')
+            plot_embeddings_wb_cb = misc.PlotEmbeddingsWandBCallback(freq=freq,
+                                                                  num_of_classes=num_of_classes,
+                                                                  max_epochs=cfg.max_epochs,
+                                                                  data_loader=emb_train_loader,
+                                                                  downsampe_embs=True,
+                                                                  num_per_class=100)
+            callbacks.append(plot_embeddings_wb_cb)
 
         print('Relevant class percentage: ', train_dataset.relevant_classes)
         print('Not from cluster percentage: ', train_dataset.not_from_cluster_percentage)
