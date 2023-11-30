@@ -1076,6 +1076,7 @@ class PlotEmbeddingsWandBCallback(Callback):
         self.downsampe_embs = downsampe_embs
 
     def on_train_epoch_start(self, trainer, pl_module):
+        self.epoch += 1
         if self.epoch % self.freq == 0:
             for logger in trainer.loggers:
                 output = get_embeddings(pl_module, self.data_loader)
@@ -1124,6 +1125,7 @@ class PlotEmbeddingsWandBCallback(Callback):
 
                 logger.log_metrics({'tbl': tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
                 # logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+            
 
 
 def get_clip_embeddings(model, dataloader, device):
