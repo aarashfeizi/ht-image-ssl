@@ -1080,6 +1080,7 @@ class PlotEmbeddingsWandBCallback(Callback):
     def on_train_epoch_start(self, trainer, pl_module):
         self.epoch += 1
         if self.epoch % self.freq == 0 or self.epoch >= self.max_epochs:
+            print(f'** wandb ** Plotting on epoch {self.epoch}!')
             for logger in trainer.loggers:
                 output = get_embeddings(pl_module, self.data_loader)
 
