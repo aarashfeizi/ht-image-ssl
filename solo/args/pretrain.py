@@ -105,6 +105,7 @@ def add_and_assert_wandb_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
     cfg.wandb.tags = omegaconf_select(cfg, "wandb.tags", None)
     cfg.wandb.plot_embs = omegaconf_select(cfg, "wandb.plot_embs", False)
     cfg.wandb.plot_embs_freq = omegaconf_select(cfg, "wandb.plot_embs_freq", 0)
+    cfg.wandb.plot_embs_per_class = omegaconf_select(cfg, "wandb.plot_embs_per_class", 50)
     
     
 
