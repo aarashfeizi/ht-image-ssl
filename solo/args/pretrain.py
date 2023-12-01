@@ -215,7 +215,7 @@ def parse_cfg(cfg: omegaconf.DictConfig):
     cfg = add_and_assert_dataset_cfg(cfg)
     
 
-    cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", "no_transform.yaml")
+    cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", None)
 
     # should manually makse sure one_dim is True or False for nn_augmentations
     # 
