@@ -391,7 +391,7 @@ def main(cfg: DictConfig):
             print(f'Fetching {cfg.data.emb_path}')
             embeddings = misc.load_npy(embeddings_path).astype(np.float32)
             labels_name = f'{cfg.data.dataset}_test{cfg.test}_labels.npy'
-            embeddings_lbls = os.path.join(cache_path, labels_name)
+            embeddings_lbls = np.load(os.path.join(cache_path, labels_name))
 
             wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
                                         embedding_labels=embeddings_lbls,)
