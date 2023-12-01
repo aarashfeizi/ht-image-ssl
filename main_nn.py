@@ -300,6 +300,7 @@ def main(cfg: DictConfig):
                                                         shuffle=False,
                                                         drop_last=False)
 
+    wandb_tbl = None
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
 
@@ -355,7 +356,6 @@ def main(cfg: DictConfig):
                                                         drop_last=False)
 
         using_presaved_embs = False 
-        wandb_tbl = None
         if cfg.data.emb_path is None or cfg.data.emb_path == '': # using_presaved_embs = False
             if not os.path.exists(embeddings_path):
                 print(f'Creating {embeddings_path}')
