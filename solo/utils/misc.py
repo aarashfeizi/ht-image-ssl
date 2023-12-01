@@ -1087,48 +1087,67 @@ class PlotEmbeddingsWandBCallback(Callback):
                 embeddings = output['embs']
                 embedding_labels = output['targets']
 
-                def down_sample_embs(embs, dim):
-                    from sklearn.decomposition import PCA
-                    pca = PCA(dim)
-                    initial_dim = embs.shape[1]
-                    embs = pca.fit_transform(embs)
-                    print(f'downsampling from {initial_dim} to {dim} done!')
-                    return embs
-
-                if self.downsampe_embs:
-                    embeddings = down_sample_embs(embeddings, embeddings.shape[1] // 10)
-
+                wandb_tbl, mask_n_labels = get_wandb_table(embeddings, embedding_labels,
+                                            downsample=self.downsampe_embs,
+                                            num_per_class=self.num_per_class,
+                                            num_of_classes=self.num_of_classes,
+                                            labels_to_use=self.labels_to_use,
+                                            mask=self.mask)
+                
                 if len(self.labels_to_use) == 0:
-                    unique_labels = np.unique(embedding_labels)
-                    self.labels_to_use = np.random.choice(unique_labels, self.num_of_classes, replace=False)
-                    print(f'Using labels: {self.labels_to_use}')
+                    self.mask = mask_n_labels['mask']
+                    self.labels_to_use = mask_n_labels['labels_to_use']
 
-                    self.mask = []
-                    for l in self.labels_to_use:
-                        all_lbls_idx = np.where(embedding_labels == l)[0]
-                        if len(all_lbls_idx) >= self.num_per_class:
-                            subset_lbls_idxs = np.random.choice(all_lbls_idx, self.num_per_class, replace=False)
-                        else:
-                            subset_lbls_idxs = all_lbls_idx
-                        self.mask.extend(subset_lbls_idxs)
-
-                assert self.mask is not None
-
-                embeddings = embeddings[self.mask]
-                embedding_labels = embedding_labels[self.mask]
-
-                import wandb
-                import pandas as pd
-                lbls_df = pd.DataFrame({'label': embedding_labels})
-                embedding_df = pd.DataFrame(embeddings)
-                d = embeddings.shape[1]
-                embedding_df.columns = [f'f{i}' for i in range(d)]
-                df = pd.concat([lbls_df, embedding_df], axis=1)
-                tbl = wandb.Table(dataframe=df)
-
-                logger.log_metrics({'tbl': tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                
+                logger.log_metrics({'tbl': wandb_tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
                 # logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
             
+def get_wandb_table(embeddings, embedding_labels,
+                                    downsample=True,
+                                    num_per_class=50,
+                                    num_of_classes=10,
+                                    labels_to_use=[],
+                                    mask=None):
+    def down_sample_embs(embs, dim):
+        from sklearn.decomposition import PCA
+        pca = PCA(dim)
+        initial_dim = embs.shape[1]
+        embs = pca.fit_transform(embs)
+        print(f'downsampling from {initial_dim} to {dim} done!')
+        return embs
+
+    if downsample:
+        embeddings = down_sample_embs(embeddings, embeddings.shape[1] // 10)
+
+    if len(labels_to_use) == 0:
+        unique_labels = np.unique(embedding_labels)
+        labels_to_use = np.random.choice(unique_labels, num_of_classes, replace=False)
+        print(f'Using labels: {labels_to_use}')
+
+        mask = []
+        for l in labels_to_use:
+            all_lbls_idx = np.where(embedding_labels == l)[0]
+            if len(all_lbls_idx) >= num_per_class:
+                subset_lbls_idxs = np.random.choice(all_lbls_idx, num_per_class, replace=False)
+            else:
+                subset_lbls_idxs = all_lbls_idx
+            mask.extend(subset_lbls_idxs)
+
+    assert mask is not None
+
+    embeddings = embeddings[mask]
+    embedding_labels = embedding_labels[mask]
+
+    import wandb
+    import pandas as pd
+    lbls_df = pd.DataFrame({'label': embedding_labels})
+    embedding_df = pd.DataFrame(embeddings)
+    d = embeddings.shape[1]
+    embedding_df.columns = [f'f{i}' for i in range(d)]
+    df = pd.concat([lbls_df, embedding_df], axis=1)
+    tbl = wandb.Table(dataframe=df)
+
+    return tbl, {'mask': mask, 'labels_to_use': labels_to_use}
 
 def get_clip_embeddings(model, dataloader, device):
     embeddings = []

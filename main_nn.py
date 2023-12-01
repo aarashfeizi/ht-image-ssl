@@ -330,6 +330,7 @@ def main(cfg: DictConfig):
                                                         drop_last=False)
 
         using_presaved_embs = False 
+        wandb_tbl = None
         if cfg.data.emb_path is None or cfg.data.emb_path == '': # using_presaved_embs = False
             if not os.path.exists(embeddings_path):
                 print(f'Creating {embeddings_path}')
@@ -389,6 +390,13 @@ def main(cfg: DictConfig):
             embeddings_path = os.path.join(cache_path, cfg.data.emb_path + '.npy')
             print(f'Fetching {cfg.data.emb_path}')
             embeddings = misc.load_npy(embeddings_path).astype(np.float32)
+            labels_name = f'{cfg.data.dataset}_test{cfg.test}_labels.npy'
+            embeddings_lbls = os.path.join(cache_path, labels_name)
+
+            wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
+                                        embedding_labels=embeddings_lbls,)
+            
+
             
 
         print('Getting emb sim_matrix:')
@@ -585,6 +593,8 @@ def main(cfg: DictConfig):
         if wandb_logger._offline:
             misc.handle_wandb_offline(wandb_logger=wandb_logger)
         
+        if wandb_tbl is not None and cfg.wandb.plot_embs:
+            wandb_logger.log_metrics({'gps-embeddings': wandb_tbl})
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
         csv_logger.log_hyperparams(OmegaConf.to_container(cfg))
