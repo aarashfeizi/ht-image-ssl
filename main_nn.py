@@ -274,7 +274,32 @@ def main(cfg: DictConfig):
     cache_path = os.path.join(cfg.log_path, 'cache')
     misc.make_dirs(cache_path)
     print('augs: ', cfg.augmentations)
-    emb_train_loader = None
+
+
+    if not cfg.nnclr2:
+    # Dataloader for embedding everything without shuffling and no transformations    
+
+        emb_model_transform = build_no_transform(cfg.data.dataset, nn_augmentation)
+
+        emb_train_dataset = prepare_datasets(
+                cfg.data.dataset,
+                emb_model_transform,
+                train_data_path=cfg.data.train_path,
+                data_format=cfg.data.format,
+                no_labels=cfg.data.no_labels,
+                data_fraction=cfg.data.fraction,
+                test=cfg.test,
+                data_path=cfg.data.data_path
+            )
+
+        emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
+            
+        emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                                        batch_size=cfg.optimizer.batch_size,
+                                                        num_workers=cfg.data.num_workers,
+                                                        shuffle=False,
+                                                        drop_last=False)
+
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
 
@@ -638,6 +663,11 @@ def main(cfg: DictConfig):
     else:
         trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
 
+    if cfg.method == 'mae':
+        embeddings, embedding_lbls = misc.get_mae_embeddings(model, emb_train_loader, device='cuda', lbls=True)
+        emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
+                                       embedding_labels=embedding_lbls)
+        wandb_logger.log_metrics({f'MAE-Embeddings at epoch {cfg.max_epochs}': emb_tbl})
 
 if __name__ == "__main__":
     main()

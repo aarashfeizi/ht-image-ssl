@@ -299,6 +299,7 @@ def build_transform_pipeline(dataset, cfg):
 
 def build_no_transform(dataset, cfg):
 
+
     MEANS_N_STD = {
         "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
@@ -319,29 +320,22 @@ def build_no_transform(dataset, cfg):
         "hotels50k-test": (HOTELID_MEAN, HOTELID_STD),
     }
 
+
+
     mean, std = MEANS_N_STD.get(
         dataset, (cfg.get("mean", IMAGENET_DEFAULT_MEAN), cfg.get("std", IMAGENET_DEFAULT_STD))
     )
 
-    augmentations = []
-    
-    augmentations.append(
-        transforms.Resize(
-            (cfg.crop_size, cfg.crop_size),
-            interpolation=transforms.InterpolationMode.BICUBIC,
-        ))
-    augmentations.append(transforms.ToTensor())
-        
     if cfg.one_dim:
         print("IT'S SET TO ONE-DIMENTIONAL ##########################################################################")
         import numpy as np
         mean = np.mean(mean)
         std = np.mean(std)
 
-    augmentations.append(transforms.Normalize(mean=mean, std=std))
 
-    augmentations = transforms.Compose(augmentations)
-    return augmentations
+    return transforms.Compose([transforms.Resize((cfg.crop_size, cfg.crop_size), interpolation=transforms.InterpolationMode.BICUBIC),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(mean=mean, std=std)])
 
 
 

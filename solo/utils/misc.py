@@ -1173,6 +1173,27 @@ def get_vae_embeddings(model, dataloader, device):
         embeddings.append(out.detach().cpu().numpy())    
     return np.concatenate(embeddings)
 
+
+def get_mae_embeddings(model, dataloader, device, lbls=False):
+    embeddings = []
+    model.cpu()
+    backbone = model.backbone
+    backbone.to(device)
+    dl_pb = tqdm(dataloader)
+    lbls = []
+    for idx, batch in enumerate(dl_pb):
+        x, y = batch
+        x = x.to(device)
+        out = backbone(x)
+        out = torch.flatten(out, 1)
+        embeddings.append(out.detach().cpu().numpy())    
+        lbls.extend(y.detach().cpu().numpy().flatten())
+    if lbls:
+        return np.concatenate(embeddings), np.array(lbls)
+    else:
+        return np.concatenate(embeddings)
+
+
 def get_pretrained_model_embeddings(model, dataloader, device):
     embeddings = []
     dl_pb = tqdm(dataloader)
