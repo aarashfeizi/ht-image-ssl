@@ -98,7 +98,10 @@ class NNCLR2(BaseMethod):
             List[dict]: list of learnable parameters.
         """
 
-        extra_learnable_params = [{"name": "projector", "params": self.projector.parameters()}]
+        extra_learnable_params = [
+            {"name": "projector", "params": self.projector.parameters()},
+            {"name": "predictor", "params": self.predictor.parameters()},
+        ]
         return super().learnable_params + extra_learnable_params
 
     def forward(self, X: torch.tensor) -> Dict[str, Any]:
