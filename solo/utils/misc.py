@@ -1182,7 +1182,7 @@ def get_mae_embeddings(model, dataloader, device, lbls=False):
     dl_pb = tqdm(dataloader)
     lbls = []
     for idx, batch in enumerate(dl_pb):
-        x, y = batch
+        _, x, y = batch
         x = x.to(device)
         out = backbone(x)
         out = torch.flatten(out, 1)
