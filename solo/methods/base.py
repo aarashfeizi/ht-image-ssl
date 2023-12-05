@@ -440,12 +440,12 @@ class BaseMethod(pl.LightningModule):
         if self.scheduler == "warmup_cosine":
             max_warmup_steps = (
                 self.warmup_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
-                if self.scheduler_interval == "step"
+                if self.scheduler_interval == "step" and self.max_epochs > 0
                 else self.warmup_epochs
             )
             max_scheduler_steps = (
                 self.scheduler_max_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
-                if self.scheduler_interval == "step"
+                if self.scheduler_interval == "step" and self.max_epochs > 0
                 else self.scheduler_max_epochs
             )
             scheduler = {
@@ -466,10 +466,10 @@ class BaseMethod(pl.LightningModule):
         elif self.scheduler == "warmup_exponential":
             max_warmup_steps = (
                 self.warmup_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
-                if self.scheduler_interval == "step"
+                if self.scheduler_interval == "step" and self.max_epochs > 0
                 else self.warmup_epochs
             )
-            if self.scheduler_interval == "step":
+            if self.scheduler_interval == "step" and self.max_epochs > 0:
                 steps_per_epoch = (self.trainer.estimated_stepping_batches // self.max_epochs)
             else:
                 steps_per_epoch = 1

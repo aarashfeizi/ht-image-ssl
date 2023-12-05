@@ -100,7 +100,7 @@ class NNCLR2(BaseMethod):
 
         extra_learnable_params = [
             {"name": "projector", "params": self.projector.parameters()},
-            {"name": "predictor", "params": self.predictor.parameters()},
+            # {"name": "predictor", "params": self.predictor.parameters()}, # loss isn't going through this part!
         ]
         return super().learnable_params + extra_learnable_params
 

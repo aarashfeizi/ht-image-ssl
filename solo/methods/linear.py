@@ -245,12 +245,12 @@ class LinearModel(pl.LightningModule):
         if self.scheduler == "warmup_cosine":
             max_warmup_steps = (
                 self.warmup_epochs * (self.trainer.estimated_stepping_batches / self.max_epochs)
-                if self.scheduler_interval == "step"
+                if self.scheduler_interval == "step" and self.max_epochs > 0
                 else self.warmup_epochs
             )
             max_scheduler_steps = (
                 self.trainer.estimated_stepping_batches
-                if self.scheduler_interval == "step"
+                if self.scheduler_interval == "step" and self.max_epochs > 0
                 else self.max_epochs
             )
             scheduler = {
