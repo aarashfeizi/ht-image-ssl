@@ -295,7 +295,7 @@ def main(cfg: DictConfig):
         emb_train_dataset = misc.subsample_dataset(emb_train_dataset, subsample_by=subsample_by)
             
         emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                                        batch_size=cfg.optimizer.batch_size,
+                                                        batch_size=4,
                                                         num_workers=cfg.data.num_workers,
                                                         shuffle=False,
                                                         drop_last=False)
