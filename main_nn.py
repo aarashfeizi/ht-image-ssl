@@ -667,7 +667,8 @@ def main(cfg: DictConfig):
         batch_size = cfg.optimizer.batch_size
         model.cpu()
         backbone = model.backbone.cuda()
-        for _ in range(int(np.log2(batch_size))):
+        log_batchsize = int(np.log2(batch_size))
+        for _ in range(log_batchsize):
             try:
                 print(f'Trying batch size: {batch_size}')
                 out = backbone(next(iter(emb_train_loader))[1].cuda())
