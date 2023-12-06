@@ -665,10 +665,12 @@ def main(cfg: DictConfig):
 
     if cfg.method == 'mae':
         batch_size = cfg.optimizer.batch_size
+        model.cpu()
+        backbone = model.backbone.cuda()
         for _ in range(int(np.log2(batch_size))):
             try:
                 print(f'Trying batch size: {batch_size}')
-                out = model.backbone(next(iter(emb_train_loader))[1].cuda())
+                out = backbone(next(iter(emb_train_loader))[1].cuda())
 
             except torch.cuda.OutOfMemoryError:
                 batch_size = batch_size // 2
@@ -679,7 +681,7 @@ def main(cfg: DictConfig):
                                                 shuffle=False,
                                                 drop_last=False)
 
-        embeddings, embedding_lbls = misc.get_mae_embeddings(model, emb_train_loader, device='cuda', lbls=True)
+        embeddings, embedding_lbls = misc.get_mae_embeddings(backbone, emb_train_loader, device='cuda', lbls=True)
         emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
                                        embedding_labels=embedding_lbls)
         wandb_logger.log_metrics({f'MAE-Embeddings at epoch {cfg.max_epochs}': emb_tbl})
