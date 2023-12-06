@@ -669,6 +669,11 @@ def main(cfg: DictConfig):
         backbone = model.backbone.cuda()
         log_batchsize = int(np.log2(batch_size))
         for _ in range(log_batchsize):
+            emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                batch_size=batch_size,
+                                num_workers=cfg.data.num_workers,
+                                shuffle=False,
+                                drop_last=False)
             try:
                 print(f'Trying batch size: {batch_size}')
                 out = backbone(next(iter(emb_train_loader))[1].cuda())
@@ -677,11 +682,7 @@ def main(cfg: DictConfig):
             except:
                 batch_size = batch_size // 2
                 print(f'Batch size too big, trying {batch_size}')
-                emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                                batch_size=batch_size,
-                                                num_workers=cfg.data.num_workers,
-                                                shuffle=False,
-                                                drop_last=False)
+
 
         embeddings, embedding_lbls = misc.get_mae_embeddings(backbone, emb_train_loader, device='cuda', lbls=True)
         emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
