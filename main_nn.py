@@ -664,6 +664,21 @@ def main(cfg: DictConfig):
         trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
 
     if cfg.method == 'mae':
+        batch_size = cfg.optimizer.batch_size
+        for _ in range(int(np.log2(batch_size))):
+            try:
+                print(f'Trying batch size: {batch_size}')
+                out = model.backbone(next(iter(emb_train_loader))[1].cuda())
+
+            except torch.cuda.OutOfMemoryError:
+                batch_size = batch_size // 2
+                print(f'Batch size too big, trying {batch_size}')
+                emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                                batch_size=batch_size,
+                                                num_workers=cfg.data.num_workers,
+                                                shuffle=False,
+                                                drop_last=False)
+
         embeddings, embedding_lbls = misc.get_mae_embeddings(model, emb_train_loader, device='cuda', lbls=True)
         emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
                                        embedding_labels=embedding_lbls)
