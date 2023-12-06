@@ -672,8 +672,9 @@ def main(cfg: DictConfig):
             try:
                 print(f'Trying batch size: {batch_size}')
                 out = backbone(next(iter(emb_train_loader))[1].cuda())
+                print(f'Batch size {batch_size} works!')
 
-            except torch.cuda.OutOfMemoryError:
+            except:
                 batch_size = batch_size // 2
                 print(f'Batch size too big, trying {batch_size}')
                 emb_train_loader = prepare_dataloader(emb_train_dataset, 
