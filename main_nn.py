@@ -419,7 +419,7 @@ def main(cfg: DictConfig):
             embeddings_lbls = np.load(os.path.join(cache_path, labels_name))
 
             wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
-                                        embedding_labels=embeddings_lbls,)
+                                        embedding_labels=embeddings_lbls, labels_to_use=cfg.wandb.labels_to_use)
             
 
             
@@ -686,7 +686,7 @@ def main(cfg: DictConfig):
 
         embeddings, embedding_lbls = misc.get_mae_embeddings(backbone, emb_train_loader, device='cuda', lbls=True)
         emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
-                                       embedding_labels=embedding_lbls)
+                                       embedding_labels=embedding_lbls, labels_to_use=cfg.wandb.labels_to_use)
         wandb_logger.log_metrics({f'MAE-Embeddings at epoch {cfg.max_epochs}': emb_tbl})
 
 if __name__ == "__main__":

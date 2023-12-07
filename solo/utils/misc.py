@@ -1125,7 +1125,7 @@ def get_wandb_table(embeddings, embedding_labels,
         print(f'Using labels: {labels_to_use}')
 
         mask = []
-        for l in labels_to_use:
+        for l in sorted(labels_to_use):
             all_lbls_idx = np.where(embedding_labels == l)[0]
             if len(all_lbls_idx) >= num_per_class:
                 subset_lbls_idxs = np.random.choice(all_lbls_idx, num_per_class, replace=False)
@@ -1141,6 +1141,7 @@ def get_wandb_table(embeddings, embedding_labels,
     import wandb
     import pandas as pd
     lbls_df = pd.DataFrame({'label': embedding_labels})
+    lbls_df['label'] = lbls_df['label'].astype(str)
     embedding_df = pd.DataFrame(embeddings)
     d = embeddings.shape[1]
     embedding_df.columns = [f'f{i}' for i in range(d)]
