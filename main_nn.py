@@ -418,12 +418,7 @@ def main(cfg: DictConfig):
             labels_name = f'{cfg.data.dataset}_test{cfg.test}_labels.npy'
             embeddings_lbls = np.load(os.path.join(cache_path, labels_name))
 
-            wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
-                                        embedding_labels=embeddings_lbls, labels_to_use=cfg.wandb.labels_to_use)
-            
-
-            
-
+        
         print('Getting emb sim_matrix:')
         if using_presaved_embs:
             sim_matrix_path = os.path.join(cache_path, cfg.data.emb_path + '_sim_matrix.npy')
@@ -525,6 +520,7 @@ def main(cfg: DictConfig):
                                                                   num_of_classes=num_of_classes,
                                                                   max_epochs=cfg.max_epochs,
                                                                   data_loader=emb_train_loader,
+                                                                  labels_to_use=cfg.wandb.labels_to_use,
                                                                   downsampe_embs=True,
                                                                   num_per_class=num_per_class)
             callbacks.append(plot_embeddings_wb_cb)
@@ -618,7 +614,11 @@ def main(cfg: DictConfig):
         if wandb_logger._offline:
             misc.handle_wandb_offline(wandb_logger=wandb_logger)
         
-        if wandb_tbl is not None and cfg.wandb.plot_embs:
+        wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
+                                    embedding_labels=embeddings_lbls, labels_to_use=cfg.wandb.labels_to_use)
+        
+
+        if wandb_tbl is not None and cfg.wandb.plot_embs and cfg.data.num_nns_choice > 1:
             wandb_logger.log_metrics({'gps-embeddings': wandb_tbl})
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))

@@ -1062,6 +1062,7 @@ class PlotEmbeddingsWandBCallback(Callback):
                  max_epochs,
                  key='feats',
                  freq=50,
+                 labels_to_use=[],
                  num_of_classes=10,
                  num_per_class=100,
                  downsampe_embs=True):
@@ -1071,7 +1072,7 @@ class PlotEmbeddingsWandBCallback(Callback):
         self.key = key
         self.freq = freq
         self.num_of_classes = num_of_classes
-        self.labels_to_use = []
+        self.labels_to_use = labels_to_use
         self.mask = None
         self.num_per_class = num_per_class
         self.downsampe_embs = downsampe_embs
@@ -1095,11 +1096,13 @@ class PlotEmbeddingsWandBCallback(Callback):
                                             mask=self.mask)
                 
                 if len(self.labels_to_use) == 0:
-                    self.mask = mask_n_labels['mask']
                     self.labels_to_use = mask_n_labels['labels_to_use']
+                
+                if self.mask is None:
+                    self.mask = mask_n_labels['mask']
 
                 
-                logger.log_metrics({'tbl': wandb_tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
+                logger.log_metrics({f'embs @ ep{self.epoch}': wandb_tbl}, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
                 # logger.log_metrics(metrics_to_log, step=trainer.fit_loop.epoch_loop._batches_that_stepped)
             
 def get_wandb_table(embeddings, embedding_labels,
@@ -1122,8 +1125,10 @@ def get_wandb_table(embeddings, embedding_labels,
     if len(labels_to_use) == 0:
         unique_labels = np.unique(embedding_labels)
         labels_to_use = np.random.choice(unique_labels, num_of_classes, replace=False)
-        print(f'Using labels: {labels_to_use}')
 
+    print(f'Using labels: {labels_to_use}')
+
+    if mask is None:
         mask = []
         for l in sorted(labels_to_use):
             all_lbls_idx = np.where(embedding_labels == l)[0]
