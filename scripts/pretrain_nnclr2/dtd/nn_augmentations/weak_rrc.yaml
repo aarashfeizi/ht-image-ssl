@@ -1,7 +1,7 @@
-- name: reconstruction
+- name: weak_rrc
   one_dim: False
   rrc:
-    enabled: False
+    enabled: True
     crop_min_scale: 0.08
     crop_max_scale: 1.0
   color_jitter:

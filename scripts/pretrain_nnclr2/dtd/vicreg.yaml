@@ -14,7 +14,7 @@ hydra:
 name: "vicreg-dtd" # change here for dtd
 method: "vicreg"
 nnclr2: True
-log_path: "../../scratch/ht-image-ssl/logs/"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -25,8 +25,8 @@ method_kwargs:
   cov_loss_weight: 1.0
 data:
   dataset: dtd # change here for dtd
-  train_path: "/home/mila/f/feiziaar/scratch/dtd/"
-  val_path: "/home/mila/f/feiziaar/scratch/dtd/"
+  train_path: "/network/scratch/f/feiziaar/scratch/dtd/"
+  val_path: "/network/scratch/f/feiziaar/scratch/dtd/"
   format: "image_folder"
   num_workers: 4
 augmentations:
@@ -56,7 +56,7 @@ augmentations:
     horizontal_flip:
       enabled: True
       prob: 0.5
-    crop_size: 32
+    crop_size: 224
     num_crops: 2
 optimizer:
   name: "lars"

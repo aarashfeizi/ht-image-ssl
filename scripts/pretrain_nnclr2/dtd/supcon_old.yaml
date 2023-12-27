@@ -22,8 +22,8 @@ method_kwargs:
   temperature: 0.2
 data:
   dataset: dtd # change here for dtd
-  train_path: "/home/mila/f/feiziaar/scratch/dtd/"
-  val_path: "/home/mila/f/feiziaar/scratch/dtd/"
+  train_path: "/network/scratch/f/feiziaar/scratch/dtd/"
+  val_path: "/network/scratch/f/feiziaar/scratch/dtd/"
   format: "image_folder"
   num_workers: 4
 optimizer:

@@ -47,7 +47,7 @@ augmentations:
     horizontal_flip:
       enabled: True
       prob: 0.5
-    crop_size: 32
+    crop_size: 224
     num_crops: 2
 optimizer:
   name: "adam"

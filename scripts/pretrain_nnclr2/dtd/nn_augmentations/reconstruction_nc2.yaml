@@ -1,7 +1,7 @@
-- name: reconstruction
+- name: reconstruction_nc2
   one_dim: False
   rrc:
-    enabled: False
+    enabled: True
     crop_min_scale: 0.08
     crop_max_scale: 1.0
   color_jitter:
@@ -19,4 +19,4 @@
   vertical_flip:
     prob: 0.0
   crop_size: 224
-  num_crops: 1
+  num_crops: 2

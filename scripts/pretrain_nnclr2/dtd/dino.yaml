@@ -15,7 +15,7 @@ hydra:
 name: "dino-dtd" # change here for dtd
 method: "dino"
 nnclr2: True
-log_path: "../../scratch/ht-image-ssl/logs/"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -27,8 +27,8 @@ momentum:
   final_tau: 1.0
 data:
   dataset: dtd # change here for dtd
-  train_path: "/home/mila/f/feiziaar/scratch/dtd/"
-  val_path: "/home/mila/f/feiziaar/scratch/dtd/"
+  train_path: "/network/scratch/f/feiziaar/scratch/dtd/"
+  val_path: "/network/scratch/f/feiziaar/scratch/dtd/"
   format: "image_folder"
   num_workers: 4
 optimizer:
@@ -45,7 +45,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "../../scratch/ht-image-ssl/trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
