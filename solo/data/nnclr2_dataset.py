@@ -126,7 +126,7 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             return np.array(self.dataset.labels)
         elif self.dataset_type is datasets.INaturalist:
             return np.array(list(list(zip(*self.dataset.index))[0]))
-        elif self.dataset_type is datasets.FGVCAircraft:
+        elif self.dataset_type is datasets.FGVCAircraft or self.dataset_type is datasets.DTD:
             return np.array(self.dataset._labels)
         elif self.dataset_type is datasets.ImageFolder:
             return np.array(list(list(zip(*self.dataset.samples))[1]))
