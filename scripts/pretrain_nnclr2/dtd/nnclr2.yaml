@@ -35,6 +35,7 @@ data:
   num_nns_choice: 1
   filter_sim_matrix: False
   reload_freq: 0
+  emb_path: ''
 optimizer:
   name: "lars"
   batch_size: 256
