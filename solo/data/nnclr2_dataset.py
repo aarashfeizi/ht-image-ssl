@@ -124,6 +124,8 @@ class NNCLR2_Dataset_Wrapper(Dataset):
             return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.SVHN:
             return np.array(self.dataset.labels)
+        elif self.dataset_type is datasets.ImageNet:
+            return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.INaturalist:
             return np.array(list(list(zip(*self.dataset.index))[0]))
         elif self.dataset_type is datasets.FGVCAircraft or self.dataset_type is datasets.DTD:
