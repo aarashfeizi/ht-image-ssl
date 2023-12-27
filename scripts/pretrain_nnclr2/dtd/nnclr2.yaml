@@ -13,7 +13,7 @@ hydra:
   run:
     dir: .
 
-name: "simclr-E-aircrafts-nnclr2" # change here for aircrafts
+name: "simclr-E-dtd-nnclr2" # change here for aircrafts
 method: "nnclr2"
 nnclr2: True
 nn_key: 'feats'
@@ -26,9 +26,9 @@ method_kwargs:
   proj_output_dim: 256
   temperature: 0.2
 data:
-  dataset: aircrafts # change here for aircrafts
-  train_path: "/network/scratch/f/feiziaar/aircrafts/"
-  val_path: "/network/scratch/f/feiziaar/aircrafts/"
+  dataset: dtd # change here for dtd
+  train_path: "/network/scratch/f/feiziaar/dtd/"
+  val_path: "/network/scratch/f/feiziaar/dtd/"
   format: "image_folder"
   num_workers: 10
   num_nns: 1
