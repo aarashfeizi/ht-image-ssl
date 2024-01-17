@@ -160,6 +160,26 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             ]
         ),
     }
+
+    tinyimagenet_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=64, scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(64),  # resize shorter
+                # transforms.CenterCrop((224, 224)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
+
     pathmnist_pipeline = {
         "T_train": transforms.Compose(
             [
@@ -328,6 +348,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         "dtd": dtd_pipeline,
         "imagenet100": imagenet_pipeline,
         "imagenet": imagenet_pipeline,
+        "tinyimagenet": tinyimagenet_pipeline,
         "hotelid-val": hoteid_pipeline,
         "hotelid-test": hoteid_pipeline,
         "hotels50k-test": hoteid_pipeline,
@@ -383,7 +404,8 @@ def prepare_datasets(
         sandbox_folder = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         val_data_path = sandbox_folder / "datasets"
 
-    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
+
+    assert dataset in ["cifar10", "cifar100", "stl10", "svhn", "tinyimagenet", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -456,6 +478,15 @@ def prepare_datasets(
                 download=download,
                 transform=T_val,
             )
+    elif dataset == 'tinyimagenet':
+        train_dataset = ImageFolder(
+            train_data_path,
+            transform=T_train,
+        )
+        val_dataset = ImageFolder(
+            val_data_path,
+            transform=T_val,
+        )
     elif dataset == 'pathmnist':
         if test:
             train_dataset = PathMNIST(

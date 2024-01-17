@@ -215,6 +215,7 @@ def build_transform_pipeline(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "tinyimagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pathmnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "tissuemnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -306,6 +307,7 @@ def build_no_transform(dataset, cfg):
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+        "tinyimagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "tissuemnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "pathmnist": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "svhn": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -422,6 +424,13 @@ def prepare_datasets(
                 download=download,
                 transform=transform,
             )
+    elif dataset == "tinyimagenet":
+        # if test: # for both settings the trainset is 'train'
+        train_dataset = dataset_with_index(ImageFolder)(
+            root=train_data_path,
+            transform=transform,
+        )
+        
     elif dataset == "pathmnist":
         # if test: # for both settings the trainset is 'train'
         train_dataset = dataset_with_index(PathMNIST)(
