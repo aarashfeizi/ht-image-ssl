@@ -49,6 +49,7 @@ _SUPPORTED_DATASETS = [
     "inat",
     "pets",
     "dtd",
+    "tinyimagenet",
     "imagenet",
     "imagenet100",
     "hotelid-val",
