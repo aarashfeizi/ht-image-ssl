@@ -31,8 +31,8 @@ momentum:
   final_tau: 0.999
 data:
   dataset: imagenet
-  train_path: "/network/scratch/f/feiziaar/tinyimagenet/tiny-tinyimagenet-200/train"
-  val_path: "/network/scratch/f/feiziaar/tinyimagenet/tiny-tinyimagenet-200/val"
+  train_path: "/network/scratch/f/feiziaar/tinyimagenet/tiny-imagenet-200/train"
+  val_path: "/network/scratch/f/feiziaar/tinyimagenet/tiny-imagenet-200/val"
   format: "image_folder"
   num_workers: 10
   num_nns_choice: 1
