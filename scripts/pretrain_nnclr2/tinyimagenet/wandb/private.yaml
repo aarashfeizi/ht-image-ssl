@@ -2,6 +2,6 @@ enabled: True
 entity: aarashfeizi
 project: "ht-image-ssl"
 save_dir: "/network/scratch/f/feiziaar/ht-image-ssl/wandb/"
-labels_to_use: [5, 190, 136, 200, 239, 663, 783, 827, 259, 44]
+labels_to_use: [5, 190, 136, 50, 12, 183, 192, 121, 102, 90]
 plot_embs_freq: 105
 plot_embs: False

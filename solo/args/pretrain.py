@@ -21,6 +21,7 @@ _N_CLASSES_PER_DATASET = {
     "stl10": 10,
     "svhn": 10,
     "aircrafts": 100,
+    "tinyimagenet": 200,
     "pathmnist": 9,
     'tissuemnist': 8,
     "cub": 100,
