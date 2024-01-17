@@ -37,6 +37,7 @@ from sklearn import metrics
 from pytorch_lightning.callbacks import Callback
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+import pandas as pd
 
 MAP_STRING_TO_BOOL = {'true': True,
                       'false': False}
