@@ -275,7 +275,7 @@ def main(cfg: DictConfig):
     misc.make_dirs(cache_path)
     print('augs: ', cfg.augmentations)
 
-
+    embeddings = None
     if not cfg.nnclr2:
     # Dataloader for embedding everything without shuffling and no transformations    
 
@@ -299,8 +299,10 @@ def main(cfg: DictConfig):
                                                         num_workers=cfg.data.num_workers,
                                                         shuffle=False,
                                                         drop_last=False)
+        
 
     wandb_tbl = None
+    
     if cfg.nnclr2:
         print('emb_model: ', cfg.emb_model)
 
@@ -614,12 +616,13 @@ def main(cfg: DictConfig):
         if wandb_logger._offline:
             misc.handle_wandb_offline(wandb_logger=wandb_logger)
         
-        wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
-                                    embedding_labels=embeddings_lbls, labels_to_use=cfg.wandb.labels_to_use)
+        if embeddings is not None:
+            wandb_tbl, mask_n_labels_used = misc.get_wandb_table(embeddings=embeddings,
+                                        embedding_labels=embeddings_lbls, labels_to_use=cfg.wandb.labels_to_use)
         
 
-        if wandb_tbl is not None and cfg.wandb.plot_embs and cfg.data.num_nns_choice > 1:
-            wandb_logger.log_metrics({'gps-embeddings': wandb_tbl})
+            if wandb_tbl is not None and cfg.wandb.plot_embs and cfg.data.num_nns_choice > 1:
+                wandb_logger.log_metrics({'gps-embeddings': wandb_tbl})
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
         csv_logger.log_hyperparams(OmegaConf.to_container(cfg))
