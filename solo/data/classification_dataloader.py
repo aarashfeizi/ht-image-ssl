@@ -84,9 +84,11 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
 
     if min_scale_224:
         cifar_input_size = 224
+        tinyimagenet_input_size = 224
         pathmnist_input_size = 224
     else:
         cifar_input_size = 32
+        tinyimagenet_input_size = 64
         pathmnist_input_size = 28
     cifar_pipeline = {
         "T_train": transforms.Compose(
@@ -164,7 +166,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
     tinyimagenet_pipeline = {
         "T_train": transforms.Compose(
             [
-                transforms.RandomResizedCrop(size=64, scale=(0.08, 1.0)),
+                transforms.RandomResizedCrop(size=tinyimagenet_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
@@ -172,7 +174,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
         "T_val": transforms.Compose(
             [
-                transforms.Resize(64),  # resize shorter
+                transforms.Resize(tinyimagenet_input_size),  # resize shorter
                 # transforms.CenterCrop((224, 224)),  # take center crop
                 transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
