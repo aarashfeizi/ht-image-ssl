@@ -54,7 +54,7 @@ augmentations_cfg: "scripts/configs/defaults/augmentations/symmetric/weak.yaml"
 wandb_cfg: "scripts/configs/defaults/wandb/private.yaml"
 # overwrite PL stuff
 max_epochs: 400
-devices: [0, 1]
+devices: [0]
 sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
