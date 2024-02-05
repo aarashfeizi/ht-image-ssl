@@ -84,18 +84,18 @@ class AutoResumer:
             if files:
                 # skip checkpoints that are empty
                 try:
-                    checkpoint_file = [rootdir / f for f in files if f.endswith(".ckpt")][0]
+                    checkpoint_files = [rootdir / f for f in files if f.endswith(".ckpt")]
                 except:
                     continue
-
-                creation_time = datetime.fromtimestamp(os.path.getctime(checkpoint_file))
-                if current_time - creation_time < self.max_hours:
-                    ck = Checkpoint(
-                        creation_time=creation_time,
-                        args=rootdir / "args.json",
-                        checkpoint=checkpoint_file,
-                    )
-                    candidates.append(ck)
+                for checkpoint_file in checkpoint_files:
+                    creation_time = datetime.fromtimestamp(os.path.getctime(checkpoint_file))
+                    if current_time - creation_time < self.max_hours:
+                        ck = Checkpoint(
+                            creation_time=creation_time,
+                            args=rootdir / "args.json",
+                            checkpoint=checkpoint_file,
+                        )
+                        candidates.append(ck)
         
         def filter_out_empty_key(v, key='kwargs'):
             if type(v) is DictConfig or type(v) is dict:

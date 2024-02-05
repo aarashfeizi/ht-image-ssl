@@ -5,7 +5,7 @@ from torchvision import datasets
 import matplotlib.pyplot as plt
 import os
 
-class NNCLR2_Dataset_Wrapper(Dataset):
+class GPS_Dataset_Wrapper(Dataset):
     def __init__(self,
                  dataset_name,
                  dataset, 

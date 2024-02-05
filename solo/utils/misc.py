@@ -1186,7 +1186,7 @@ def get_mae_embeddings(model, dataloader, device, lbls=False):
     dl_pb = tqdm(dataloader)
     lbls = []
     for idx, batch in enumerate(dl_pb):
-        _, x, y = batch
+        x, y = batch
         x = x.to(device)
         out = model(x)
         out = torch.flatten(out, 1)
@@ -1231,3 +1231,40 @@ def save_pretrained_embs(model, dataloader, name, path='', device='cuda'):
 #     plt.show()
 #     plt.clf()
     
+import models_vit
+import torch
+checkpoint = torch.load('/network/scratch/f/feiziaar/ht-image-ssl/imagenet_pretrained_models/mae_pretrain_vit_large.pth', map_location='cpu')
+checkpoint_model = checkpoint['model']
+model = models_vit.vit_large_patch16(num_classes=1000)
+model.head = torch.nn.Identity()
+msg = model.load_state_dict(checkpoint_model, strict=False)
+print(msg)
+from torchvision import transforms, datasets
+mean = (0.485, 0.456, 0.406)
+std = (0.229, 0.224, 0.225)
+t = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+tin = datasets.ImageFolder('/network/scratch/f/feiziaar/tinyimagenet/tiny-imagenet-200/train', transform=t)
+from torch.utils.data import DataLoader
+tin_dl = DataLoader(tin, batch_size=128, pin_memory=True, num_workers=10)
+
+import numpy as np
+from tqdm import tqdm
+
+def get_mae_embeddings(model, dataloader, device, lbls=False):
+    embeddings = []
+    dl_pb = tqdm(dataloader)
+    lbls = []
+    for idx, batch in enumerate(dl_pb):
+        x, y = batch
+        x = x.to(device)
+        out = model(x)
+        out = torch.flatten(out, 1)
+        embeddings.append(out.detach().cpu().numpy())
+        lbls.extend(y.detach().cpu().numpy().flatten())
+    if lbls:
+        return np.concatenate(embeddings), np.array(lbls)
+    else:
+        return np.concatenate(embeddings)
+tin_dl = DataLoader(tin, batch_size=16, pin_memory=True, num_workers=10)
+embs, lbls = get_mae_embeddings(model, tin_dl, 'cuda', lbls=True)
+

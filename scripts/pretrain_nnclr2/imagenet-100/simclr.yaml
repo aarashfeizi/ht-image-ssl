@@ -1,6 +1,8 @@
 defaults:
   - _self_
-  - augmentations: symmetric.yaml
+  - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
+  - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -13,8 +15,11 @@ hydra:
 
 name: "simclr-imagenet100"
 method: "simclr"
+nnclr2: True
+nn_key: "feats"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
-  name: "resnet18"
+  name: "resnet50"
 method_kwargs:
   proj_hidden_dim: 4096
   proj_output_dim: 512
@@ -23,8 +28,13 @@ data:
   dataset: imagenet100
   train_path: "datasets/imagenet100/train"
   val_path: "datasets/imagenet100/val"
-  format: "dali"
-  num_workers: 4
+  format: "image_folder"
+  num_workers: 10
+  num_nns_choice: 1
+  num_nns: 1
+  filter_sim_matrix: False
+  reload_freq: 0
+  emb_path: ''
 optimizer:
   name: "lars"
   batch_size: 128
@@ -39,7 +49,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: True
-  dir: "trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: True

@@ -23,4 +23,4 @@
   vertical_flip:
     prob: 0.0
   crop_size: 224
-  num_crops: 2
+  num_crops: 1

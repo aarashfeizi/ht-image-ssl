@@ -31,7 +31,7 @@ from pytorch_lightning.strategies.ddp import DDPStrategy
 
 from solo.args.pretrain import parse_cfg
 from solo.data.classification_dataloader import prepare_data as prepare_data_classification
-from solo.data.nnclr2_dataset import NNCLR2_Dataset_Wrapper
+from solo.data.gps_dataset import GPS_Dataset_Wrapper
 from solo.data.base_datamodule import BaseDataModule
 import numpy as np
 from solo.data.pretrain_dataloader import (
@@ -489,7 +489,7 @@ def main(cfg: DictConfig):
         else:
             plot_save_path = './'
 
-        train_dataset = NNCLR2_Dataset_Wrapper(dataset=train_dataset,
+        train_dataset = GPS_Dataset_Wrapper(dataset=train_dataset,
                                                dataset_name=cfg.data.dataset,
                                                 sim_matrix=emb_sim_matrix,
                                                 dist_matrix=emb_dist_matrix,
