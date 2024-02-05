@@ -25,8 +25,8 @@ method_kwargs:
   temperature: 0.1
 data:
   dataset: imagenet100
-  train_path: "datasets/imagenet100/train"
-  val_path: "datasets/imagenet100/val"
+  train_path: "/network/scratch/f/feiziaar/imagenet-100/train"
+  val_path: "/network/scratch/f/feiziaar/imagenet-100/val"
   format: "dali"
   num_workers: 4
 optimizer:
@@ -55,3 +55,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True

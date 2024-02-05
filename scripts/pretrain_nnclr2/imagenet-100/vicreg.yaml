@@ -28,8 +28,8 @@ method_kwargs:
   cov_loss_weight: 1.0
 data:
   dataset: imagenet100
-  train_path: "datasets/imagenet100/train"
-  val_path: "datasets/imagenet100/val"
+  train_path: "/network/scratch/f/feiziaar/imagenet-100/train"
+  val_path: "/network/scratch/f/feiziaar/imagenet-100/val"
   format: "image_folder"
   num_workers: 10
   num_nns_choice: 1
@@ -92,3 +92,4 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+test: True
