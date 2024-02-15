@@ -33,6 +33,7 @@ class AutoResumer:
         "wandb.entity",
         "test",
         "pretrained_feature_extractor",
+        "seed"
     ]
 
     def __init__(
