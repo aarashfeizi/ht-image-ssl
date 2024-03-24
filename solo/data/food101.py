@@ -11,9 +11,12 @@ class Food101(Dataset):
         self.dataset = datasets.load_dataset('food101', split=split)
         self.transform = transform
 
+    def __len__(self):
+        return self.dataset.num_rows
+
     def __getitem__(self, index):
         ret_item = self.dataset.__getitem__(index)
-        img, target = ret_item['image'], ret_item['label']
+        img, target = ret_item['image'].convert('RGB'), ret_item['label']
 
         if self.transform:
             img = self.transform(img)
