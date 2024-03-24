@@ -132,7 +132,7 @@ class GPS_Dataset_Wrapper(Dataset):
         elif self.dataset_type is datasets.FGVCAircraft or self.dataset_type is datasets.DTD:
             return np.array(self.dataset._labels)
         elif self.dataset_type is Food101:
-            return np.array(self.dataset.to_dict()['label'])
+            return np.array(self.dataset.dataset.to_dict()['label'])
         elif self.dataset_type is datasets.ImageFolder:
             return np.array(list(list(zip(*self.dataset.samples))[1]))
         else:

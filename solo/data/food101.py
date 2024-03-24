@@ -15,7 +15,7 @@ class Food101(Dataset):
         return self.dataset.num_rows
 
     def __getitem__(self, index):
-        ret_item = self.dataset.__getitem__(index)
+        ret_item = self.dataset.__getitem__(int(index))
         img, target = ret_item['image'].convert('RGB'), ret_item['label']
 
         if self.transform:
