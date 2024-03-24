@@ -1,0 +1,67 @@
+defaults:
+  - _self_
+  - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
+  - emb_model: resnet50.yaml
+  - wandb: private.yaml
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+# disable hydra outputs
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+name: "byol-food101"
+method: "byol"
+nnclr2: True
+nn_key: "feats"
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
+backbone:
+  name: "resnet50"
+method_kwargs:
+  proj_hidden_dim: 4096
+  proj_output_dim: 256
+  pred_hidden_dim: 8192
+momentum:
+  base_tau: 0.99
+  final_tau: 1.0
+data:
+  dataset: food101
+  train_path: "/network/scratch/f/feiziaar/food101/train"
+  val_path: "/network/scratch/f/feiziaar/food101/val"
+  format: "image_folder"
+  num_workers: 10
+  num_nns_choice: 1
+  num_nns: 1
+  filter_sim_matrix: False
+  reload_freq: 0
+  emb_path: ''
+optimizer:
+  name: "lars"
+  batch_size: 256
+  lr: 0.5
+  classifier_lr: 0.1
+  weight_decay: 1e-6
+  kwargs:
+    clip_lr: True
+    eta: 0.02
+    exclude_bias_n_norm: True
+scheduler:
+  name: "warmup_cosine"
+checkpoint_config:
+  enabled: True
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
+  frequency: 1
+auto_resume:
+  enabled: True
+
+# overwrite PL stuff
+max_epochs: 400
+devices: [0]
+sync_batchnorm: True
+accelerator: "gpu"
+strategy: "ddp"
+precision: 16
+test: True

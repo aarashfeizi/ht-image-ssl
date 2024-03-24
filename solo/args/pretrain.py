@@ -16,6 +16,7 @@ else:
     _dali_available = True
 
 _N_CLASSES_PER_DATASET = {
+    "food101": 101,
     "cifar10": 10,
     "cifar100": 100,
     "stl10": 10,

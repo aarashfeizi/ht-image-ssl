@@ -24,6 +24,7 @@ def parse_args_ir() -> argparse.Namespace:
     SUPPORTED_DATASETS = [
         "cifar10",
         "cifar100",
+        "food101",
         "stl10",
         "imagenet",
         "imagenet100",

@@ -1,0 +1,7 @@
+enabled: True
+entity: aarashfeizi
+project: "ht-image-ssl"
+save_dir: "/network/scratch/f/feiziaar/ht-image-ssl/wandb/"
+labels_to_use: [5, 15, 25, 35, 45, 55, 65, 75, 85, 95]
+plot_embs_freq: 100
+plot_embs: False

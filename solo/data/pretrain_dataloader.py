@@ -30,6 +30,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
+from solo.data.food101 import Food101
 from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.medmnist import PathMNIST, TissueMNIST
 
@@ -213,6 +214,7 @@ def build_transform_pipeline(dataset, cfg):
         "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
+        "food101": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "tinyimagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -305,6 +307,7 @@ def build_no_transform(dataset, cfg):
         "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
         "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
         "stl10": ((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
+        "food101": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "eurosat": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "aircrafts": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         "tinyimagenet": (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
@@ -398,6 +401,12 @@ def prepare_datasets(
             train_data_path,
             train=True,
             download=download,
+            transform=transform,
+        )
+        
+    elif dataset == "food101":
+        train_dataset = dataset_with_index(Food101)(
+            split="train",
             transform=transform,
         )
         
