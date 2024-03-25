@@ -148,7 +148,7 @@ def main(cfg: DictConfig):
         train_dataset = misc.subsample_dataset(train_dataset, subsample_by=subsample_by)
 
         train_loader = prepare_dataloader(
-            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers
+            train_dataset, batch_size=cfg.optimizer.batch_size, num_workers=cfg.data.num_workers, pin_memory=cfg.data.pin_memory,
         )
 
     # 1.7 will deprecate resume_from_checkpoint, but for the moment
@@ -297,6 +297,7 @@ def main(cfg: DictConfig):
         emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                                         batch_size=cfg.optimizer.batch_size,
                                                         num_workers=cfg.data.num_workers,
+                                                        pin_memory=cfg.data.pin_memory,
                                                         shuffle=False,
                                                         drop_last=False)
         
@@ -354,6 +355,7 @@ def main(cfg: DictConfig):
         emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                                         batch_size=cfg.optimizer.batch_size,
                                                         num_workers=cfg.data.num_workers,
+                                                        pin_memory=cfg.data.pin_memory,
                                                         shuffle=False,
                                                         drop_last=False)
 
@@ -552,7 +554,8 @@ def main(cfg: DictConfig):
             no_shuffle_train_loader = prepare_dataloader(
                                             train_dataset, 
                                             batch_size=cfg.optimizer.batch_size, 
-                                            num_workers=cfg.data.num_workers, 
+                                            num_workers=cfg.data.num_workers,
+                                            pin_memory=cfg.data.pin_memory, 
                                             shuffle=False, 
                                             drop_last=False)
             plot_embeddings_cb = misc.PlotEmbeddingsCallback(save_path=plot_save_path, 
@@ -589,6 +592,7 @@ def main(cfg: DictConfig):
             data_format=val_data_format,
             batch_size=cfg.optimizer.batch_size,
             num_workers=cfg.data.num_workers,
+            pin_memory=cfg.data.pin_memory,
             subsample_by=subsample_by,
             test=cfg.test,
             min_scale_224=(cfg.backbone.name.startswith('vit')) or ('_clip_' in cfg.backbone.name),
@@ -675,6 +679,7 @@ def main(cfg: DictConfig):
             emb_train_loader = prepare_dataloader(emb_train_dataset, 
                                 batch_size=batch_size,
                                 num_workers=cfg.data.num_workers,
+                                pin_memory=cfg.data.pin_memory,
                                 shuffle=False,
                                 drop_last=False)
             try:

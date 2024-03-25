@@ -666,7 +666,7 @@ def prepare_datasets(
 
 
 def prepare_dataloaders(
-    train_dataset: Dataset, val_dataset: Dataset, batch_size: int = 64, num_workers: int = 4
+    train_dataset: Dataset, val_dataset: Dataset, batch_size: int = 64, num_workers: int = 4, pin_memory: bool = True,
 ) -> Tuple[DataLoader, DataLoader]:
     """Wraps a train and a validation dataset with a DataLoader.
 
@@ -684,14 +684,14 @@ def prepare_dataloaders(
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
-        pin_memory=True,
+        pin_memory=pin_memory,
         drop_last=True,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
-        pin_memory=True,
+        pin_memory=pin_memory,
         drop_last=False,
     )
     return train_loader, val_loader
@@ -704,6 +704,7 @@ def prepare_data(
     data_format: Optional[str] = "image_folder",
     batch_size: int = 64,
     num_workers: int = 4,
+    pin_memory: bool = True,
     download: bool = True,
     data_fraction: float = -1.0,
     auto_augment: bool = False,
@@ -770,5 +771,6 @@ def prepare_data(
         val_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
+        pin_memory=pin_memory
     )
     return train_loader, val_loader
