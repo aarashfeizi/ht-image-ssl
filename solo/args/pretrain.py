@@ -86,6 +86,7 @@ def add_and_assert_dataset_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfi
     cfg.data.reload_freq = omegaconf_select(cfg, "data.reload_freq", 0)
     cfg.data.emb_path = omegaconf_select(cfg, "data.emb_path", None)
     cfg.debug_augmentations = omegaconf_select(cfg, "debug_augmentations", False)
+    cfg.data.pin_memory = omegaconf_select(cfg, "data.pin_memory", True)
 
     return cfg
 
