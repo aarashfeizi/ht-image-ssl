@@ -1,7 +1,7 @@
 defaults:
   - _self_
-  - nn_augmentations: no_transform.yaml
   - augmentations: reconstruction.yaml
+  - nn_augmentations: no_transform.yaml
   - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
@@ -13,34 +13,39 @@ hydra:
   run:
     dir: .
 
-name: "simclr-E-svhn-nnclr2" # change here for cifar10
-method: "nnclr2"
+name: "swav-country211"
+method: "swav"
 nnclr2: True
+nn_key: "feats"
 log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
-  name: "resnet18"
+  name: "resnet50"
 method_kwargs:
   proj_hidden_dim: 2048
-  pred_hidden_dim: 4096
-  proj_output_dim: 256
-  temperature: 0.2
+  queue_size: 3840
+  proj_output_dim: 128
+  num_prototypes: 3000
+  epoch_queue_starts: 50
+  freeze_prototypes_epochs: 2
+  temperature: 0.1
 data:
-  dataset: cifar100 # change here for cifar10
-  train_path: "/network/scratch/f/feiziaar/cifar100/"
-  val_path: "/network/scratch/f/feiziaar/cifar100/"
+  dataset: country211
+  train_path: "/network/scratch/f/feiziaar/country211/train"
+  val_path: "/network/scratch/f/feiziaar/country211/val"
   format: "image_folder"
-  num_workers: 4
-  reload_freq: 0
-  num_nns: 1
+  num_workers: 10
   num_nns_choice: 1
+  num_nns: 1
   filter_sim_matrix: False
+  reload_freq: 0
   emb_path: ''
+  pin_memory: True
 optimizer:
   name: "lars"
   batch_size: 256
-  lr: 0.4
+  lr: 0.6
   classifier_lr: 0.1
-  weight_decay: 1e-4
+  weight_decay: 1e-6
   kwargs:
     clip_lr: True
     eta: 0.02
@@ -48,18 +53,17 @@ optimizer:
 scheduler:
   name: "warmup_cosine"
 checkpoint_config:
-  enabled: False
+  enabled: True
   dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
-  enabled: False
+  enabled: True
 
 # overwrite PL stuff
-max_epochs: 1000
+max_epochs: 400
 devices: [0]
 sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
-seed: 5
 test: True

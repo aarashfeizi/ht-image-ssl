@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-from solo.data.food101 import Food101
+from solo.data.hf_datasets import Food101, Country211
 import torch
 import numpy as np
 from torchvision import datasets
@@ -133,6 +133,8 @@ class GPS_Dataset_Wrapper(Dataset):
             return np.array(self.dataset._labels)
         elif self.dataset_type is Food101:
             return np.array(self.dataset.dataset.to_dict()['label'])
+        elif self.dataset_type is Country211:
+            return np.array(self.dataset.dataset.to_dict()['cls'])
         elif self.dataset_type is datasets.ImageFolder:
             return np.array(list(list(zip(*self.dataset.samples))[1]))
         else:

@@ -25,6 +25,7 @@ def parse_args_ir() -> argparse.Namespace:
         "cifar10",
         "cifar100",
         "food101",
+        "country211",
         "stl10",
         "imagenet",
         "imagenet100",

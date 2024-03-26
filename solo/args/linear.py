@@ -18,6 +18,7 @@ else:
 
 _N_CLASSES_PER_DATASET = {
     "food101": 101,
+    "country211": 211,
     "cifar10": 10,
     "cifar100": 100,
     "stl10": 10,
@@ -42,6 +43,7 @@ _SUPPORTED_DATASETS = [
     "cifar10",
     "cifar100",
     "food101",
+    "country211",
     "stl10",
     "svhn",
     "aircrafts",

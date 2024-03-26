@@ -28,7 +28,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft, CLEVRClassification
-from solo.data.food101 import Food101
+from solo.data.hf_datasets import Food101, Country211
 from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
 from solo.utils import misc
@@ -316,6 +316,25 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
         ),
     }
 
+    country211_pipeline = {
+        "T_train": transforms.Compose(
+            [
+                transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+        "T_val": transforms.Compose(
+            [
+                transforms.Resize(256),  # resize shorter
+                transforms.CenterCrop((224, 224)),  # take center crop
+                transforms.ToTensor(),
+                transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
+            ]
+        ),
+    }
+
     food101_pipeline = {
         "T_train": transforms.Compose(
             [
@@ -358,6 +377,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
 
     pipelines = {
         "food101": food101_pipeline,
+        "country211": country211_pipeline,
         "cifar10": cifar_pipeline,
         "cifar100": cifar_pipeline,
         "stl10": stl_pipeline,
@@ -428,7 +448,7 @@ def prepare_datasets(
         val_data_path = sandbox_folder / "datasets"
 
 
-    assert dataset in ["food101", "cifar10", "cifar100", "stl10", "svhn", "tinyimagenet", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
+    assert dataset in ["food101", "country211", "cifar10", "cifar100", "stl10", "svhn", "tinyimagenet", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
         DatasetClass = vars(torchvision.datasets)[dataset.upper()]
@@ -444,6 +464,17 @@ def prepare_datasets(
             train=False,
             download=download,
             transform=T_val,
+        )
+    
+    elif dataset == 'country211':
+        train_dataset = Country211(
+            split="train",
+            transform=T_train
+        )
+        
+        val_dataset = Country211(
+            split="test",
+            transform=T_val
         )
     
     elif dataset == 'food101':
