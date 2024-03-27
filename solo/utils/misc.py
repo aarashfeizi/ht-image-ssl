@@ -1235,9 +1235,6 @@ def create_clip_embeddings(dataset_name,
     np.save(os.path.join(path, f'{dataset_name}_clip_{model_name}.npy'), embs)
 
     return dataset
-from torchvision import datasets
-
-datasets.OxfordIIITPet()
 
 # save_pretrained_embs(model=model, dataloader=dl_cifar100, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='cifar100_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_air, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_pathmnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='pathmnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_tissuemnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='tissuemnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_airfull, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_TRAINVAL_mae_vitB.npy')
 # import matplotlib.pyplot as plt
