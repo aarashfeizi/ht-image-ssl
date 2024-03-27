@@ -1,5 +1,7 @@
 defaults:
   - _self_
+  - nn_augmentations: no_transform.yaml
+  - augmentations: reconstruction.yaml
   - emb_model: resnet50.yaml
   - wandb: private.yaml
   - override hydra/hydra_logging: disabled
@@ -14,7 +16,8 @@ hydra:
 name: "vicreg-cifar100" # change here for cifar10
 method: "vicreg"
 nnclr2: True
-log_path: "../../scratch/ht-image-ssl/logs/"
+nn_key: 'feats'
+log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
 method_kwargs:
@@ -25,11 +28,15 @@ method_kwargs:
   cov_loss_weight: 1.0
 data:
   dataset: cifar100 # change here for cifar10
-  train_path: "/home/mila/f/feiziaar/scratch/cifar100/"
-  val_path: "/home/mila/f/feiziaar/scratch/cifar100/"
+  train_path: "/network/scratch/f/feiziaar/cifar100/"
+  val_path: "/network/scratch/f/feiziaar/cifar100/"
   format: "image_folder"
   num_workers: 4
-  filter_sim_matrix: True
+  reload_freq: 0
+  num_nns: 1
+  num_nns_choice: 1
+  filter_sim_matrix: False
+  emb_path: ''
 augmentations:
   - rrc:
       enabled: True
@@ -73,7 +80,7 @@ scheduler:
   name: "warmup_cosine"
 checkpoint_config:
   enabled: False
-  dir: "trained_models"
+  dir: "/network/scratch/f/feiziaar/ht-image-ssl/trained_models"
   frequency: 1
 auto_resume:
   enabled: False
@@ -85,3 +92,5 @@ sync_batchnorm: True
 accelerator: "gpu"
 strategy: "ddp"
 precision: 16
+seed: 5
+test: True
