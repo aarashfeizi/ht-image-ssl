@@ -16,6 +16,7 @@ hydra:
 name: "simclr-E-svhn-nnclr2" # change here for cifar10
 method: "nnclr2"
 nnclr2: True
+nn_key: 'feats'
 log_path: "/network/scratch/f/feiziaar/ht-image-ssl/logs/"
 backbone:
   name: "resnet18"
