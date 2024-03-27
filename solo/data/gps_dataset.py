@@ -125,6 +125,8 @@ class GPS_Dataset_Wrapper(Dataset):
             return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.SVHN:
             return np.array(self.dataset.labels)
+        elif self.dataset_type is datasets.OxfordIIITPet:
+            return np.array(self.dataset._labels)
         elif self.dataset_type is datasets.ImageNet:
             return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.INaturalist:
