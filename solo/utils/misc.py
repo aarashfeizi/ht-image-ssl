@@ -1213,6 +1213,29 @@ def save_pretrained_embs(model, dataloader, name, path='', device='cuda'):
     full_path = os.path.join(path, name)
     np.save(full_path, embs)
 
+def create_clip_embeddings(dataset_name,
+                            dataset_class,
+                            dataset_class_args_dict,
+                            path,
+                            model_name='RN50',
+                            test=False):
+    import clip
+    from torch.utils.data import DataLoader
+    import numpy as np
+
+    if test:
+        dataset_name += '_TEST'
+
+    model, transform = clip.load(model_name, device='cpu')
+    model.cuda()
+    dataset = dataset_class(**dataset_class_args_dict, transform=transform)
+    dataset_dl = DataLoader(dataset, batch_size=32, pin_memory=True)
+
+    embs = get_clip_embeddings(model, dataset_dl, device='cuda')
+    np.save(os.path.join(path, f'{dataset_name}_clip_{model_name}.npy'), embs)
+
+
+
 # save_pretrained_embs(model=model, dataloader=dl_cifar100, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='cifar100_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_air, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_pathmnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='pathmnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_tissuemnist, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='tissuemnist_mae_vitB.npy'); save_pretrained_embs(model=model, dataloader=dl_airfull, path='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/', name='aircrafts_TRAINVAL_mae_vitB.npy')
 # import matplotlib.pyplot as plt
 # def plot_idxs(idxs, name):
