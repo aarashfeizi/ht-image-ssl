@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Callable, Optional, Tuple, Union
 
 import torchvision
+import torch
 from timm.data import create_transform
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch import nn
