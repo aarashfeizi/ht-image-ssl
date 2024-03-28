@@ -28,7 +28,7 @@ from PIL import Image, ImageFilter, ImageOps
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
 from solo.data.hf_datasets import Food101, Country211
 from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
