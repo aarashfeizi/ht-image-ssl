@@ -292,8 +292,8 @@ def build_transform_pipeline(dataset, cfg):
     if cfg.one_dim:
         print("IT'S SET TO ONE-DIMENTIONAL ##########################################################################")
         import numpy as np
-        mean = np.mean(mean)
-        std = np.mean(std)
+        mean = [np.mean(mean)]
+        std = [np.mean(std)]
 
     augmentations.append(transforms.Normalize(mean=mean, std=std))
 
@@ -340,8 +340,9 @@ def build_no_transform(dataset, cfg):
         std = np.mean(std)
 
 
-    return transforms.Compose([transforms.Resize((cfg.crop_size, cfg.crop_size), interpolation=transforms.InterpolationMode.BICUBIC),
-                                    transforms.ToDtype(torch.float32, scale=True),
+    return transforms.Compose([transforms.Resize((cfg.crop_size, cfg.crop_size),
+                                                 interpolation=transforms.InterpolationMode.BICUBIC),
+                                    transforms.ToTensor(),
                                     transforms.Normalize(mean=mean, std=std)])
 
 

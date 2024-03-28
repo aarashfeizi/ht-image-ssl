@@ -58,7 +58,7 @@ def build_custom_pipeline():
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -66,7 +66,7 @@ def build_custom_pipeline():
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -97,14 +97,14 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=cifar_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ]
         ),
         "T_val": transforms.Compose(
             [
                 transforms.Resize((cifar_input_size, cifar_input_size)),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
             ]
         ),
@@ -115,14 +115,14 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=96, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
             ]
         ),
         "T_val": transforms.Compose(
             [
                 transforms.Resize((96, 96)),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4823, 0.4466), (0.247, 0.243, 0.261)),
             ]
         ),
@@ -133,14 +133,14 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=cifar_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
         "T_val": transforms.Compose(
             [
                 transforms.Resize((cifar_input_size, cifar_input_size)),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -151,7 +151,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -159,7 +159,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -170,7 +170,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=tinyimagenet_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -178,7 +178,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(tinyimagenet_input_size),  # resize shorter
                 # transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -189,7 +189,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=pathmnist_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -197,7 +197,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(pathmnist_input_size),  # resize shorter
                 # transforms.CenterCrop((28, 28)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -207,7 +207,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=pathmnist_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=[np.mean(IMAGENET_DEFAULT_MEAN)], std=[np.mean(IMAGENET_DEFAULT_STD)]),
             ]
         ),
@@ -215,7 +215,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(pathmnist_input_size),  # resize shorter
                 # transforms.CenterCrop((28, 28)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=[np.mean(IMAGENET_DEFAULT_MEAN)], std=[np.mean(IMAGENET_DEFAULT_STD)]),
             ]
         ),
@@ -227,7 +227,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -235,7 +235,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -246,7 +246,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=INAT18_MEAN, std=INAT18_STD),
             ]
         ),
@@ -254,7 +254,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=INAT18_MEAN, std=INAT18_STD),
             ]
         ),
@@ -266,14 +266,14 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(96, 96), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
         "T_val": transforms.Compose(
             [
                 transforms.Resize((96, 96)),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -284,7 +284,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -292,7 +292,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -303,7 +303,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -311,7 +311,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -322,7 +322,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -330,7 +330,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -341,7 +341,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -349,7 +349,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
             ]
         ),
@@ -360,7 +360,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=HOTELID_MEAN, std=HOTELID_STD),
             ]
         ),
@@ -368,7 +368,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
             [
                 transforms.Resize(256),  # resize shorter
                 transforms.CenterCrop((224, 224)),  # take center crop
-                transforms.ToDtype(torch.float32, scale=True),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=HOTELID_MEAN, std=HOTELID_STD),
             ]
         ),

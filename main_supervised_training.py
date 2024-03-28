@@ -8,7 +8,7 @@ from solo.utils import misc
 from pytorch_lightning.loggers import WandbLogger
 from torchvision import datasets
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 from pytorch_lightning.strategies.ddp import DDPStrategy
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
@@ -169,13 +169,13 @@ def main():
                 [
                     transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
                     transforms.RandomHorizontalFlip(),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 ]
             ),
             "T_val": transforms.Compose(
                 [
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 ]
             ),
@@ -186,14 +186,14 @@ def main():
                 [
                     transforms.RandomResizedCrop(size=32, scale=(0.08, 1.0)),
                     transforms.RandomHorizontalFlip(),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
             "T_val": transforms.Compose(
                 [
                     # transforms.Resize((96, 96)),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
@@ -203,7 +203,7 @@ def main():
                 [
                     transforms.RandomResizedCrop(size=224, scale=(0.08, 1.0)),
                     transforms.RandomHorizontalFlip(),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
@@ -211,7 +211,7 @@ def main():
                 [
                     transforms.Resize(256),  # resize shorter
                     transforms.CenterCrop((224, 224)),  # take center crop
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
@@ -222,13 +222,13 @@ def main():
             "T_train": transforms.Compose(
                 [
                     transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0)),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 ]
             ),
             "T_val": transforms.Compose(
                 [
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261)),
                 ]
             ),
@@ -238,14 +238,14 @@ def main():
             "T_train": transforms.Compose(
                 [
                     transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0)),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
             "T_val": transforms.Compose(
                 [
                     # transforms.Resize((96, 96)),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
@@ -254,7 +254,7 @@ def main():
             "T_train": transforms.Compose(
                 [
                     transforms.RandomResizedCrop(size=224, scale=(0.8, 1.0)),
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
@@ -262,7 +262,7 @@ def main():
                 [
                     transforms.Resize(256),  # resize shorter
                     transforms.CenterCrop((224, 224)),  # take center crop
-                    transforms.ToDtype(torch.float32, scale=True),
+                    transforms.ToTensor(),
                     transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
                 ]
             ),
