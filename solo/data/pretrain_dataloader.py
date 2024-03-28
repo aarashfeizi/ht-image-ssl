@@ -287,7 +287,7 @@ def build_transform_pipeline(dataset, cfg):
     if cfg.vertical_flip.prob:
         augmentations.append(transforms.RandomVerticalFlip(p=cfg.vertical_flip.prob))
     
-    augmentations.append(transforms.ToDtype(torch.float32, scale=True))
+    augmentations.append(transforms.ToTensor())
     
     if cfg.one_dim:
         print("IT'S SET TO ONE-DIMENTIONAL ##########################################################################")
