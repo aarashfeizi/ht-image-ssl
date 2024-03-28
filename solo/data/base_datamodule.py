@@ -21,7 +21,8 @@ class BaseDataModule(pl.LightningDataModule):
                     threshold_k=20,
                     key='feats'): # 'feats' or 'z'
         
-        super().__init__(train_transforms, val_transforms, test_transforms, dims)
+        # super().__init__(train_transforms, val_transforms, test_transforms, dims)
+        super().__init__()
         self.emb_train_loader = None
         self.train_loader = None
         self.val_loader = None
