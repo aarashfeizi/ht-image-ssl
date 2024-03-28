@@ -40,11 +40,15 @@ def accuracy_at_k(
 
     with torch.no_grad():
         maxk = max(top_k)
+
+        if len(targets.shape) == 2:
+            targets = targets.argmax(dim=1)
+            
         batch_size = targets.size(0)
 
         _, pred = outputs.topk(maxk, 1, True, True)
         pred = pred.t()
-        correct = pred.eq(targets.view(1, -1).expand_as(pred))
+        correct = pred.eq(targets.view(1, batch_size).expand_as(pred))
 
         res = []
         for k in top_k:
