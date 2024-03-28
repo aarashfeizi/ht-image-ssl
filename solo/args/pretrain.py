@@ -90,6 +90,9 @@ def add_and_assert_dataset_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfi
     cfg.data.emb_path = omegaconf_select(cfg, "data.emb_path", None)
     cfg.debug_augmentations = omegaconf_select(cfg, "debug_augmentations", False)
     cfg.data.pin_memory = omegaconf_select(cfg, "data.pin_memory", True)
+    cfg.data.cutmix = omegaconf_select(cfg, "data.cutmix", False)
+    cfg.data.mixup = omegaconf_select(cfg, "data.mixup", False)
+
 
     return cfg
 

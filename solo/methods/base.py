@@ -24,6 +24,7 @@ from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 import omegaconf
 import pytorch_lightning as pl
 import torch
+from torchvision.transforms import v2
 import torch.nn as nn
 import torch.nn.functional as F
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
@@ -290,6 +291,20 @@ class BaseMethod(pl.LightningModule):
         if self.scheduler_max_epochs <= 0:
             self.scheduler_max_epochs = self.max_epochs
         self.accumulate_grad_batches: Union[int, None] = cfg.accumulate_grad_batches
+
+        # mixup or cutmix augmentations
+        cutmix_or_mixup = []
+        if cfg.data.cutmix:
+            print('Using CutMix!')
+            cutmix_or_mixup.append(v2.CutMix(num_classes=self.num_classes))
+        if cfg.data.mixup:
+            print('Using MixUp')
+            cutmix_or_mixup.append(v2.MixUp(num_classes=self.num_classes))
+
+        self.cutmix_or_mixup_transform = None
+        if len(cutmix_or_mixup) > 0:
+            self.cutmix_or_mixup_transform = v2.RandomChoice(cutmix_or_mixup)
+        
 
         # optimizer related
         self.optimizer: str = cfg.optimizer.name
@@ -561,6 +576,9 @@ class BaseMethod(pl.LightningModule):
         Returns:
             Dict: dict containing the classification loss, logits, features, acc@1 and acc@5.
         """
+
+        if self.cutmix_or_mixup_transform and self.training:
+            X, targets = self.cutmix_or_mixup_transform(X, targets)
 
         out = self(X)
         logits = out["logits"]
