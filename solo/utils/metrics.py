@@ -43,7 +43,7 @@ def accuracy_at_k(
 
         if len(targets.shape) == 2:
             targets = targets.argmax(dim=1)
-            
+
         batch_size = targets.size(0)
 
         _, pred = outputs.topk(maxk, 1, True, True)
@@ -73,6 +73,12 @@ def perclass_accuracy_at_k(
     """
     cm_metric = MulticlassConfusionMatrix(num_classes=num_classes)
     cm_metric.to(targets.device)
+
+
+    if len(targets.shape) == 2:
+        targets = targets.argmax(dim=1)
+            
+
     with torch.no_grad():
         _, pred = outputs.topk(1, 1, True, True)
         pred = pred.t().flatten()
