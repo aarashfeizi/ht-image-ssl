@@ -28,7 +28,7 @@ def main(args):
         model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         model.fc = torch.nn.Identity()
         t = transforms.Compose([transforms.Resize((image_size, image_size)),
-                                transforms.ToTensor(),
+                                transforms.ToDtype(torch.float32, scale=True),
                                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
     elif model_name == 'clip':
         model, t = clip.load('RN50', device='cpu')

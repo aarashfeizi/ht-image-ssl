@@ -1265,7 +1265,7 @@ def create_clip_embeddings(dataset_name,
 # from torchvision import transforms, datasets
 # mean = (0.485, 0.456, 0.406)
 # std = (0.229, 0.224, 0.225)
-# t = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+# t = transforms.Compose([transforms.Resize((224, 224)), transforms.ToDtype(torch.float32, scale=True), transforms.Normalize(mean=mean, std=std)])
 # tin = datasets.ImageFolder('/network/scratch/f/feiziaar/tinyimagenet/tiny-imagenet-200/train', transform=t)
 # from torch.utils.data import DataLoader
 # tin_dl = DataLoader(tin, batch_size=128, pin_memory=True, num_workers=10)

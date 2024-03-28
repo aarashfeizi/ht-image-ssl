@@ -287,7 +287,7 @@ def build_transform_pipeline(dataset, cfg):
     if cfg.vertical_flip.prob:
         augmentations.append(transforms.RandomVerticalFlip(p=cfg.vertical_flip.prob))
     
-    augmentations.append(transforms.ToTensor())
+    augmentations.append(transforms.ToDtype(torch.float32, scale=True))
     
     if cfg.one_dim:
         print("IT'S SET TO ONE-DIMENTIONAL ##########################################################################")
@@ -341,7 +341,7 @@ def build_no_transform(dataset, cfg):
 
 
     return transforms.Compose([transforms.Resize((cfg.crop_size, cfg.crop_size), interpolation=transforms.InterpolationMode.BICUBIC),
-                                    transforms.ToTensor(),
+                                    transforms.ToDtype(torch.float32, scale=True),
                                     transforms.Normalize(mean=mean, std=std)])
 
 
