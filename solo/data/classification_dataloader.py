@@ -208,7 +208,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
                 transforms.RandomResizedCrop(size=pathmnist_input_size, scale=(0.08, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToDtype(torch.float32, scale=True),
-                transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
+                transforms.Normalize(mean=[np.mean(IMAGENET_DEFAULT_MEAN)], std=[np.mean(IMAGENET_DEFAULT_STD)]),
             ]
         ),
         "T_val": transforms.Compose(
@@ -216,7 +216,7 @@ def prepare_transforms(dataset: str, min_scale_224=False) -> Tuple[nn.Module, nn
                 transforms.Resize(pathmnist_input_size),  # resize shorter
                 # transforms.CenterCrop((28, 28)),  # take center crop
                 transforms.ToDtype(torch.float32, scale=True),
-                transforms.Normalize(mean=np.mean(IMAGENET_DEFAULT_MEAN), std=np.mean(IMAGENET_DEFAULT_STD)),
+                transforms.Normalize(mean=[np.mean(IMAGENET_DEFAULT_MEAN)], std=[np.mean(IMAGENET_DEFAULT_STD)]),
             ]
         ),
     }
