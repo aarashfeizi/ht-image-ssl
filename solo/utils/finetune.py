@@ -2,7 +2,7 @@ import torch
 from torch import optim
 from tqdm import tqdm
 import wandb
-import metrics
+from sklearn import metrics
 
 
 def finetune_model(cfg, model, train_loader, val_loader=None):
