@@ -630,77 +630,89 @@ def main(cfg: DictConfig):
     else:
         tb_logger.log_hyperparams(OmegaConf.to_container(cfg))
         csv_logger.log_hyperparams(OmegaConf.to_container(cfg))
+    
+    if cfg.finetune.enabled:
+        from solo.utils import finetune
 
-    trainer_kwargs = OmegaConf.to_container(cfg)
-    # we only want to pass in valid Trainer args, the rest may be user specific
-    valid_kwargs = inspect.signature(Trainer.__init__).parameters
-    trainer_kwargs = {name: trainer_kwargs[name] for name in valid_kwargs if name in trainer_kwargs}
-    trainer_kwargs.update(
-        {
-            "logger": wandb_logger if cfg.wandb.enabled else [csv_logger, tb_logger],
-            "callbacks": callbacks,
-            "enable_checkpointing": cfg.checkpoint_config.enabled,
-            "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
-            "log_every_n_steps": 5,
-            #"progress_bar_refresh_rate": 0, # turn off progress bar
-            "strategy": DDPStrategy(find_unused_parameters=(cfg.method != 'mae')) if cfg.strategy == "ddp" else cfg.strategy,
-        }
-    )
-    trainer = Trainer(**trainer_kwargs)
+        ckpt_path = cfg.finetune.checkpoint_path
 
-    # fix for incompatibility with nvidia-dali and pytorch lightning
-    # with dali 1.15 (this will be fixed on 1.16)
-    # https://github.com/Lightning-AI/lightning/issues/12956
-    try:
-        from pytorch_lightning.loops import FitLoop
-
-        class WorkaroundFitLoop(FitLoop):
-            @property
-            def prefetch_batches(self) -> int:
-                return 1
-
-        trainer.fit_loop = WorkaroundFitLoop(
-            trainer.fit_loop.min_epochs, trainer.fit_loop.max_epochs
-        )
-    except:
-        pass
-
-    if cfg.data.format == "dali":
-        trainer.fit(model, ckpt_path=ckpt_path, datamodule=dali_datamodule)
+        model.load_state_dict(torch.load(ckpt_path, map_location=torch.device('cpu'))['state_dict'])
+        print(f'Starting finetuning for {cfg.finetune.max_epochs} epochs!')
+        finetune.finetune_model(cfg,
+                                model=model,
+                                train_loader=train_loader,
+                                val_loader=val_loader)
     else:
-        trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
+        trainer_kwargs = OmegaConf.to_container(cfg)
+        # we only want to pass in valid Trainer args, the rest may be user specific
+        valid_kwargs = inspect.signature(Trainer.__init__).parameters
+        trainer_kwargs = {name: trainer_kwargs[name] for name in valid_kwargs if name in trainer_kwargs}
+        trainer_kwargs.update(
+            {
+                "logger": wandb_logger if cfg.wandb.enabled else [csv_logger, tb_logger],
+                "callbacks": callbacks,
+                "enable_checkpointing": cfg.checkpoint_config.enabled,
+                "reload_dataloaders_every_n_epochs": cfg.data.reload_freq,
+                "log_every_n_steps": 5,
+                #"progress_bar_refresh_rate": 0, # turn off progress bar
+                "strategy": DDPStrategy(find_unused_parameters=(cfg.method != 'mae')) if cfg.strategy == "ddp" else cfg.strategy,
+            }
+        )
+        trainer = Trainer(**trainer_kwargs)
 
-    if cfg.method == 'mae':
-        batch_size = cfg.optimizer.batch_size
-        model.cpu()
-        backbone = model.backbone.cuda()
-        log_batchsize = int(np.log2(batch_size))
-        for _ in range(log_batchsize):
-            emb_train_loader = prepare_dataloader(emb_train_dataset, 
-                                batch_size=batch_size,
-                                num_workers=cfg.data.num_workers,
-                                pin_memory=cfg.data.pin_memory,
-                                shuffle=False,
-                                drop_last=False)
-            try:
-                print(f'Trying batch size: {batch_size}')
-                out = backbone(next(iter(emb_train_loader))[1].cuda())
-                print(f'Batch size {batch_size} works!')
+        # fix for incompatibility with nvidia-dali and pytorch lightning
+        # with dali 1.15 (this will be fixed on 1.16)
+        # https://github.com/Lightning-AI/lightning/issues/12956
+        try:
+            from pytorch_lightning.loops import FitLoop
 
-            except:
-                batch_size = batch_size // 2
-                print(f'Batch size too big, trying {batch_size}')
+            class WorkaroundFitLoop(FitLoop):
+                @property
+                def prefetch_batches(self) -> int:
+                    return 1
+
+            trainer.fit_loop = WorkaroundFitLoop(
+                trainer.fit_loop.min_epochs, trainer.fit_loop.max_epochs
+            )
+        except:
+            pass
+
+        if cfg.data.format == "dali":
+            trainer.fit(model, ckpt_path=ckpt_path, datamodule=dali_datamodule)
+        else:
+            trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
+
+        if cfg.method == 'mae':
+            batch_size = cfg.optimizer.batch_size
+            model.cpu()
+            backbone = model.backbone.cuda()
+            log_batchsize = int(np.log2(batch_size))
+            for _ in range(log_batchsize):
+                emb_train_loader = prepare_dataloader(emb_train_dataset, 
+                                    batch_size=batch_size,
+                                    num_workers=cfg.data.num_workers,
+                                    pin_memory=cfg.data.pin_memory,
+                                    shuffle=False,
+                                    drop_last=False)
+                try:
+                    print(f'Trying batch size: {batch_size}')
+                    out = backbone(next(iter(emb_train_loader))[1].cuda())
+                    print(f'Batch size {batch_size} works!')
+
+                except:
+                    batch_size = batch_size // 2
+                    print(f'Batch size too big, trying {batch_size}')
 
 
-        embeddings, embedding_lbls = misc.get_mae_embeddings(backbone, emb_train_loader, device='cuda', lbls=True)
+            embeddings, embedding_lbls = misc.get_mae_embeddings(backbone, emb_train_loader, device='cuda', lbls=True)
 
-        full_path = os.path.join(cache_path, f'{cfg.data.dataset}_mae_{cfg.backbone.name}_eps{cfg.max_epochs}_clr{cfg.optimizer.classifier_lr}_lr{cfg.optimizer.lr}_wd{cfg.optimizer.weight_decay}_mr{cfg.method_kwargs.mask_ratio}.npy')
+            full_path = os.path.join(cache_path, f'{cfg.data.dataset}_mae_{cfg.backbone.name}_eps{cfg.max_epochs}_clr{cfg.optimizer.classifier_lr}_lr{cfg.optimizer.lr}_wd{cfg.optimizer.weight_decay}_mr{cfg.method_kwargs.mask_ratio}.npy')
 
-        np.save(full_path, embeddings)
+            np.save(full_path, embeddings)
 
-        emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
-                                       embedding_labels=embedding_lbls, labels_to_use=cfg.wandb.labels_to_use)
-        wandb_logger.log_metrics({f'MAE-Embeddings at epoch {cfg.max_epochs}': emb_tbl})
+            emb_tbl, _ = misc.get_wandb_table(embeddings=embeddings, 
+                                        embedding_labels=embedding_lbls, labels_to_use=cfg.wandb.labels_to_use)
+            wandb_logger.log_metrics({f'MAE-Embeddings at epoch {cfg.max_epochs}': emb_tbl})
 
 if __name__ == "__main__":
     main()

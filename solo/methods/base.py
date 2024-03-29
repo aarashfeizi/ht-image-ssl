@@ -305,6 +305,8 @@ class BaseMethod(pl.LightningModule):
         if len(cutmix_or_mixup) > 0:
             self.cutmix_or_mixup_transform = v2.RandomChoice(cutmix_or_mixup)
         
+        # finetune related
+        self.finetune = cfg.finetune.enabled
 
         # optimizer related
         self.optimizer: str = cfg.optimizer.name
@@ -544,7 +546,10 @@ class BaseMethod(pl.LightningModule):
         if not self.no_channel_last:
             X = X.to(memory_format=torch.channels_last)
         feats = self.backbone(X)
-        logits = self.classifier(feats.detach())
+        if self.finetune:
+            logits = self.classifier(feats)
+        else:
+            logits = self.classifier(feats.detach())
         return {"logits": logits, "feats": feats}
 
     def multicrop_forward(self, X: torch.tensor) -> Dict[str, Any]:

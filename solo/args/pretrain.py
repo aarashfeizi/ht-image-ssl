@@ -64,6 +64,19 @@ _SUPPORTED_DATASETS = [
 ]
 
 
+def add_and_assert_finetune_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
+
+    cfg.finetune.max_epochs = omegaconf_select(cfg, "finetune.max_epochs", 100)
+    cfg.finetune.opt = omegaconf_select(cfg, "finetune.opt", "adam")
+    cfg.finetune.lr = omegaconf_select(cfg, "finetune.lr", 1e-2)
+    cfg.finetune.weight_decay = omegaconf_select(cfg, "finetune.weight_decay", 0)
+    cfg.finetune.enabled = omegaconf_select(cfg, "finetune.enabled", False)
+    cfg.finetune.checkpoint_path = omegaconf_select(cfg, "finetune.checkpoint_path", "./model.ckpt")
+
+    assert cfg.finetune.checkpoint_path.endswith('.ckpt')
+    
+    return cfg
+
 def add_and_assert_dataset_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
     """Adds specific default values/checks for dataset config.
 
@@ -225,6 +238,9 @@ def parse_cfg(cfg: omegaconf.DictConfig):
 
     # assert dataset parameters
     cfg = add_and_assert_dataset_cfg(cfg)
+
+    # assert finetuning parameters
+    cfg = add_and_assert_finetune_cfg(cfg)
     
 
     cfg.nn_augmentations = omegaconf_select(cfg, "nn_augmentations", None)
