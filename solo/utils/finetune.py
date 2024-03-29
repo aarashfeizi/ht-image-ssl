@@ -17,7 +17,8 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
     optimizer = OPTS[cfg.finetune.opt](model.parameters(),
                                 lr=cfg.finetune.lr,
                                 weight_decay=cfg.finetune.weight_decay)
-
+    model.cuda()
+    
     def train_one_step(current_epoch):
         total_loss = 0
         pred_lbls = []
@@ -25,6 +26,8 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
         with tqdm(total=len(train_loader), desc=f'{current_epoch}/{epochs}') as t:
             for idx, batch in enumerate(train_loader, start=1):
                 _, X, true_lbl = batch
+                X = X[0]
+                true_lbl = true_lbl[0]
                 X = X.cuda()
                 X_pred = model(X)['logits']
 
