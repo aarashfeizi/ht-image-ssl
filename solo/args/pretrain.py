@@ -65,7 +65,7 @@ _SUPPORTED_DATASETS = [
 
 
 def add_and_assert_finetune_cfg(cfg: omegaconf.DictConfig) -> omegaconf.DictConfig:
-
+    cfg.finetune = omegaconf_select(cfg, "finetune", {})
     cfg.finetune.max_epochs = omegaconf_select(cfg, "finetune.max_epochs", 100)
     cfg.finetune.opt = omegaconf_select(cfg, "finetune.opt", "adam")
     cfg.finetune.lr = omegaconf_select(cfg, "finetune.lr", 1e-2)
