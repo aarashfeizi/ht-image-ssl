@@ -82,6 +82,11 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
                 
         return {'acc': acc, 'loss': total_loss / len(val_loader)}
     
+
+    val_data = val(0)
+    wandb_dict[f'finetuning/val_CE_loss'] = val_data['loss']
+    wandb_dict[f'finetuning/val_acc'] = val_data['acc']
+
     for epoch in range(1, epochs + 1):
         wandb_dict = {}
         train_data = train_one_step(epoch)
