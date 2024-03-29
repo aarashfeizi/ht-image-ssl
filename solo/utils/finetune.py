@@ -18,7 +18,7 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
                                 lr=cfg.finetune.lr,
                                 weight_decay=cfg.finetune.weight_decay)
     model.cuda()
-    
+
     def train_one_step(current_epoch):
         total_loss = 0
         pred_lbls = []
@@ -59,7 +59,7 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
         true_lbls = []
         with tqdm(total=len(val_loader), desc=f'{current_epoch}/{epochs}') as t:
             for idx, batch in enumerate(val_loader, start=1):
-                _, X, targets = batch
+                X, targets = batch
                 X = X.cuda()
                 X_pred = model(X)['logits']
 
