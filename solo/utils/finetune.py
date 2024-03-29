@@ -57,29 +57,30 @@ def finetune_model(cfg, model, train_loader, val_loader=None):
         total_loss = 0
         pred_lbls = []
         true_lbls = []
-        with tqdm(total=len(val_loader), desc=f'{current_epoch}/{epochs}') as t:
-            for idx, batch in enumerate(val_loader, start=1):
-                X, targets = batch
-                X = X.cuda()
-                X_pred = model(X)['logits']
+        with torch.no_grad():
+            with tqdm(total=len(val_loader), desc=f'{current_epoch}/{epochs}') as t:
+                for idx, batch in enumerate(val_loader, start=1):
+                    X, targets = batch
+                    X = X.cuda()
+                    X_pred = model(X)['logits']
 
-                acc = None
-                targets = targets.cuda()
-                loss = loss_fn(X_pred, targets)
-                pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
-                true_lbls.extend(targets.detach().cpu().numpy())
-                acc = metrics.accuracy_score(y_true=true_lbls, y_pred=pred_lbls)
+                    acc = None
+                    targets = targets.cuda()
+                    loss = loss_fn(X_pred, targets)
+                    pred_lbls.extend(X_pred.detach().cpu().numpy().argmax(axis=1))
+                    true_lbls.extend(targets.detach().cpu().numpy())
+                    acc = metrics.accuracy_score(y_true=true_lbls, y_pred=pred_lbls)
 
-                total_loss += loss.item()
-                
-                postfixes = {f'val_CE_loss': total_loss / idx}
+                    total_loss += loss.item()
+                    
+                    postfixes = {f'val_CE_loss': total_loss / idx}
 
-                if acc is not None:
-                    postfixes.update({'val_acc': acc})
+                    if acc is not None:
+                        postfixes.update({'val_acc': acc})
 
-                t.set_postfix(**postfixes)
-                t.update()
-                
+                    t.set_postfix(**postfixes)
+                    t.update()
+                    
         return {'acc': acc, 'loss': total_loss / len(val_loader)}
     
 
