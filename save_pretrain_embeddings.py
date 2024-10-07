@@ -84,7 +84,11 @@ def main(args):
         #                            split=split,
         #                            transform=t)
         ds = datasets.load_dataset('HuggingFaceM4/FGVC-Aircraft', split=split)
-        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4, collate_fn=collate_fn_aircrafts)
+        dl = DataLoader(ds,
+                        batch_size=256,
+                        pin_memory=True,
+                        num_workers=4,
+                        collate_fn=lambda batch: collate_fn_aircrafts(batch, t))
     elif dataset == 'pathmnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
