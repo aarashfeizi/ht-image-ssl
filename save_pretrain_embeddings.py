@@ -51,6 +51,7 @@ def collate_fn_aircrafts(batch, transform=None):
 def main(args):
     model_name = args.model
     image_size = args.image_size
+    batch_size = args.batch_size
     train_path = args.train_path
     save_path = args.save_path
     dataset = args.dataset
@@ -80,14 +81,14 @@ def main(args):
     print('Loading Datasets...')
     if dataset == 'imagenet':
         ds = tv_dataset.ImageFolder(train_path, transform=t)
-        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
     elif dataset == 'aircrafts':
         # ds = datasets.FGVCAircraft(train_path,
         #                            split=split,
         #                            transform=t)
         ds = datasets.load_dataset('HuggingFaceM4/FGVC-Aircraft', split=split)
         dl = DataLoader(ds,
-                        batch_size=256,
+                        batch_size=batch_size,
                         pin_memory=True,
                         num_workers=4,
                         collate_fn=lambda batch: collate_fn_aircrafts(batch, t))
@@ -95,14 +96,16 @@ def main(args):
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
-                                root=train_path)
-        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
+                                root=train_path, 
+                                download=True)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
     elif dataset == 'tissuemnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
-                                root=train_path)
-        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
+                                root=train_path, 
+                                download=True)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
     elif dataset == 'cifar10':
         ds = datasets.load_dataset('uoft-cs/cifar10', split=split)
     #     ds = datasets.CIFAR10(train_path,
@@ -113,9 +116,8 @@ def main(args):
         # ds = datasets.CIFAR100(train_path,
         #                            split=split,
         #                            transform=t)
-
-    
-    dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
+        
     model.eval()
     model.cuda()
 
@@ -140,10 +142,12 @@ if __name__ == '__main__':
                                                                 'clip-convnext_b',
                                                                 ])
     parser.add_argument('--image_size', default=224, type=int)
+    parser.add_argument('--batch_size', default=32, type=int)
     # parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--train_path', default='/network/scratch/f/feiziaar/.cache/huggingface/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
     parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'imagenet', 'pathmnist', 'tissuemnist', 'cifar10', 'cifar100'])
+    
     parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test'])
 
     args = parser.parse_args()
