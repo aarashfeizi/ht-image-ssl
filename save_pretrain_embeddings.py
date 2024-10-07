@@ -14,6 +14,32 @@ import argparse
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
+def collate_fn_aircrafts(batch):
+    # Define image transformation
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
+    images = []
+    variants = []
+
+    # Process each item in the batch
+    for item in batch:
+        # Convert PIL image to tensor
+        image = transform(item['image'])
+        images.append(image)
+
+        # Append variants
+        variants.append(item['variant'])
+
+    # Stack images and convert variants to a tensor
+    images = torch.stack(images)
+    variants = torch.tensor(variants, dtype=torch.long)
+
+    # Return only images and variants as a list
+    return [images, variants]
+
+
 
 # model = input('Model:', )
 # image_size = int(input('Image size:', ))
@@ -52,21 +78,25 @@ def main(args):
     print('Loading Datasets...')
     if dataset == 'imagenet':
         ds = tv_dataset.ImageFolder(train_path, transform=t)
+        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
     elif dataset == 'aircrafts':
         # ds = datasets.FGVCAircraft(train_path,
         #                            split=split,
         #                            transform=t)
         ds = datasets.load_dataset('HuggingFaceM4/FGVC-Aircraft', split=split)
+        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4, collate_fn=collate_fn_aircrafts)
     elif dataset == 'pathmnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
                                 root=train_path)
+        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
     elif dataset == 'tissuemnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
                                 root=train_path)
+        dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
     elif dataset == 'cifar10':
         ds = datasets.load_dataset('uoft-cs/cifar10', split=split)
     #     ds = datasets.CIFAR10(train_path,

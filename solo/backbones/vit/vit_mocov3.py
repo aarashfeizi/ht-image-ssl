@@ -26,7 +26,7 @@ from operator import mul
 
 import torch
 import torch.nn as nn
-from timm.models.layers import PatchEmbed
+from timm.layers import PatchEmbed
 from timm.models.vision_transformer import VisionTransformer, _cfg
 
 
