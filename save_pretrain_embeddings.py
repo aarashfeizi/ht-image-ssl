@@ -94,14 +94,14 @@ def main(args):
     elif dataset == 'pathmnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
-                                target_transform=t,
+                                transform=t,
                                 root=train_path, 
                                 download=True)
         dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
     elif dataset == 'tissuemnist':
         import medmnist
         ds = medmnist.TissueMNIST(split=split,
-                                target_transform=t,
+                                transform=t,
                                 root=train_path, 
                                 download=True)
         dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
