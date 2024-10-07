@@ -1,7 +1,9 @@
 from solo.utils import misc
 import torch
 from torch.utils.data import DataLoader
-from torchvision import transforms, datasets
+from torchvision import datasets as tv_dataset
+from torchvision import transforms
+import datasets
 from torchvision import models
 import clip
 import transformers
@@ -23,6 +25,8 @@ def main(args):
     image_size = args.image_size
     train_path = args.train_path
     save_path = args.save_path
+    dataset = args.dataset
+    split = args.split
 
     print('getting model...')
     if model_name == 'sup-rn50':
@@ -46,12 +50,40 @@ def main(args):
         # tokenizer = open_clip.get_tokenizer('hf-hub:laion/CLIP-convnext_base_w-laion2B-s13B-b82K')
 
     print('Loading Datasets...')
-    ds = datasets.ImageFolder(train_path, transform=t)
+    if dataset == 'imagenet':
+        ds = tv_dataset.ImageFolder(train_path, transform=t)
+    elif dataset == 'aircrafts':
+        # ds = datasets.FGVCAircraft(train_path,
+        #                            split=split,
+        #                            transform=t)
+        ds = datasets.load_dataset('HuggingFaceM4/FGVC-Aircraft', split=split)
+    elif dataset == 'pathmnist':
+        import medmnist
+        ds = medmnist.PathMNIST(split=split,
+                                target_transform=t,
+                                root=train_path)
+    elif dataset == 'tissuemnist':
+        import medmnist
+        ds = medmnist.PathMNIST(split=split,
+                                target_transform=t,
+                                root=train_path)
+    elif dataset == 'cifar10':
+        ds = datasets.load_dataset('uoft-cs/cifar10', split=split)
+    #     ds = datasets.CIFAR10(train_path,
+    #                                split=split,
+    #                                transform=t)
+    elif dataset == 'cifar100':
+        ds = datasets.load_dataset('uoft-cs/cifar100', split=split)
+        # ds = datasets.CIFAR100(train_path,
+        #                            split=split,
+        #                            transform=t)
+
+    
     dl = DataLoader(ds, batch_size=256, pin_memory=True, num_workers=4)
     model.eval()
     model.cuda()
 
-    full_path = os.path.join(save_path, f'imagenet_rn50_{model_name}.npy')
+    full_path = os.path.join(save_path, f'{dataset}_{split}_rn50_{model_name}.npy')
     print('full_path to save:', full_path)
 
     print('Getting Embeddings...')
@@ -72,8 +104,11 @@ if __name__ == '__main__':
                                                                 'clip-convnext_b',
                                                                 ])
     parser.add_argument('--image_size', default=224, type=int)
-    parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
+    # parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
+    parser.add_argument('--train_path', default='/network/scratch/f/feiziaar/.cache/huggingface/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
+    parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'imagenet', 'pathmnist', 'tissuemnist', 'cifar10', 'cifar100'])
+    parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test'])
 
     args = parser.parse_args()
 
