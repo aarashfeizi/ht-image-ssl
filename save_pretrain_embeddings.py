@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 from torchvision import models
 import clip
+import transformers
 import numpy as np
 import os
 import argparse
@@ -24,14 +25,25 @@ def main(args):
     save_path = args.save_path
 
     print('getting model...')
-    if model_name == 'sup':
+    if model_name == 'sup-rn50':
         model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         model.fc = torch.nn.Identity()
         t = transforms.Compose([transforms.Resize((image_size, image_size)),
                                 transforms.ToTensor(),
                                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
-    elif model_name == 'clip':
+    elif model_name == 'clip-rn50':
         model, t = clip.load('RN50', device='cpu')
+    
+    elif model_name == 'clip-vit-b16':
+        import open_clip
+        model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms('hf-hub:laion/CLIP-ViT-B-16-laion2B-s34B-b88K')
+        t = preprocess_val
+        # tokenizer = open_clip.get_tokenizer('hf-hub:laion/CLIP-ViT-B-16-laion2B-s34B-b88K')
+    elif model_name == 'clip-convnext_b':
+        import open_clip
+        model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms('hf-hub:laion/CLIP-convnext_base_w-laion2B-s13B-b82K')
+        t = preprocess_val
+        # tokenizer = open_clip.get_tokenizer('hf-hub:laion/CLIP-convnext_base_w-laion2B-s13B-b82K')
 
     print('Loading Datasets...')
     ds = datasets.ImageFolder(train_path, transform=t)
@@ -43,7 +55,7 @@ def main(args):
     print('full_path to save:', full_path)
 
     print('Getting Embeddings...')
-    if model_name == 'clip':
+    if model_name.startswith('clip'):
         embs = misc.get_clip_embeddings(model, dataloader=dl, device='cuda')
     else:
         embs = misc.get_pretrained_model_embeddings(model, dataloader=dl, device='cuda')
@@ -54,7 +66,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='sup', choices=['sup', 'clip'])
+    parser.add_argument('--model', default='sup-rn50', choices=['sup-rn50',
+                                                                'clip-rn50',
+                                                                'clip-vit-b16',
+                                                                'clip-convnext_b',
+                                                                ])
     parser.add_argument('--image_size', default=224, type=int)
     parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
