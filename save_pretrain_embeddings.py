@@ -14,7 +14,7 @@ import argparse
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
-def collate_fn_aircrafts(batch, transform=None):
+def collate_fn(batch, transform=None, img_label='image', lbl_label='variant'):
     
     if transform is None:
         transform = transforms.Compose([
@@ -23,24 +23,23 @@ def collate_fn_aircrafts(batch, transform=None):
     
 
     images = []
-    variants = []
+    labels = []
 
     # Process each item in the batch
     for item in batch:
         # Convert PIL image to tensor
-        image = transform(item['image'])
+        image = transform(item[img_label])
         images.append(image)
 
         # Append variants
-        variants.append(item['variant'])
+        labels.append(item[lbl_label])
 
     # Stack images and convert variants to a tensor
     images = torch.stack(images)
-    variants = torch.tensor(variants, dtype=torch.long)
+    labels = torch.tensor(labels, dtype=torch.long)
 
     # Return only images and variants as a list
-    return [images, variants]
-
+    return [images, labels]
 
 
 # model = input('Model:', )
@@ -91,23 +90,28 @@ def main(args):
                         batch_size=batch_size,
                         pin_memory=True,
                         num_workers=4,
-                        collate_fn=lambda batch: collate_fn_aircrafts(batch, t))
+                        collate_fn=lambda batch: collate_fn(batch, t), shuffle=False)
     elif dataset == 'pathmnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
                                 root=train_path, 
                                 download=True)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
     elif dataset == 'tissuemnist':
         import medmnist
         ds = medmnist.PathMNIST(split=split,
                                 target_transform=t,
                                 root=train_path, 
                                 download=True)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
     elif dataset == 'cifar10':
-        ds = datasets.load_dataset('uoft-cs/cifar10', split=split)
+        ds = datasets.load_dataset('uoft-cs/cifar10',
+                                   split=split)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+                                   collate_fn=lambda batch: collate_fn(batch, t,
+                                        img_label='img',
+                                        lbl_label='label'), shuffle=False)
     #     ds = datasets.CIFAR10(train_path,
     #                                split=split,
     #                                transform=t)
@@ -116,12 +120,15 @@ def main(args):
         # ds = datasets.CIFAR100(train_path,
         #                            split=split,
         #                            transform=t)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+                                   collate_fn=lambda batch: collate_fn(batch, t,
+                                        img_label='img',
+                                        lbl_label='label'), shuffle=False)
         
     model.eval()
     model.cuda()
 
-    full_path = os.path.join(save_path, f'{dataset}_{split}_rn50_{model_name}.npy')
+    full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name}.npy')
     print('full_path to save:', full_path)
 
     print('Getting Embeddings...')
