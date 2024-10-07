@@ -14,11 +14,13 @@ import argparse
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
-def collate_fn_aircrafts(batch):
-    # Define image transformation
-    transform = transforms.Compose([
-        transforms.ToTensor()
-    ])
+def collate_fn_aircrafts(batch, transform=None):
+    
+    if transform is None:
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+    
 
     images = []
     variants = []
