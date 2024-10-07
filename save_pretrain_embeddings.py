@@ -111,7 +111,7 @@ def main(args):
         dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
-                                        lbl_label='label'), shuffle=False)
+                                        lbl_label='label'))
     #     ds = datasets.CIFAR10(train_path,
     #                                split=split,
     #                                transform=t)
@@ -123,7 +123,7 @@ def main(args):
         dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
-                                        lbl_label='label'), shuffle=False)
+                                        lbl_label='label'))
         
     model.eval()
     model.cuda()
