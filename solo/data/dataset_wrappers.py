@@ -12,6 +12,9 @@ class BaseWrapper(Dataset):
         self.target_label = ''
         self.transform = transform
     
+    def __len__(self):
+        return self.dataset.num_rows
+    
     def __getitem__(self, idx):
         item = self.dataset.__getitem__(idx)
         image = item[self.image_label]
