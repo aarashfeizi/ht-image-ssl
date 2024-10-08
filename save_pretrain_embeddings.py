@@ -141,7 +141,7 @@ def main(args):
 
     print('saving!')
     np.save(full_path, embs)
-    if labels:
+    if labels is not None:
         np.save(label_path, labels)
 
 
