@@ -1156,15 +1156,20 @@ def get_wandb_table(embeddings, embedding_labels,
 
     return tbl, {'mask': mask, 'labels_to_use': labels_to_use}
 
-def get_clip_embeddings(model, dataloader, device):
+def get_clip_embeddings(model, dataloader, device, labels=False):
     embeddings = []
+    labels = []
     dl_pb = tqdm(dataloader)
     for idx, batch in enumerate(dl_pb):
         x, y = batch
         x = x.to(device)
         out = model.encode_image(x)
         embeddings.append(out.detach().cpu().numpy())    
-    return np.concatenate(embeddings)
+        labels.append(y)
+    if labels:
+        return np.concatenate(embeddings), np.concatenate(labels)
+    else:
+        return np.concatenate(embeddings)
 
 def get_vae_embeddings(model, dataloader, device):
     "https://github.com/Horizon2333/imagenet-autoencoder/blob/main/models/resnet.py"

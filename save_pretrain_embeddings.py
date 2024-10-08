@@ -129,16 +129,20 @@ def main(args):
     model.cuda()
 
     full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name}.npy')
+    label_path = os.path.join(save_path, f'{dataset}_{split}_labels.npy')
     print('full_path to save:', full_path)
 
+    labels = None
     print('Getting Embeddings...')
     if model_name.startswith('clip'):
-        embs = misc.get_clip_embeddings(model, dataloader=dl, device='cuda')
+        embs, labels = misc.get_clip_embeddings(model, dataloader=dl, device='cuda', labels=True)
     else:
         embs = misc.get_pretrained_model_embeddings(model, dataloader=dl, device='cuda')
 
     print('saving!')
     np.save(full_path, embs)
+    if labels:
+        np.save(label_path, labels)
 
 
 if __name__ == '__main__':
