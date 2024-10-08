@@ -28,7 +28,8 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import v2 as transforms
-from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, FGVCAircraft, CLEVRClassification
+from torchvision.datasets import STL10, ImageFolder, SVHN, OxfordIIITPet, DTD, INaturalist, CLEVRClassification
+from solo.data.dataset_wrappers import FGVCAircraft, Cifar10, Cifar100
 from solo.data.hf_datasets import Food101, Country211
 from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.imagefolder_missing_classes import ImageFolderMissingClasses
@@ -452,18 +453,20 @@ def prepare_datasets(
     assert dataset in ["food101", "country211", "cifar10", "cifar100", "stl10", "svhn", "tinyimagenet", "pathmnist", "tissuemnist", "inat", "inat18", "pets", "dtd", "eurosat", "aircrafts", "imagenet", "imagenet100", "hotelid-val", "hotelid-test", "hotels50k-test", "custom"]
 
     if dataset in ["cifar10", "cifar100"]:
-        DatasetClass = vars(torchvision.datasets)[dataset.upper()]
+        if dataset == 'cifar10':
+            DatasetClass = Cifar10
+        else:
+            DatasetClass = Cifar100
+            
         train_dataset = DatasetClass(
             train_data_path,
-            train=True,
-            download=download,
+            split='train',
             transform=T_train,
         )
 
         val_dataset = DatasetClass(
             val_data_path,
-            train=False,
-            download=download,
+            split='test',
             transform=T_val,
         )
     
@@ -522,26 +525,22 @@ def prepare_datasets(
             train_dataset = FGVCAircraft(
                 train_data_path,
                 split="trainval",
-                download=download,
                 transform=T_train,
             )
             val_dataset = FGVCAircraft(
                 val_data_path,
                 split="test",
-                download=download,
                 transform=T_val,
             )
         else:
             train_dataset = FGVCAircraft(
                 train_data_path,
                 split="train",
-                download=download,
                 transform=T_train,
             )
             val_dataset = FGVCAircraft(
                 val_data_path,
                 split="val",
-                download=download,
                 transform=T_val,
             )
     elif dataset == 'tinyimagenet':

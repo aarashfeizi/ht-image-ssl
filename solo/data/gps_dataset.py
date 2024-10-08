@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset
 from solo.data.hf_datasets import Food101, Country211
+from solo.data.dataset_wrappers import FGVCAircraft, Cifar10, Cifar100
 import torch
 import numpy as np
 from torchvision import datasets
@@ -120,9 +121,10 @@ class GPS_Dataset_Wrapper(Dataset):
   
 
     def __get_labels(self):
-        if self.dataset_type is datasets.CIFAR10 or \
-            self.dataset_type is datasets.CIFAR100:
-            return np.array(self.dataset.targets)
+        if self.dataset_type is Cifar10 or \
+            self.dataset_type is Cifar100:
+            return np.array(self.dataset.dataset.to_dict()['label'])
+            # return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.SVHN:
             return np.array(self.dataset.labels)
         elif self.dataset_type is datasets.OxfordIIITPet:
@@ -131,7 +133,10 @@ class GPS_Dataset_Wrapper(Dataset):
             return np.array(self.dataset.targets)
         elif self.dataset_type is datasets.INaturalist:
             return np.array(list(list(zip(*self.dataset.index))[0]))
-        elif self.dataset_type is datasets.FGVCAircraft or self.dataset_type is datasets.DTD:
+        elif self.dataset_type is FGVCAircraft:
+            return np.array(self.dataset.dataset.to_dict()['variant'])
+            # return np.array(self.dataset._labels)
+        elif self.dataset_type is datasets.DTD:
             return np.array(self.dataset._labels)
         elif self.dataset_type is Food101:
             return np.array(self.dataset.dataset.to_dict()['label'])

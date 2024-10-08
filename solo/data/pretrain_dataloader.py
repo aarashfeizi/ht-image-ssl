@@ -29,7 +29,8 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision.transforms import v2 as transforms
-from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD, FGVCAircraft
+from torchvision.datasets import STL10, ImageFolder, EuroSAT, SVHN, INaturalist, OxfordIIITPet, DTD
+from solo.data.dataset_wrappers import Cifar10, Cifar100, FGVCAircraft
 from solo.data.hf_datasets import Food101, Country211
 from solo.data.inat18 import INAT18, INAT18_MEAN, INAT18_STD
 from solo.data.medmnist import PathMNIST, TissueMNIST
@@ -399,14 +400,17 @@ def prepare_datasets(
         train_data_path = sandbox_folder / "datasets"
 
     if dataset in ["cifar10", "cifar100"]:
-        DatasetClass = vars(torchvision.datasets)[dataset.upper()]
+        if dataset == 'cifar10':
+            DatasetClass = Cifar10
+        else:
+            DatasetClass = Cifar100
+            
         train_dataset = dataset_with_index(DatasetClass)(
             train_data_path,
-            train=True,
-            download=download,
+            split='train',
             transform=transform,
         )
-        
+            
     elif dataset == "food101":
         train_dataset = dataset_with_index(Food101)(
             split="train",
@@ -432,16 +436,15 @@ def prepare_datasets(
             train_dataset = dataset_with_index(FGVCAircraft)(
                 train_data_path,
                 split="trainval",
-                download=download,
                 transform=transform,
             )
         else:
             train_dataset = dataset_with_index(FGVCAircraft)(
                 train_data_path,
                 split="train",
-                download=download,
                 transform=transform,
             )
+            
     elif dataset == "tinyimagenet":
         # if test: # for both settings the trainset is 'train'
         train_dataset = dataset_with_index(ImageFolder)(
