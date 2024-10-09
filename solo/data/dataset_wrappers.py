@@ -17,7 +17,7 @@ class BaseWrapper(Dataset):
     
     def __getitem__(self, idx):
         item = self.dataset.__getitem__(idx)
-        image = item[self.image_label]
+        image = item[self.image_label].convert('RGB')
         label = item[self.target_label]
         
         if self.transform:

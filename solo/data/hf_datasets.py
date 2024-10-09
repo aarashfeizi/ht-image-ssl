@@ -8,7 +8,7 @@ class Food101(Dataset):
         """
         super().__init__()
         assert split in ['train', 'validation']
-        self.dataset = datasets.load_dataset('food101', split=split)
+        self.dataset = datasets.load_dataset('ethz/food101', split=split)
         self.transform = transform
 
     def __len__(self):

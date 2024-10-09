@@ -112,6 +112,14 @@ def main(args):
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
                                         lbl_label='label'))
+    elif dataset == 'food101':
+        assert split in ['train', 'validation']
+        ds = datasets.load_dataset('ethz/food101', split=split)
+        
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+                                   collate_fn=lambda batch: collate_fn(batch, t,
+                                        img_label='image',
+                                        lbl_label='label'))
     #     ds = datasets.CIFAR10(train_path,
     #                                split=split,
     #                                transform=t)
@@ -128,7 +136,7 @@ def main(args):
     model.eval()
     model.cuda()
 
-    full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name}.npy')
+    full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name.replace('-', '_')}.npy')
     label_path = os.path.join(save_path, f'{dataset}_{split}_labels.npy')
     print('full_path to save:', full_path)
 
@@ -157,9 +165,9 @@ if __name__ == '__main__':
     # parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--train_path', default='/network/scratch/f/feiziaar/.cache/huggingface/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
-    parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'imagenet', 'pathmnist', 'tissuemnist', 'cifar10', 'cifar100'])
+    parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'food101', 'imagenet', 'pathmnist', 'tissuemnist', 'cifar10', 'cifar100'])
     
-    parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test', 'train+validation'])
+    parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test', 'train+validation', 'validation'])
 
     args = parser.parse_args()
 
