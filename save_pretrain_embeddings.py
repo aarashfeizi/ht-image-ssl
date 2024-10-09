@@ -132,25 +132,28 @@ def main(args):
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
                                         lbl_label='label'))
-        
+    
     model.eval()
     model.cuda()
 
     full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name.replace("-", "_")}.npy')
     label_path = os.path.join(save_path, f'{dataset}_{split}_labels.npy')
-    print('full_path to save:', full_path)
 
     labels = None
-    print('Getting Embeddings...')
-    if model_name.startswith('clip'):
-        embs, labels = misc.get_clip_embeddings(model, dataloader=dl, device='cuda', labels=True)
-    else:
-        embs = misc.get_pretrained_model_embeddings(model, dataloader=dl, device='cuda')
+    if not os.path.exists(full_path):
+        print('full_path to save:', full_path)
+        print('Getting Embeddings...')
+        if model_name.startswith('clip'):
+            embs, labels = misc.get_clip_embeddings(model, dataloader=dl, device='cuda', labels=True)
+        else:
+            embs = misc.get_pretrained_model_embeddings(model, dataloader=dl, device='cuda')
 
-    print('saving!')
-    np.save(full_path, embs)
-    if labels is not None:
-        np.save(label_path, labels)
+        print('saving!')
+        np.save(full_path, embs)
+        if labels is not None:
+            np.save(label_path, labels)
+    else:
+        print('full_path already exists.:', full_path)
 
 
 if __name__ == '__main__':
