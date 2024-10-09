@@ -136,7 +136,7 @@ def main(args):
     model.eval()
     model.cuda()
 
-    full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name.replace('-', '_')}.npy')
+    full_path = os.path.join(save_path, f'{dataset}_{split}_{model_name.replace("-", "_")}.npy')
     label_path = os.path.join(save_path, f'{dataset}_{split}_labels.npy')
     print('full_path to save:', full_path)
 
