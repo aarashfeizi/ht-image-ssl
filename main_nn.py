@@ -420,6 +420,8 @@ def main(cfg: DictConfig):
             print(f'Fetching {cfg.data.emb_path}')
             embeddings = misc.load_npy(embeddings_path).astype(np.float32)
             labels_name = f'{cfg.data.dataset}_test{cfg.test}_labels.npy'
+            # label_path = os.path.join(save_path, f'{dataset}_{split}_labels.npy')
+            labels_name = f'{cfg.data.dataset}_test{cfg.test}_labels.npy'
             embeddings_lbls = np.load(os.path.join(cache_path, labels_name))
 
         

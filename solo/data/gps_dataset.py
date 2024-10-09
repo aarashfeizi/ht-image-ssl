@@ -171,6 +171,8 @@ class GPS_Dataset_Wrapper(Dataset):
         all_ys.append(y1)
 
         for i in sim_index:
+            if not isinstance(i, int):
+                i = i.item()
             idx2, x2, y2 = self.dataset.__getitem__(i)
             x2 = x2[0]
             all_idxs.append(idx2)
