@@ -105,6 +105,13 @@ def main(args):
                                 root=train_path, 
                                 download=True)
         dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
+    elif dataset == 'octmnist':
+        import medmnist
+        ds = medmnist.OCTMNIST(split=split,
+                                transform=t,
+                                root=train_path, 
+                                download=True)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
     elif dataset == 'cifar10':
         ds = datasets.load_dataset('uoft-cs/cifar10',
                                    split=split)
@@ -168,7 +175,7 @@ if __name__ == '__main__':
     # parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--train_path', default='/network/scratch/f/feiziaar/.cache/huggingface/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
-    parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'food101', 'imagenet', 'pathmnist', 'tissuemnist', 'cifar10', 'cifar100'])
+    parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'food101', 'imagenet', 'pathmnist', 'octmnist', 'tissuemnist', 'cifar10', 'cifar100'])
     
     parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test', 'train+validation', 'validation'])
 
