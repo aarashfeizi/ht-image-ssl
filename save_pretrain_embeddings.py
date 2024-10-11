@@ -56,6 +56,11 @@ def collate_fn(batch, transform=None, img_label='image', lbl_label='variant'):
 # train_path = input('Train Path:', )
 # save_path = input('Train Path:', )
 
+def to_rgb(image):
+    image = image.convert("RGB")
+    return image
+
+
 def main(args):
     model_name = args.model
     image_size = args.image_size
@@ -70,7 +75,8 @@ def main(args):
     if model_name == 'sup-rn50':
         model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         model.fc = torch.nn.Identity()
-        t = transforms.Compose([transforms.Resize((image_size, image_size)),
+        t = transforms.Compose([transforms.Lambda(to_rgb),
+                                transforms.Resize((image_size, image_size)),
                                 transforms.ToTensor(),
                                 transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),])
     elif model_name == 'clip-rn50':
