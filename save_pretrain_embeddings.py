@@ -9,10 +9,19 @@ import clip
 import transformers
 import numpy as np
 import os
+import warnings
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 import argparse
 
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
+
+# Function to check if the path exists and give a warning if not
+def load_data_with_warning(path, label):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Error: The {label} file at '{path}' does not exist!")
+    return np.load(path)
 
 def collate_fn(batch, transform=None, img_label='image', lbl_label='variant'):
     
@@ -51,6 +60,7 @@ def main(args):
     model_name = args.model
     image_size = args.image_size
     batch_size = args.batch_size
+    num_workers = args.num_workers
     train_path = args.train_path
     save_path = args.save_path
     dataset = args.dataset
@@ -80,7 +90,7 @@ def main(args):
     print('Loading Datasets...')
     if dataset == 'imagenet':
         ds = tv_dataset.ImageFolder(train_path, transform=t)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers)
     elif dataset == 'aircrafts':
         # ds = datasets.FGVCAircraft(train_path,
         #                            split=split,
@@ -89,7 +99,7 @@ def main(args):
         dl = DataLoader(ds,
                         batch_size=batch_size,
                         pin_memory=True,
-                        num_workers=4,
+                        num_workers=num_workers,
                         collate_fn=lambda batch: collate_fn(batch, t), shuffle=False)
     elif dataset == 'pathmnist':
         import medmnist
@@ -97,25 +107,25 @@ def main(args):
                                 transform=t,
                                 root=train_path, 
                                 download=True)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False)
     elif dataset == 'tissuemnist':
         import medmnist
         ds = medmnist.TissueMNIST(split=split,
                                 transform=t,
                                 root=train_path, 
                                 download=True)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False)
     elif dataset == 'octmnist':
         import medmnist
         ds = medmnist.OCTMNIST(split=split,
                                 transform=t,
                                 root=train_path, 
                                 download=True)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False)
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False)
     elif dataset == 'cifar10':
         ds = datasets.load_dataset('uoft-cs/cifar10',
                                    split=split)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False,
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
                                         lbl_label='label'))
@@ -123,7 +133,7 @@ def main(args):
         assert split in ['train', 'validation']
         ds = datasets.load_dataset('ethz/food101', split=split)
         
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False,
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='image',
                                         lbl_label='label'))
@@ -135,7 +145,7 @@ def main(args):
         # ds = datasets.CIFAR100(train_path,
         #                            split=split,
         #                            transform=t)
-        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=4, shuffle=False,
+        dl = DataLoader(ds, batch_size=batch_size, pin_memory=True, num_workers=num_workers, shuffle=False,
                                    collate_fn=lambda batch: collate_fn(batch, t,
                                         img_label='img',
                                         lbl_label='label'))
@@ -163,6 +173,35 @@ def main(args):
         print('full_path already exists.:', full_path)
 
 
+    if args.eval:
+        train_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_{model_name.replace("-", "_")}.npy')
+        train_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_labels.npy')
+        test_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_{model_name.replace("-", "_")}.npy')
+        test_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_labels.npy')
+        
+        # Load the datasets and labels with warnings if paths are invalid
+        train_data = load_data_with_warning(train_path, "train embeddings")
+        train_labels = load_data_with_warning(train_labels_path, "train labels")
+        test_data = load_data_with_warning(test_path, "test embeddings")
+        test_labels = load_data_with_warning(test_labels_path, "test labels")
+
+        # Check if any of the data was not loaded due to missing files
+        if None in [train_data, train_labels, test_data, test_labels]:
+            print("Error: One or more datasets could not be loaded. Please check the warnings and the file paths.")
+        else:
+            # Define and train the Logistic Regression model
+            model = LogisticRegression(max_iter=1000)  # Increased max_iter for convergence
+            model.fit(train_data, train_labels)
+
+            # Make predictions on the test set
+            test_predictions = model.predict(test_data)
+
+            # Calculate accuracy
+            accuracy = accuracy_score(test_labels, test_predictions)
+            print(f'Test Accuracy {model_name} trained on {dataset}_{args.eval_train} and tested on {dataset}_{args.eval_test}: {accuracy * 100:.2f}%')
+        
+        
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='sup-rn50', choices=['sup-rn50',
@@ -172,12 +211,18 @@ if __name__ == '__main__':
                                                                 ])
     parser.add_argument('--image_size', default=224, type=int)
     parser.add_argument('--batch_size', default=32, type=int)
+    parser.add_argument('--num_workers', default=8, type=int)
     # parser.add_argument('--train_path', default='/network/datasets/imagenet.var/imagenet_torchvision/train/')
     parser.add_argument('--train_path', default='/network/scratch/f/feiziaar/.cache/huggingface/')
     parser.add_argument('--save_path', default='/network/scratch/f/feiziaar/ht-image-ssl/logs/cache/')
     parser.add_argument('--dataset', default='imagenet', choices=['aircrafts', 'food101', 'imagenet', 'pathmnist', 'octmnist', 'tissuemnist', 'cifar10', 'cifar100'])
     
     parser.add_argument('--split', default='train', choices=['train', 'val', 'trainval', 'test', 'train+validation', 'validation'])
+    
+    parser.add_argument('--eval', action="store_true", default=False)
+    parser.add_argument('--eval_train', default='train', choices=['train', 'trainval', 'train+validation'])
+    parser.add_argument('--eval_test', default='test', choices=['test', 'validation'])
+    
 
     args = parser.parse_args()
 
