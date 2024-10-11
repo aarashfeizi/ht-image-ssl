@@ -174,34 +174,37 @@ def main(args):
 
 
     if args.eval:
-        train_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_{model_name.replace("-", "_")}.npy')
-        train_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_labels.npy')
-        test_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_{model_name.replace("-", "_")}.npy')
-        test_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_labels.npy')
-        
-        # Load the datasets and labels with warnings if paths are invalid
-        train_data = load_data_with_warning(train_path, "train embeddings")
-        train_labels = load_data_with_warning(train_labels_path, "train labels")
-        test_data = load_data_with_warning(test_path, "test embeddings")
-        test_labels = load_data_with_warning(test_labels_path, "test labels")
-
-        
-        # Define and train the Logistic Regression model
-        model = LogisticRegression(max_iter=1000)  # Increased max_iter for convergence
-        model.fit(train_data, train_labels)
-
-        # Make predictions on the test set
-        test_predictions = model.predict(test_data)
-
-        # Calculate accuracy
-        accuracy = accuracy_score(test_labels, test_predictions)
-        acc_message = f'Test Accuracy {model_name} trained on {dataset}_{args.eval_train} and tested on {dataset}_{args.eval_test}: {accuracy * 100:.2f}%\n'
-        print(acc_message)
-
         # Save accuracy to a file
         file_name = os.path.join(save_path, f'LP_Acc_{model_name.replace("-", "_")}_{dataset}_Train-{args.eval_train}_Test-{args.eval_test}.txt')
-        with open(file_name, 'w') as f:
-            f.write(acc_message)
+        if not os.path.exists(file_name):
+            train_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_{model_name.replace("-", "_")}.npy')
+            train_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_train}_labels.npy')
+            test_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_{model_name.replace("-", "_")}.npy')
+            test_labels_path = os.path.join(save_path, f'{dataset}_{args.eval_test}_labels.npy')
+            
+            # Load the datasets and labels with warnings if paths are invalid
+            train_data = load_data_with_warning(train_path, "train embeddings")
+            train_labels = load_data_with_warning(train_labels_path, "train labels")
+            test_data = load_data_with_warning(test_path, "test embeddings")
+            test_labels = load_data_with_warning(test_labels_path, "test labels")
+
+            
+            # Define and train the Logistic Regression model
+            model = LogisticRegression(max_iter=1000)  # Increased max_iter for convergence
+            model.fit(train_data, train_labels)
+
+            # Make predictions on the test set
+            test_predictions = model.predict(test_data)
+
+            # Calculate accuracy
+            accuracy = accuracy_score(test_labels, test_predictions)
+            acc_message = f'Test Accuracy {model_name} trained on {dataset}_{args.eval_train} and tested on {dataset}_{args.eval_test}: {accuracy * 100:.2f}%\n'
+            print(acc_message)
+            
+            with open(file_name, 'w') as f:
+                f.write(acc_message)
+        else:
+            print(f'{file_name} already exists!')
         
 
 if __name__ == '__main__':
