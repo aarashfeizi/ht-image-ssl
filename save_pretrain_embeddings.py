@@ -202,7 +202,7 @@ def main(args):
             print(acc_message)
 
             # Save accuracy to a file
-            file_name = f'LP_Acc_{model_name.replace("-", "_")}_{dataset}_Train-{args.eval_train}_Test-{args.eval_test}.txt'
+            file_name = os.path.join(save_path, f'LP_Acc_{model_name.replace("-", "_")}_{dataset}_Train-{args.eval_train}_Test-{args.eval_test}.txt')
             with open(file_name, 'w') as f:
                 f.write(acc_message)
         
