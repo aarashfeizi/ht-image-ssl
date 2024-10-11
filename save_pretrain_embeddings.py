@@ -198,8 +198,13 @@ def main(args):
 
             # Calculate accuracy
             accuracy = accuracy_score(test_labels, test_predictions)
-            print(f'Test Accuracy {model_name} trained on {dataset}_{args.eval_train} and tested on {dataset}_{args.eval_test}: {accuracy * 100:.2f}%')
-        
+            acc_message = f'Test Accuracy {model_name} trained on {dataset}_{args.eval_train} and tested on {dataset}_{args.eval_test}: {accuracy * 100:.2f}%\n'
+            print(acc_message)
+
+            # Save accuracy to a file
+            file_name = f'LP_Acc_{model_name.replace("-", "_")}_{dataset}_Train-{args.eval_train}_Test-{args.eval_test}.txt'
+            with open(file_name, 'w') as f:
+                f.write(acc_message)
         
 
 if __name__ == '__main__':
